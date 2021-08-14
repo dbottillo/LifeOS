@@ -10,7 +10,7 @@ object Config {
     }
 
     object Android {
-        const val applicationId = "com.dbottillo.replacename"
+        const val applicationId = "com.dbottillo.notionalert"
         const val compileSdk = 30
         const val buildTools = "30.0.3"
         const val minSDk = 23

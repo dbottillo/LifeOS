@@ -37,14 +37,14 @@ def copy_feature_template():
 
 
 def create_feature_package():
-    os.mkdir(feature_data_path + "src/main/java/com/dbottillo/replacename/feature")
-    os.mkdir(feature_data_path + "src/test/java/com/dbottillo/replacename/feature")
-    os.mkdir(feature_path + "src/main/java/com/dbottillo/replacename/feature")
-    os.mkdir(feature_path + "src/test/java/com/dbottillo/replacename/feature")
-    os.mkdir(feature_data_path + "src/main/java/com/dbottillo/replacename/feature/" + feature_name)
-    os.mkdir(feature_data_path + "src/test/java/com/dbottillo/replacename/feature/" + feature_name)
-    os.mkdir(feature_path + "src/main/java/com/dbottillo/replacename/feature/" + feature_name)
-    os.mkdir(feature_path + "src/test/java/com/dbottillo/replacename/feature/" + feature_name)
+    os.mkdir(feature_data_path + "src/main/java/com/dbottillo/notionalert/feature")
+    os.mkdir(feature_data_path + "src/test/java/com/dbottillo/notionalert/feature")
+    os.mkdir(feature_path + "src/main/java/com/dbottillo/notionalert/feature")
+    os.mkdir(feature_path + "src/test/java/com/dbottillo/notionalert/feature")
+    os.mkdir(feature_data_path + "src/main/java/com/dbottillo/notionalert/feature/" + feature_name)
+    os.mkdir(feature_data_path + "src/test/java/com/dbottillo/notionalert/feature/" + feature_name)
+    os.mkdir(feature_path + "src/main/java/com/dbottillo/notionalert/feature/" + feature_name)
+    os.mkdir(feature_path + "src/test/java/com/dbottillo/notionalert/feature/" + feature_name)
 
 
 def format_files_content():
