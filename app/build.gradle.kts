@@ -1,3 +1,5 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -20,12 +22,15 @@ android {
     }
 
     buildTypes {
+        val notionKey = gradleLocalProperties(rootDir).getProperty("notion_key")
         getByName("debug") {
+            buildConfigField("String", "NOTION_KEY", notionKey)
             matchingFallbacks.add("release")
         }
         getByName("release") {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            buildConfigField("string", "NOTION_KEY", notionKey)
         }
     }
 
