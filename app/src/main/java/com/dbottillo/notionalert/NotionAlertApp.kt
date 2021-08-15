@@ -1,9 +1,6 @@
 package com.dbottillo.notionalert
 
 import android.app.Application
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import androidx.work.PeriodicWorkRequestBuilder
@@ -18,10 +15,13 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltAndroidApp
-class NotionAlertApp : Application(), androidx.work.Configuration.Provider {
+class NotionAlertApp : Application(), Configuration.Provider {
 
     @Inject
     lateinit var repository: HomeRepository
+
+    @Inject
+    lateinit var notificationProvider: NotificationProvider
 
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
@@ -29,7 +29,7 @@ class NotionAlertApp : Application(), androidx.work.Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
 
-        createNotificationChannel()
+        notificationProvider.createNotificationChannel()
 
         CoroutineScope(SupervisorJob() + Dispatchers.Main).launch {
             repository.init()
@@ -44,19 +44,6 @@ class NotionAlertApp : Application(), androidx.work.Configuration.Provider {
             )
                 .build()
         WorkManager.getInstance(this).enqueue(refreshRequest)
-    }
-
-    private fun createNotificationChannel() {
-        val name = getString(R.string.channel_name)
-        val descriptionText = getString(R.string.channel_description)
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel(CHANNEL_ID, name, importance).apply {
-            description = descriptionText
-        }
-        // Register the channel with the system
-        val notificationManager: NotificationManager =
-            getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(channel)
     }
 
     override fun getWorkManagerConfiguration() =

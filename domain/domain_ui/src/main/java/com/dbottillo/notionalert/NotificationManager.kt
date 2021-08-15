@@ -1,5 +1,7 @@
 package com.dbottillo.notionalert
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -18,7 +20,8 @@ class NotificationManager @Inject constructor(
                 getNotificationBuilder(
                     "Main Page",
                     text,
-                    NotificationCompat.PRIORITY_LOW
+                    NotificationCompat.PRIORITY_LOW,
+                    CHANNEL_MAIN_ID
                 ).build()
             )
         }
@@ -31,7 +34,8 @@ class NotificationManager @Inject constructor(
                 getNotificationBuilder(
                     "Next actions",
                     text,
-                    NotificationCompat.PRIORITY_DEFAULT
+                    NotificationCompat.PRIORITY_DEFAULT,
+                    CHANNEL_NEXT_ID
                 ).build()
             )
         }
@@ -44,12 +48,42 @@ class NotificationManager @Inject constructor(
         }
     }
 
+    override fun createNotificationChannel() {
+        createMainChannel()
+        createNextActionsChannel()
+    }
+
+    private fun createNextActionsChannel() {
+        val name = context.getString(R.string.channel_next_name)
+        val descriptionText = context.getString(R.string.channel_next_description)
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
+        val channel = NotificationChannel(CHANNEL_NEXT_ID, name, importance).apply {
+            description = descriptionText
+        }
+        val notificationManager: NotificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    private fun createMainChannel() {
+        val name = context.getString(R.string.channel_main_name)
+        val descriptionText = context.getString(R.string.channel_main_description)
+        val importance = NotificationManager.IMPORTANCE_LOW
+        val channel = NotificationChannel(CHANNEL_MAIN_ID, name, importance).apply {
+            description = descriptionText
+        }
+        val notificationManager: NotificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+    }
+
     private fun getNotificationBuilder(
         title: String,
         text: String,
-        priority: Int
+        priority: Int,
+        channelId: String
     ): NotificationCompat.Builder {
-        return NotificationCompat.Builder(context, CHANNEL_ID)
+        return NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(text)
