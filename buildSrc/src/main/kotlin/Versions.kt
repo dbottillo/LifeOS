@@ -12,7 +12,7 @@ object Versions {
         const val compat = "1.3.1"
         const val preference = "1.1.1"
         const val navigation = "2.3.5"
-        const val lifecycle = "2.3.1"
+        const val lifecycle = "2.4.0-alpha03"
         const val lifecycleExtensions = "2.2.0"
     }
 

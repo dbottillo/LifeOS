@@ -5,6 +5,7 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 
 interface ApiInterface {
-    @GET("/todos/{id}")
-    suspend fun getTodo(@Path(value = "id") todoId: Int): Response<Todo>
+
+    @GET("v1/pages/{id}")
+    suspend fun getPage(@Path(value = "id") pageId: String): Response<NotionPage>
 }
