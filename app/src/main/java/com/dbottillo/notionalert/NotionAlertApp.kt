@@ -22,10 +22,10 @@ class NotionAlertApp : Application(), androidx.work.Configuration.Provider {
 
     @Inject
     lateinit var repository: HomeRepository
+
     @Inject
     lateinit var workerFactory: HiltWorkerFactory
 
-    @Suppress("MagicNumber")
     override fun onCreate() {
         super.onCreate()
 
@@ -36,8 +36,12 @@ class NotionAlertApp : Application(), androidx.work.Configuration.Provider {
         }
 
         val refreshRequest =
-            PeriodicWorkRequestBuilder<RefreshWorker>(1, TimeUnit.HOURS, 15, TimeUnit.MINUTES)
-                .setInitialDelay(10, TimeUnit.MINUTES)
+            PeriodicWorkRequestBuilder<RefreshWorker>(
+                repeatInterval = REFRESH_WORKER_INTERVAL,
+                repeatIntervalTimeUnit = TimeUnit.MINUTES,
+                flexTimeInterval = REFRESH_WORKER_FLEX_INTERVAL,
+                flexTimeIntervalUnit = TimeUnit.MINUTES
+            )
                 .build()
         WorkManager.getInstance(this).enqueue(refreshRequest)
     }
@@ -60,3 +64,6 @@ class NotionAlertApp : Application(), androidx.work.Configuration.Provider {
             .setWorkerFactory(workerFactory)
             .build()
 }
+
+private const val REFRESH_WORKER_INTERVAL = 30L
+private const val REFRESH_WORKER_FLEX_INTERVAL = 15L

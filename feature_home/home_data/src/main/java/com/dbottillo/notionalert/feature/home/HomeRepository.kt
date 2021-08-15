@@ -113,7 +113,7 @@ class HomeRepository @Inject constructor(
         val info = storage.data.first()
         notificationProvider.updateNextActions(info.nextActions)
         notificationProvider.updateMainPage(info.mainPage)
-        state.emit(AppState.Restored(info.timeStamp))
+        info.timeStamp?.let { state.emit(AppState.Restored(it)) }
     }
 }
 

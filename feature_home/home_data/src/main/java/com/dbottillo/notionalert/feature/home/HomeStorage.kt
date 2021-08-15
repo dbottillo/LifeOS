@@ -15,5 +15,5 @@ interface HomeStorage {
 data class StorageInfo(
     val nextActions: String,
     val mainPage: String,
-    val timeStamp: OffsetDateTime
+    val timeStamp: OffsetDateTime?
 )

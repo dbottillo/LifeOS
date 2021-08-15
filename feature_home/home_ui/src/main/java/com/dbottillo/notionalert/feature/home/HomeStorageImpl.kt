@@ -25,8 +25,8 @@ class HomeStorageImpl constructor(
 
     override val data: Flow<StorageInfo> = context.dataStore.data
         .map { preferences ->
-            val value = preferences[TIMESTAMP] ?: ""
-            val timestamp = OffsetDateTime.parse(value, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+            val value = preferences[TIMESTAMP]
+            val timestamp = value?.let { OffsetDateTime.parse(value, DateTimeFormatter.ISO_OFFSET_DATE_TIME) }
             StorageInfo(
                 nextActions = preferences[NEXT_ACTIONS] ?: "Loading...",
                 mainPage = preferences[MAIN_PAGE] ?: "Loading...",

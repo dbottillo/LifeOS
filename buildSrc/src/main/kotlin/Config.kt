@@ -37,6 +37,7 @@ fun DependencyHandler.di() {
     add("implementation", "androidx.hilt:hilt-common:${Versions.hilt}")
     add("kapt", "com.google.dagger:hilt-compiler:${Versions.dagger}")
     add("implementation", "androidx.hilt:hilt-work:${Versions.hilt}")
+    add("kapt", "androidx.hilt:hilt-compiler:${Versions.hilt}")
 }
 
 fun DependencyHandler.test() {

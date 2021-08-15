@@ -21,7 +21,7 @@ object Versions {
     const val dagger = "2.38.1" // update also build.gradle.kts in buildSrc
     const val hilt = "1.0.0"
     const val leakCanary = "2.7"
-    const val workManager = "2.5.0"
+    const val workManager = "2.6.0-rc01"
 
     const val constraint_layout = "2.1.0"
 
