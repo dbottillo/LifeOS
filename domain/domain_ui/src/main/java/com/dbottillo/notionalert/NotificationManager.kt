@@ -18,7 +18,12 @@ class NotificationManager @Inject constructor(
         with(NotificationManagerCompat.from(context)) {
             notify(
                 MAIN_NOTIFICATION_ID,
-                getNotificationBuilder("Main Page", notionTitle.plainText).build()
+                getNotificationBuilder(
+                    "Main Page",
+                    notionTitle.plainText
+                        .replace("\n\n", " ")
+                        .replace("\n", " ")
+                ).build()
             )
         }
     }
