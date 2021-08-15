@@ -17,7 +17,8 @@ class NotificationManager @Inject constructor(
                 MAIN_NOTIFICATION_ID,
                 getNotificationBuilder(
                     "Main Page",
-                    text
+                    text,
+                    NotificationCompat.PRIORITY_LOW
                 ).build()
             )
         }
@@ -29,7 +30,8 @@ class NotificationManager @Inject constructor(
                 MAIN_DATABASE_ID,
                 getNotificationBuilder(
                     "Next actions",
-                    text
+                    text,
+                    NotificationCompat.PRIORITY_DEFAULT
                 ).build()
             )
         }
@@ -42,7 +44,11 @@ class NotificationManager @Inject constructor(
         }
     }
 
-    private fun getNotificationBuilder(title: String, text: String): NotificationCompat.Builder {
+    private fun getNotificationBuilder(
+        title: String,
+        text: String,
+        priority: Int
+    ): NotificationCompat.Builder {
         return NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
@@ -52,6 +58,6 @@ class NotificationManager @Inject constructor(
                     .bigText(text)
             )
             .setOngoing(true)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(priority)
     }
 }

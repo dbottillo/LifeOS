@@ -59,6 +59,7 @@ dependencies {
     di()
     network()
     debug()
+    workManager()
 
     test()
 

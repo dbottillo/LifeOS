@@ -4,19 +4,28 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.dbottillo.notionalert.feature.home.HomeRepository
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltAndroidApp
-class NotionAlertApp : Application() {
+class NotionAlertApp : Application(), androidx.work.Configuration.Provider {
 
-    @Inject lateinit var repository: HomeRepository
+    @Inject
+    lateinit var repository: HomeRepository
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
 
+    @Suppress("MagicNumber")
     override fun onCreate() {
         super.onCreate()
 
@@ -25,6 +34,12 @@ class NotionAlertApp : Application() {
         CoroutineScope(SupervisorJob() + Dispatchers.Main).launch {
             repository.init()
         }
+
+        val refreshRequest =
+            PeriodicWorkRequestBuilder<RefreshWorker>(1, TimeUnit.HOURS, 15, TimeUnit.MINUTES)
+                .setInitialDelay(10, TimeUnit.MINUTES)
+                .build()
+        WorkManager.getInstance(this).enqueue(refreshRequest)
     }
 
     private fun createNotificationChannel() {
@@ -39,4 +54,9 @@ class NotionAlertApp : Application() {
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
     }
+
+    override fun getWorkManagerConfiguration() =
+        Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
 }

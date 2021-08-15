@@ -34,7 +34,9 @@ fun DependencyHandler.core() {
 
 fun DependencyHandler.di() {
     add("implementation", "com.google.dagger:hilt-android:${Versions.dagger}")
+    add("implementation", "androidx.hilt:hilt-common:${Versions.hilt}")
     add("kapt", "com.google.dagger:hilt-compiler:${Versions.dagger}")
+    add("implementation", "androidx.hilt:hilt-work:${Versions.hilt}")
 }
 
 fun DependencyHandler.test() {
@@ -88,4 +90,9 @@ fun DependencyHandler.lifecycle() {
 
 fun DependencyHandler.debug(){
     add("debugImplementation", "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}")
+}
+
+fun DependencyHandler.workManager(){
+    add("implementation", "androidx.work:work-runtime:${Versions.workManager}")
+    add("implementation", "androidx.work:work-runtime-ktx:${Versions.workManager}")
 }
