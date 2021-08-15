@@ -13,7 +13,7 @@ object Config {
         const val applicationId = "com.dbottillo.notionalert"
         const val compileSdk = 30
         const val buildTools = "30.0.3"
-        const val minSDk = 23
+        const val minSDk = 26
         const val targetSdk = 30
         const val versionCode = 1
         const val versionName = "0.0.1"
@@ -73,6 +73,8 @@ fun DependencyHandler.ui() {
     add("implementation", "androidx.preference:preference:${Versions.AndroidX.preference}")
     add("implementation", "androidx.navigation:navigation-fragment-ktx:${Versions.AndroidX.navigation}")
     add("implementation", "androidx.navigation:navigation-ui-ktx:${Versions.AndroidX.navigation}")
+    add("implementation", "androidx.datastore:datastore:${Versions.AndroidX.dataStore}")
+    add("implementation", "androidx.datastore:datastore-preferences:${Versions.AndroidX.dataStore}")
 }
 
 fun DependencyHandler.lifecycle() {

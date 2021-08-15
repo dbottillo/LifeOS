@@ -1,14 +1,20 @@
 package com.dbottillo.notionalert.di
 
+import android.content.Context
 import com.dbottillo.notionalert.ApiInterface
 import com.dbottillo.notionalert.BuildConfig
 import com.dbottillo.notionalert.Navigator
 import com.dbottillo.notionalert.NavigatorImpl
+import com.dbottillo.notionalert.NotificationManager
+import com.dbottillo.notionalert.NotificationProvider
+import com.dbottillo.notionalert.feature.home.HomeStorage
+import com.dbottillo.notionalert.feature.home.HomeStorageImpl
 import com.dbottillo.notionalert.network.HeaderInterceptor
 import dagger.Lazy
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -53,5 +59,21 @@ class AppModule {
             builder.addInterceptor(interceptor)
         }
         return builder.build()
+    }
+
+    @Singleton
+    @Provides
+    fun provideHomeStorage(
+        @ApplicationContext appContext: Context
+    ): HomeStorage {
+        return HomeStorageImpl(appContext)
+    }
+
+    @Singleton
+    @Provides
+    fun provideNotificationManager(
+        @ApplicationContext appContext: Context
+    ): NotificationProvider {
+        return NotificationManager(appContext)
     }
 }
