@@ -11,18 +11,25 @@ class NotificationManager @Inject constructor(
     @ApplicationContext val context: Context
 ) : NotificationProvider {
 
-    override fun update(data: NotionPage) {
-        val nameProperty = data.properties["Name"]
-        val notionTitle = nameProperty?.title?.get(0)
-            ?: throw UnsupportedOperationException("notion title is null")
+    override fun updateMainPage(text: String) {
         with(NotificationManagerCompat.from(context)) {
             notify(
                 MAIN_NOTIFICATION_ID,
                 getNotificationBuilder(
                     "Main Page",
-                    notionTitle.plainText
-                        .replace("\n\n", " ")
-                        .replace("\n", " ")
+                    text
+                ).build()
+            )
+        }
+    }
+
+    override fun updateNextActions(text: String) {
+        with(NotificationManagerCompat.from(context)) {
+            notify(
+                MAIN_DATABASE_ID,
+                getNotificationBuilder(
+                    "Next actions",
+                    text
                 ).build()
             )
         }
@@ -31,6 +38,7 @@ class NotificationManager @Inject constructor(
     override fun clear() {
         with(NotificationManagerCompat.from(context)) {
             cancel(MAIN_NOTIFICATION_ID)
+            cancel(MAIN_DATABASE_ID)
         }
     }
 

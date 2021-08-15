@@ -24,3 +24,28 @@ data class NotionTitle(
     @Json(name = "plain_text")
     val plainText: String
 )
+
+@JsonClass(generateAdapter = true)
+class FilterRequest(
+    val filter: Map<String, Any> = mapOf(
+        "and" to listOf(
+            mapOf(
+                "property" to "Status",
+                "select" to mapOf(
+                    "equals" to "Next Actions"
+                )
+            ),
+            mapOf(
+                "property" to "Archived",
+                "checkbox" to mapOf(
+                    "equals" to false
+                )
+            )
+        )
+    )
+)
+
+@JsonClass(generateAdapter = true)
+class NotionDatabase(
+    val results: List<NotionPage>
+)
