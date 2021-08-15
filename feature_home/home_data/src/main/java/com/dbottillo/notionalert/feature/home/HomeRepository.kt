@@ -35,6 +35,7 @@ class HomeRepository @Inject constructor(
     ) {
         when (mainPageResult) {
             is ApiResult.Success -> {
+                storage.saveMainPage(mainPageResult.data)
                 notificationProvider.updateMainPage(mainPageResult.data)
                 processDatabaseResult(databaseResult)
             }
@@ -50,6 +51,7 @@ class HomeRepository @Inject constructor(
     private suspend fun processDatabaseResult(databaseResult: ApiResult<String>) {
         when (databaseResult) {
             is ApiResult.Success -> {
+                storage.saveNextActions(databaseResult.data)
                 notificationProvider.updateNextActions(databaseResult.data)
                 state.emit(AppState.Loaded(storage.timestamp.first()))
             }
@@ -106,6 +108,13 @@ class HomeRepository @Inject constructor(
             database.results.map { it.properties["Name"]?.title?.get(0)?.plainText }
         return titles.filterNotNull().joinToString("\n")
     }
+
+    suspend fun init() {
+        val info = storage.data.first()
+        notificationProvider.updateNextActions(info.nextActions)
+        notificationProvider.updateMainPage(info.mainPage)
+        state.emit(AppState.Restored(info.timeStamp))
+    }
 }
 
 sealed class AppState {
@@ -113,6 +122,7 @@ sealed class AppState {
     object Loading : AppState()
     data class Loaded(val timestamp: OffsetDateTime) : AppState()
     data class Error(val message: String, val timestamp: OffsetDateTime) : AppState()
+    data class Restored(val timestamp: OffsetDateTime) : AppState()
 }
 
 private const val MAIN_NOTION_PAGE_ID = "4be491b5ee164e299fa1f819825732be"

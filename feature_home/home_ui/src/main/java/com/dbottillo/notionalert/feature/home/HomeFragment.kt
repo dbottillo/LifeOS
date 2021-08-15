@@ -48,6 +48,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             is AppState.Loading -> "Loading"
             is AppState.Loaded -> "Success, last try: ${state.timestamp}"
             is AppState.Error -> "Error ${state.message}, last try: ${state.timestamp}"
+            is AppState.Restored -> "Restored, last try: ${state.timestamp}"
         }
     }
 }
