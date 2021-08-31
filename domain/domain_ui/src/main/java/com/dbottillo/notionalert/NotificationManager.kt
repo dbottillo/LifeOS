@@ -2,7 +2,10 @@ package com.dbottillo.notionalert
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.dbottillo.notionalert.domain.R
@@ -86,12 +89,21 @@ class NotificationManager @Inject constructor(
         return NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
-            .setContentText(text)
+            .setContentText(text.replace("\n", " · "))
             .setStyle(
                 NotificationCompat.BigTextStyle()
                     .bigText(text)
             )
             .setOngoing(true)
             .setPriority(priority)
+            .setContentIntent(PendingIntent.getActivity(context, 0, urlIntent, 0))
     }
+
+    private val urlIntent = Intent(
+        Intent.ACTION_VIEW,
+        Uri.parse(NOTION_NEXT_ACTIONS_LINK)
+    )
 }
+
+@Suppress("MaxLineLength")
+private const val NOTION_NEXT_ACTIONS_LINK = "https://www.notion.so/dbottillo/1ecf1aad5b75430686cb91676942e5f1?v=344ed86634eb4719bd3af351f0fff870"
