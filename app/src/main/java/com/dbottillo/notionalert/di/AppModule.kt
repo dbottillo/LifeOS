@@ -7,6 +7,8 @@ import com.dbottillo.notionalert.Navigator
 import com.dbottillo.notionalert.NavigatorImpl
 import com.dbottillo.notionalert.NotificationManager
 import com.dbottillo.notionalert.NotificationProvider
+import com.dbottillo.notionalert.RefreshManager
+import com.dbottillo.notionalert.RefreshProvider
 import com.dbottillo.notionalert.feature.home.HomeStorage
 import com.dbottillo.notionalert.feature.home.HomeStorageImpl
 import com.dbottillo.notionalert.network.HeaderInterceptor
@@ -75,5 +77,13 @@ class AppModule {
         @ApplicationContext appContext: Context
     ): NotificationProvider {
         return NotificationManager(appContext)
+    }
+
+    @Singleton
+    @Provides
+    fun provideRefreshManager(
+        @ApplicationContext appContext: Context
+    ): RefreshProvider {
+        return RefreshManager(appContext)
     }
 }

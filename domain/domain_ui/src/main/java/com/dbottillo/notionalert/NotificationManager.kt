@@ -13,7 +13,7 @@ class NotificationManager @Inject constructor(
     @ApplicationContext val context: Context
 ) : NotificationProvider {
 
-    override fun updateMainPage(text: String) {
+    private fun updateMainPage(text: String) {
         with(NotificationManagerCompat.from(context)) {
             notify(
                 MAIN_NOTIFICATION_ID,
@@ -49,7 +49,7 @@ class NotificationManager @Inject constructor(
     }
 
     override fun createNotificationChannel() {
-        createMainChannel()
+        // createMainChannel()
         createNextActionsChannel()
     }
 

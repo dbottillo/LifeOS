@@ -6,7 +6,6 @@ import com.dbottillo.notionalert.FilterRequest
 import com.dbottillo.notionalert.NotificationProvider
 import com.dbottillo.notionalert.NotionDatabase
 import com.dbottillo.notionalert.NotionPage
-import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -24,9 +23,10 @@ class HomeRepository @Inject constructor(
     suspend fun makeNetworkRequest() = coroutineScope {
         state.emit(AppState.Loading)
         storage.updateTimestamp()
-        val mainPage = async { fetchMainPage() }
+        /*val mainPage = async { fetchMainPage() }
         val nextActions = async { fetchNextActions() }
-        processResults(mainPage.await(), nextActions.await())
+        processResults(mainPage.await(), nextActions.await())*/
+        processDatabaseResult(fetchNextActions())
     }
 
     private suspend fun processResults(
@@ -36,7 +36,7 @@ class HomeRepository @Inject constructor(
         when (mainPageResult) {
             is ApiResult.Success -> {
                 storage.saveMainPage(mainPageResult.data)
-                notificationProvider.updateMainPage(mainPageResult.data)
+                // notificationProvider.updateMainPage(mainPageResult.data)
                 processDatabaseResult(databaseResult)
             }
             is ApiResult.Error -> state.emit(
@@ -112,7 +112,7 @@ class HomeRepository @Inject constructor(
     suspend fun init() {
         val info = storage.data.first()
         notificationProvider.updateNextActions(info.nextActions)
-        notificationProvider.updateMainPage(info.mainPage)
+        // notificationProvider.updateMainPage(info.mainPage)
         info.timeStamp?.let { state.emit(AppState.Restored(it)) }
     }
 }
