@@ -11,10 +11,10 @@ object Config {
 
     object Android {
         const val applicationId = "com.dbottillo.notionalert"
-        const val compileSdk = 30
-        const val buildTools = "30.0.3"
+        const val compileSdk = 31
+        const val buildTools = "31.0.0"
         const val minSDk = 26
-        const val targetSdk = 30
+        const val targetSdk = 31
         const val versionCode = 1
         const val versionName = "0.0.1"
     }

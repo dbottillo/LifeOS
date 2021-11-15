@@ -56,5 +56,5 @@ class HomeStorageImpl constructor(
 }
 
 private val TIMESTAMP = stringPreferencesKey("timestamp")
-private val NEXT_ACTIONS = stringPreferencesKey("nextActions")
+val NEXT_ACTIONS = stringPreferencesKey("nextActions")
 private val MAIN_PAGE = stringPreferencesKey("mainPage")
