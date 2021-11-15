@@ -37,7 +37,7 @@ class HomeRepository @Inject constructor(
         when (mainPageResult) {
             is ApiResult.Success -> {
                 storage.saveMainPage(mainPageResult.data)
-                //notificationProvider.updateMainPage(mainPageResult.data)
+                // notificationProvider.updateMainPage(mainPageResult.data)
                 processDatabaseResult(databaseResult)
             }
             is ApiResult.Error -> state.emit(

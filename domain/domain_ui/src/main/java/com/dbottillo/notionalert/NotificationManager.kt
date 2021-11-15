@@ -3,6 +3,7 @@ package com.dbottillo.notionalert
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -96,7 +97,7 @@ class NotificationManager @Inject constructor(
             )
             .setOngoing(true)
             .setPriority(priority)
-            .setContentIntent(PendingIntent.getActivity(context, 0, urlIntent, 0))
+            .setContentIntent(PendingIntent.getActivity(context, 0, urlIntent, FLAG_IMMUTABLE))
     }
 
     private val urlIntent = Intent(
