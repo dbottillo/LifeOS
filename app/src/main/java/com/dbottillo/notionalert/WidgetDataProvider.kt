@@ -1,7 +1,5 @@
 package com.dbottillo.notionalert
 
-import android.R.id.text1
-import android.R.layout.simple_list_item_1
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
@@ -35,9 +33,9 @@ class WidgetDataProvider(
     override fun getViewAt(position: Int): RemoteViews {
         val view = RemoteViews(
             context.packageName,
-            simple_list_item_1
+            R.layout.widget_row
         )
-        view.setTextViewText(text1, dataList[position])
+        view.setTextViewText(R.id.widget_row_id, dataList[position])
         return view
     }
 
