@@ -2,14 +2,11 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:padding="8dp"
-    android:background="@drawable/widget_background">
+    android:background="@drawable/widget_background"
+    android:padding="8dp">
 
-    <TextView
+    <ListView
         android:id="@+id/widget_next_actions"
-        android:textColor="@color/color_on_background"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:text="Widget text"/>
+        android:layout_height="match_parent" />
 </FrameLayout>

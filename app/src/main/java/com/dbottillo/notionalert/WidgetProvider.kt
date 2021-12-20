@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
+import androidx.annotation.NonNull
 import com.dbottillo.notionalert.feature.home.HomeStorage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -18,72 +19,35 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class WidgetProvider : AppWidgetProvider() {
 
-    // Based on: https://dev.to/inspire_coding/android-widgets-update-using-kotlin-flow-room-and-dagger-hilt-e0e
-
-    private val job = SupervisorJob()
-    private val coroutineScope = CoroutineScope(Dispatchers.IO + job)
-    @Inject
-    lateinit var homeStorage: HomeStorage
-
-   /* override fun onUpdate(
+    override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
-
-        appWidgetIds.forEach { appWidgetId ->
-            // Create an Intent to launch ExampleActivity.
-            *//* val pendingIntent: PendingIntent = PendingIntent.getActivity(
-                 *//**//* context = *//**//* context,
-                *//**//* requestCode = *//**//*  0,
-                *//**//* intent = *//**//* Intent(context, ExampleActivity::class.java),
-                *//**//* flags = *//**//* PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )*//*
-
-            val views: RemoteViews = RemoteViews(
-                context.packageName,
-                R.layout.widget
-            ).apply {
-                this.setTextViewText(R.id.widget_next_actions, "Loading...")
-
-                //val exampleData = runBlocking { context.dataStore.data.first() }
-
-            }
-
-            appWidgetManager.updateAppWidget(appWidgetId, views)
+        super.onUpdate(context, appWidgetManager, appWidgetIds)
+        appWidgetIds.forEach {
+            updateAppWidget(context, appWidgetManager, it)
         }
-    }*/
-
-    override fun onReceive(context: Context, intent: Intent?) {
-        super.onReceive(context, intent)
-
-        coroutineScope.launch {
-            homeStorage.data.collect {
-                val text = it.nextActions.replace("\n", "\n\n")
-
-                val appWidgetManager = AppWidgetManager.getInstance(context)
-                val man = AppWidgetManager.getInstance(context)
-                val ids = man.getAppWidgetIds(ComponentName(context, WidgetProvider::class.java))
-
-                for (appWidgetId in ids) {
-                    updateAppWidget(
-                        context, appWidgetManager, appWidgetId, text
-                    )
-                }
-            }
-        }
+        super.onUpdate(context, appWidgetManager, appWidgetIds)
     }
 
     private fun updateAppWidget(
         context: Context,
         appWidgetManager: AppWidgetManager,
-        appWidgetId: Int,
-        text: String
+        appWidgetId: Int
     ) {
-        // Construct the RemoteViews object
-        val views = RemoteViews(context.packageName, R.layout.widget).apply {
-            this.setTextViewText(R.id.widget_next_actions, text)
-        }
+        val views = RemoteViews(context.packageName, R.layout.widget)
+        setRemoteAdapter(context, views)
         appWidgetManager.updateAppWidget(appWidgetId, views)
+    }
+
+    private fun setRemoteAdapter(
+        context: Context,
+        @NonNull views: RemoteViews
+    ) {
+        views.setRemoteAdapter(
+            R.id.widget_next_actions,
+            Intent(context, WidgetService::class.java)
+        )
     }
 }
