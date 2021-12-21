@@ -7,7 +7,8 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import com.dbottillo.notionalert.feature.home.databinding.FragmentHomeBinding
+import com.dbottillo.notionalert.R
+import com.dbottillo.notionalert.databinding.FragmentHomeBinding
 import com.dbottillo.notionalert.viewBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect

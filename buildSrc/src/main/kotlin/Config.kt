@@ -78,6 +78,8 @@ fun DependencyHandler.ui() {
     add("implementation", "androidx.navigation:navigation-ui-ktx:${Versions.AndroidX.navigation}")
     add("implementation", "androidx.datastore:datastore:${Versions.AndroidX.dataStore}")
     add("implementation", "androidx.datastore:datastore-preferences:${Versions.AndroidX.dataStore}")
+    add("implementation", "androidx.datastore:datastore-core:${Versions.AndroidX.dataStore}")
+    add("implementation", "com.google.protobuf:protobuf-javalite:3.19.1")
 }
 
 fun DependencyHandler.lifecycle() {

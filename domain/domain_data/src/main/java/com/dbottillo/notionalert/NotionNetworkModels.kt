@@ -14,8 +14,10 @@ data class NotionPage(
 data class NotionProperty(
     val id: String,
     val type: String,
+    val title: List<NotionTitle>?,
     val checkbox: Boolean?,
-    val title: List<NotionTitle>?
+    @Json(name = "multi_select")
+    val multiSelect: List<MultiSelectPropertyOption>?
 )
 
 @JsonClass(generateAdapter = true)
@@ -46,6 +48,32 @@ class FilterRequest(
 )
 
 @JsonClass(generateAdapter = true)
-class NotionDatabase(
+class NotionDatabaseQueryResult(
     val results: List<NotionPage>
+)
+
+@JsonClass(generateAdapter = true)
+class NotionDatabase(
+    val id: String,
+    val properties: Map<String, NotionDatabaseProperty>
+)
+
+@JsonClass(generateAdapter = true)
+data class NotionDatabaseProperty(
+    val id: String,
+    val name: String,
+    @Json(name = "multi_select")
+    val multiSelect: List<MultiSelectProperty>?
+)
+
+@JsonClass(generateAdapter = true)
+data class MultiSelectProperty(
+    val options: List<MultiSelectPropertyOption>
+)
+
+@JsonClass(generateAdapter = true)
+data class MultiSelectPropertyOption(
+    val id: String,
+    val name: String,
+    val color: String
 )

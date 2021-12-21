@@ -2,7 +2,6 @@ package com.dbottillo.notionalert.di
 
 import android.content.Context
 import com.dbottillo.notionalert.ApiInterface
-import com.dbottillo.notionalert.BuildConfig
 import com.dbottillo.notionalert.Navigator
 import com.dbottillo.notionalert.NavigatorImpl
 import com.dbottillo.notionalert.NotificationManager
@@ -54,12 +53,11 @@ class AppModule {
     ): OkHttpClient {
         val builder = OkHttpClient.Builder()
             .addInterceptor(headerInterceptor)
-
-        if (BuildConfig.DEBUG) {
+        /*if (BuildConfig.DEBUG) {
             val interceptor = HttpLoggingInterceptor()
             interceptor.level = HttpLoggingInterceptor.Level.BODY
             builder.addInterceptor(interceptor)
-        }
+        }*/
         return builder.build()
     }
 

@@ -11,9 +11,12 @@ interface ApiInterface {
     @GET("v1/pages/{id}")
     suspend fun getPage(@Path(value = "id") pageId: String): Response<NotionPage>
 
+    @GET("v1/databases/{id}")
+    suspend fun getDatabase(@Path(value = "id") databaseId: String): Response<NotionDatabase>
+
     @POST("v1/databases/{id}/query")
     suspend fun queryDatabase(
         @Path(value = "id") databaseId: String,
         @Body body: FilterRequest
-    ): Response<NotionDatabase>
+    ): Response<NotionDatabaseQueryResult>
 }

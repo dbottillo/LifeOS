@@ -5,7 +5,8 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.dbottillo.notionalert.Navigator
-import com.dbottillo.notionalert.feature.home.databinding.ActivityMainBinding
+import com.dbottillo.notionalert.R
+import com.dbottillo.notionalert.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject

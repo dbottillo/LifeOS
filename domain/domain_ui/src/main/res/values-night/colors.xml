@@ -13,4 +13,13 @@
     <color name="surface_color">#1E1E1E</color>
     <color name="color_on_surface">#FFFFFF</color>
     <color name="color_on_background">#FFFFFF</color>
+
+    <color name="action_gray">#B8B8B8</color>
+    <color name="action_blue">#95BCF1</color>
+    <color name="action_green">#9BFB94</color>
+    <color name="action_red">#ED8585</color>
+    <color name="action_purple">#DD92FA</color>
+    <color name="action_pink">#FFBFF3</color>
+    <color name="action_yellow">#FFF29D</color>
+    <color name="action_orange">#FFBF96</color>
 </resources>

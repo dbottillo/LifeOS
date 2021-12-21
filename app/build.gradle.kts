@@ -1,10 +1,12 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import com.google.protobuf.gradle.*
 
 plugins {
     id("com.android.application")
     id("kotlin-android")
     id("kotlin-kapt")
     id("common-dagger-precompiled")
+    id("com.google.protobuf") version "0.8.18"
 }
 
 android {
@@ -19,6 +21,15 @@ android {
         versionName = Config.Android.versionName
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildFeatures {
+        buildConfig = true
+        aidl = false
+        renderScript = false
+        resValues = false
+        shaders = false
+        viewBinding = true
     }
 
     buildTypes {
@@ -49,10 +60,27 @@ android {
     }
 }
 
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.14.0:osx-x86_64"
+    }
+
+    // Generates the java Protobuf-lite code for the Protobufs in this project. See
+    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
+    // for more information.
+    generateProtoTasks {
+        all().forEach { task ->
+            task.plugins{
+                create("java") {
+                    option("lite")
+                }
+            }
+        }
+    }
+}
+
 dependencies {
     implementation(project(":domain:domain_ui"))
-    implementation(project(":feature_home:home_ui"))
-    implementation(project(":feature_home:home_data"))
     implementation(project(":feature_about:about_ui"))
     core()
     ui()

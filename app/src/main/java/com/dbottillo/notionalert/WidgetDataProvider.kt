@@ -2,11 +2,20 @@ package com.dbottillo.notionalert
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.ColorFilter
+import android.util.Log
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
+import androidx.core.content.ContextCompat
 import com.dbottillo.notionalert.feature.home.HomeStorage
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import android.graphics.PorterDuff
+
+import android.graphics.PorterDuffColorFilter
+
+
+
 
 class WidgetDataProvider(
     private val context: Context,
@@ -14,7 +23,7 @@ class WidgetDataProvider(
     private val homeStorage: HomeStorage
 ) : RemoteViewsService.RemoteViewsFactory {
 
-    private var dataList = mutableListOf<String>()
+    private var dataList = mutableListOf<Pair<String, Int>>()
 
     override fun onCreate() {
         initData()
@@ -35,7 +44,8 @@ class WidgetDataProvider(
             context.packageName,
             R.layout.widget_row
         )
-        view.setTextViewText(R.id.widget_row_id, dataList[position])
+        view.setTextViewText(R.id.widget_row_id, dataList[position].first)
+        view.setInt(R.id.widget_row_id, "setBackgroundResource", dataList[position].second)
         return view
     }
 
@@ -54,9 +64,23 @@ class WidgetDataProvider(
     private fun initData() {
         dataList.clear()
         runBlocking {
-            homeStorage.data.first().nextActions.split("\n").forEach { entry ->
-                dataList.add(entry)
+            homeStorage.nextActionsFlow.first().actionsList.forEach { entry ->
+                dataList.add(entry.text to entry.color.split(",").first().toDrawable())
             }
         }
+    }
+}
+
+private fun String.toDrawable(): Int {
+    return when(this){
+        "gray" -> R.drawable.widget_row_background_gray
+        "orange" -> R.drawable.widget_row_background_orange
+        "green" -> R.drawable.widget_row_background_green
+        "blue"  -> R.drawable.widget_row_background_blue
+        "red"  -> R.drawable.widget_row_background_red
+        "purple"  -> R.drawable.widget_row_background_purple
+        "pink"  -> R.drawable.widget_row_background_pink
+        "yellow"  -> R.drawable.widget_row_background_yellow
+        else -> R.drawable.widget_row_background
     }
 }

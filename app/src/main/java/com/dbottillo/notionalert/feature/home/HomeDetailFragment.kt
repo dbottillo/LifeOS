@@ -4,7 +4,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.dbottillo.notionalert.feature.home.databinding.FragmentDetailHomeBinding
+import com.dbottillo.notionalert.R
+import com.dbottillo.notionalert.databinding.FragmentDetailHomeBinding
 import com.dbottillo.notionalert.viewBinding
 
 class HomeDetailFragment : Fragment(R.layout.fragment_detail_home) {

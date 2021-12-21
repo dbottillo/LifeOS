@@ -10,7 +10,7 @@ class HeaderInterceptor @Inject constructor() : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val builder = chain.request().newBuilder()
         builder.addHeader(AUTHORIZATION, "$BEARER_TOKEN_PREFIX ${BuildConfig.NOTION_KEY}")
-        builder.addHeader("Notion-Version", "2021-05-13")
+        builder.addHeader("Notion-Version", "2021-08-16")
         return chain.proceed(builder.build())
     }
 
