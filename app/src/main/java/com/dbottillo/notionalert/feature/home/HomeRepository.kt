@@ -46,16 +46,22 @@ class HomeRepository @Inject constructor(
     private suspend fun storeAndNotify(
         result: NotionDatabaseQueryResult
     ) {
-        val nextActions = result.results.map {
+        val sortedActions = result.results.sortedBy { it.icon == null }
+        val nextActions = sortedActions.map { page ->
+            val name = page.properties["Name"]?.title?.get(0)?.plainText
+            val emoji = page.icon?.emoji ?: ""
+            val text = emoji + name
             NextAction.newBuilder().setColor(
-                it.properties["Type"]?.multiSelect!!.map { it.color }.joinToString(",")
-            ).setText(
-                it.properties["Name"]?.title?.get(0)?.plainText
-            ).build()
+                page.properties["Type"]?.multiSelect!!.joinToString(",") { it.color }
+            ).setText(text).build()
         }
         val titles =
-            result.results.map { it.properties["Name"]?.title?.get(0)?.plainText }
-        val notificationData = titles.filterNotNull().joinToString("\n")
+            sortedActions.map { page ->
+                val name = page.properties["Name"]?.title?.get(0)?.plainText
+                val emoji = page.icon?.emoji ?: ""
+                emoji + name
+            }
+        val notificationData = titles.joinToString("\n")
         storage.updateNextActions(nextActions)
         notificationProvider.updateNextActions(notificationData)
         state.emit(AppState.Loaded(storage.timestamp.first()))

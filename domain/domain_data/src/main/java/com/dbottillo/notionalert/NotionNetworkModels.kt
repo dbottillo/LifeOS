@@ -7,7 +7,14 @@ import com.squareup.moshi.JsonClass
 data class NotionPage(
     @Json(name = "object")
     val obj: String,
+    val icon: NotionPageIcon?,
     val properties: Map<String, NotionProperty>
+)
+
+@JsonClass(generateAdapter = true)
+data class NotionPageIcon(
+    val type: String?,
+    val emoji: String?
 )
 
 @JsonClass(generateAdapter = true)
