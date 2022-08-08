@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MaximumLineLength:com.dbottillo.notionalert.NotificationManager.kt:118</ID>
+    <ID>NoWildcardImports:build.gradle.kts:2</ID>
+    <ID>StringLiteralDuplication:Config.kt$"implementation"</ID>
+    <ID>StringLiteralDuplication:Config.kt$"testImplementation"</ID>
+    <ID>StringLiteralDuplication:Versions.kt$Versions.AndroidX$"1.0.0"</ID>
+    <ID>StringLiteralDuplication:build.gradle.kts$"engBuild"</ID>
+    <ID>StringLiteralDuplication:common-android-test-precompiled.gradle.kts$"testReleaseUnitTest"</ID>
+    <ID>WildcardImport:build.gradle.kts$import com.google.protobuf.gradle.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

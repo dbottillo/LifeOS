@@ -71,7 +71,7 @@ protobuf {
     // for more information.
     generateProtoTasks {
         all().forEach { task ->
-            task.plugins{
+            task.plugins {
                 create("java") {
                     option("lite")
                 }

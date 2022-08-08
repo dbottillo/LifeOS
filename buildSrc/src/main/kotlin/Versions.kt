@@ -2,7 +2,7 @@ object Versions {
     const val gradle = "4.0.1"
     const val androidGradlePlugin = "7.2.2" // update also build.gradle.kts in buildSrc
 
-    const val kotlin = "1.7.10"  // update also build.gradle.kts in buildSrc
+    const val kotlin = "1.7.10" // update also build.gradle.kts in buildSrc
     const val coroutines = "1.6.4"
 
     object AndroidX {

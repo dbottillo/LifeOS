@@ -60,7 +60,7 @@ fun DependencyHandler.network() {
     add("implementation", "com.squareup.okhttp3:logging-interceptor:${Versions.OkHttp.logging}")
     add("implementation", "com.squareup.retrofit2:retrofit:${Versions.Retrofit.core}")
     add("implementation", "com.squareup.retrofit2:converter-moshi:${Versions.Retrofit.moshi}")
-    add("implementation","com.squareup.moshi:moshi:${Versions.moshi}")
+    add("implementation", "com.squareup.moshi:moshi:${Versions.moshi}")
     add("kapt", "com.squareup.moshi:moshi-kotlin-codegen:${Versions.moshi}")
 }
 
@@ -91,11 +91,11 @@ fun DependencyHandler.lifecycle() {
     add("implementation", "androidx.lifecycle:lifecycle-runtime-ktx:${Versions.AndroidX.lifecycle}")
 }
 
-fun DependencyHandler.debug(){
+fun DependencyHandler.debug() {
     add("debugImplementation", "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}")
 }
 
-fun DependencyHandler.workManager(){
+fun DependencyHandler.workManager() {
     add("implementation", "androidx.work:work-runtime:${Versions.workManager}")
     add("implementation", "androidx.work:work-runtime-ktx:${Versions.workManager}")
 }

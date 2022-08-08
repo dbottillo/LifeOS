@@ -56,11 +56,13 @@ complexity:
   LongMethod:
     active: true
     threshold: 60
+    excludes: "**/test/**,**/androidTest/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt,**/*.json"
   LongParameterList:
     active: true
-    functionThreshold: 6
-    constructorThreshold: 6
+    functionThreshold: 10
+    constructorThreshold: 10
     ignoreDefaultParameters: false
+    ignoreAnnotated: ['Stable']
   MethodOverloading:
     active: false
     threshold: 6
@@ -85,6 +87,40 @@ complexity:
     ignoreDeprecated: false
     ignorePrivate: false
     ignoreOverridden: false
+
+comments:
+  active: true
+  AbsentOrWrongFileLicense:
+    active: false
+    licenseTemplateFile: 'license.template'
+    licenseTemplateIsRegex: false
+  CommentOverPrivateFunction:
+    active: false
+  CommentOverPrivateProperty:
+    active: false
+  DeprecatedBlockTag:
+    active: false
+  EndOfSentenceFormat:
+    active: false
+    endOfSentenceFormat: '([.?!][ \t\n\r\f<])|([.?!:]$)'
+  OutdatedDocumentation:
+    active: false
+    matchTypeParameters: true
+    matchDeclarationsOrder: true
+    allowParamOnConstructorProperties: false
+  UndocumentedPublicClass:
+    active: false
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
+    searchInNestedClass: true
+    searchInInnerClass: true
+    searchInInnerObject: true
+    searchInInnerInterface: true
+  UndocumentedPublicFunction:
+    active: false
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
+  UndocumentedPublicProperty:
+    active: false
+    excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
 
 empty-blocks:
   active: true
@@ -172,7 +208,7 @@ exceptions:
       - RuntimeException
 
 formatting:
-  active: false # use spotless instead
+  active: true # use spotless instead
   android: false
   autoCorrect: true
   AnnotationOnSeparateLine:
@@ -189,6 +225,7 @@ formatting:
   FinalNewline:
     active: true
     autoCorrect: true
+    excludes: "**/marshmallow/network/infrastructure/**"
   ImportOrdering:
     active: false
     autoCorrect: true
@@ -200,6 +237,7 @@ formatting:
   MaximumLineLength:
     active: true
     maxLineLength: 140
+    excludes: "**/marshmallow/network/apis/**,**/marshmallow/network/models/**"
   ModifierOrdering:
     active: true
     autoCorrect: true
@@ -209,9 +247,11 @@ formatting:
   NoBlankLineBeforeRbrace:
     active: true
     autoCorrect: true
+    excludes: "**/marshmallow/network/apis/**,**/marshmallow/network/models/**,**/marshmallow/network/infrastructure/**"
   NoConsecutiveBlankLines:
     active: true
     autoCorrect: true
+    excludes: "**/marshmallow/network/apis/**,**/marshmallow/network/models/**"
   NoEmptyClassBody:
     active: true
     autoCorrect: true
@@ -224,20 +264,24 @@ formatting:
   NoMultipleSpaces:
     active: true
     autoCorrect: true
+    excludes: "**/marshmallow/network/apis/**,**/marshmallow/network/models/**"
   NoSemicolons:
     active: true
     autoCorrect: true
   NoTrailingSpaces:
     active: true
     autoCorrect: true
+    excludes: "**/marshmallow/network/apis/**,**/marshmallow/network/models/**"
   NoUnitReturn:
     active: true
     autoCorrect: true
   NoUnusedImports:
     active: true
     autoCorrect: true
+    excludes: "**/marshmallow/network/apis/**,**/marshmallow/network/models/**"
   NoWildcardImports:
     active: true
+    excludes: "**/marshmallow/network/apis/**,**/marshmallow/network/models/**"
   PackageName:
     active: true
     autoCorrect: true
@@ -245,15 +289,19 @@ formatting:
     active: true
     autoCorrect: true
     indentSize: 4
+    excludes: "**/marshmallow/network/apis/**,**/marshmallow/network/models/**"
   SpacingAroundColon:
     active: true
     autoCorrect: true
+    excludes: "**/marshmallow/network/apis/**,**/marshmallow/network/models/**"
   SpacingAroundComma:
     active: true
     autoCorrect: true
+    excludes: "**/marshmallow/network/apis/**,**/marshmallow/network/models/**"
   SpacingAroundCurly:
     active: true
     autoCorrect: true
+    excludes: "**/marshmallow/network/apis/**,**/marshmallow/network/models/**"
   SpacingAroundDot:
     active: true
     autoCorrect: true
@@ -266,6 +314,7 @@ formatting:
   SpacingAroundParens:
     active: true
     autoCorrect: true
+    excludes: "**/marshmallow/network/apis/**,**/marshmallow/network/models/**"
   SpacingAroundRangeOperator:
     active: true
     autoCorrect: true
@@ -307,6 +356,7 @@ naming:
     functionPattern: '^([a-z$][a-zA-Z$0-9]*)|(`.*`)$'
     excludeClassPattern: '$^'
     ignoreOverridden: true
+    ignoreAnnotated: ['Composable']
   FunctionParameterNaming:
     active: true
     excludes: "**/test/**,**/androidTest/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt"
@@ -362,7 +412,7 @@ performance:
     excludes: "**/test/**,**/androidTest/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt"
   SpreadOperator:
     active: true
-    excludes: "**/test/**,**/androidTest/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt"
+    excludes: "**/test/**,**/androidTest/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt,**/network/infrastructure/**"
   UnnecessaryTemporaryInstantiation:
     active: true
 
@@ -467,6 +517,7 @@ style:
     active: false
   MaxLineLength:
     active: true
+    excludes: "**/network/apis/**,**/network/models/**,**/test/**,**/androidTest/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt"
     maxLineLength: 140
     excludePackageStatements: true
     excludeImportStatements: true
@@ -556,5 +607,5 @@ style:
     active: false
   WildcardImport:
     active: true
-    excludes: "**/test/**,**/androidTest/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt"
+    excludes: "**/test/**,**/androidTest/**,**/*.Test.kt,**/*.Spec.kt,**/*.Spek.kt,**/network/apis/**"
     excludeImports: 'java.util.*,kotlinx.android.synthetic.*'

@@ -3,4 +3,4 @@
 # Copy to .git/hooks in the project root
 # E.g. cp pre-push ../.git/hooks/ && chmod +x ../.git/hooks/pre-push
 
-./gradlew ktlintCheck detekt
+./gradlew detektAll

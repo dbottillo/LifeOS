@@ -47,7 +47,7 @@ class NotificationManager @Inject constructor(
         updateWidgets()
     }
 
-    private fun updateWidgets(){
+    private fun updateWidgets() {
         val appWidgetManager = AppWidgetManager.getInstance(context)
         val appWidgetIds = appWidgetManager.getAppWidgetIds(ComponentName(context, WidgetProvider::class.java))
         appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_next_actions)
