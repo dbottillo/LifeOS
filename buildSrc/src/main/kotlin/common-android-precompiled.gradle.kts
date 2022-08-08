@@ -49,12 +49,6 @@ android {
     variantFilter {
         ignore = buildType.name == "debug"
     }
-
-    lint {
-        xmlReport = false
-        lintConfig = file("$rootDir/config/lint/lint.xml")
-        isCheckDependencies = true
-    }
 }
 
 kapt {

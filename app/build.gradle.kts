@@ -6,7 +6,7 @@ plugins {
     id("kotlin-android")
     id("kotlin-kapt")
     id("common-dagger-precompiled")
-    id("com.google.protobuf") version "0.8.18"
+    id("com.google.protobuf") version "0.8.19"
 }
 
 android {
@@ -54,8 +54,9 @@ android {
         jvmTarget = "11"
     }
 
-    lintOptions {
+    lint {
         xmlReport = false
+        checkDependencies = true
         lintConfig = file("$rootDir/config/lint/lint.xml")
     }
 }

@@ -79,7 +79,7 @@ fun DependencyHandler.ui() {
     add("implementation", "androidx.datastore:datastore:${Versions.AndroidX.dataStore}")
     add("implementation", "androidx.datastore:datastore-preferences:${Versions.AndroidX.dataStore}")
     add("implementation", "androidx.datastore:datastore-core:${Versions.AndroidX.dataStore}")
-    add("implementation", "com.google.protobuf:protobuf-javalite:3.19.1")
+    add("implementation", "com.google.protobuf:protobuf-javalite:3.21.4")
 }
 
 fun DependencyHandler.lifecycle() {

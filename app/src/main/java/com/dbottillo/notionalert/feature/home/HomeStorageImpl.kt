@@ -30,8 +30,9 @@ class HomeStorageImpl constructor(
 
     override val timestamp: Flow<OffsetDateTime> = context.dataStore.data
         .map { preferences ->
-            val value = preferences[TIMESTAMP] ?: ""
-            OffsetDateTime.parse(value, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+            preferences[TIMESTAMP]?.let {
+                OffsetDateTime.parse(it, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+            } ?: run { OffsetDateTime.now() }
         }
 
     override val nextActionsFlow: Flow<NextActions> = context.nextActionsDataStore.data
