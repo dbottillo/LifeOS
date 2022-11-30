@@ -46,8 +46,8 @@ android {
         resources.excludes.add("META-INF/io.netty.versions.properties")
     }
 
-    variantFilter {
-        ignore = buildType.name == "debug"
+    androidComponents.beforeVariants {
+        it.enable = it.buildType != "debug"
     }
 }
 

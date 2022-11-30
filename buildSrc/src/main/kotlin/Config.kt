@@ -11,10 +11,10 @@ object Config {
 
     object Android {
         const val applicationId = "com.dbottillo.notionalert"
-        const val compileSdk = 31
-        const val buildTools = "31.0.0"
+        const val compileSdk = 33
+        const val buildTools = "33.0.0"
         const val minSDk = 26
-        const val targetSdk = 31
+        const val targetSdk = 33
         const val versionCode = 1
         const val versionName = "0.0.1"
     }
@@ -79,7 +79,7 @@ fun DependencyHandler.ui() {
     add("implementation", "androidx.datastore:datastore:${Versions.AndroidX.dataStore}")
     add("implementation", "androidx.datastore:datastore-preferences:${Versions.AndroidX.dataStore}")
     add("implementation", "androidx.datastore:datastore-core:${Versions.AndroidX.dataStore}")
-    add("implementation", "com.google.protobuf:protobuf-javalite:3.21.4")
+    add("implementation", "com.google.protobuf:protobuf-javalite:3.21.9")
 }
 
 fun DependencyHandler.lifecycle() {
