@@ -1,6 +1,7 @@
 package com.dbottillo.notionalert
 
 import android.content.Context
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -25,6 +26,11 @@ class RefreshManager @Inject constructor(
 
     override fun stop() {
         WorkManager.getInstance(context).cancelAllWork()
+    }
+
+    override fun immediate() {
+        val immediateRequest = OneTimeWorkRequestBuilder<RefreshWorker>().build()
+        WorkManager.getInstance(context).enqueue(immediateRequest)
     }
 }
 

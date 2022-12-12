@@ -84,3 +84,9 @@ data class MultiSelectPropertyOption(
     val name: String,
     val color: String
 )
+
+@JsonClass(generateAdapter = true)
+data class PocketGetResult(
+    val status: Int,
+    val list: Map<String, Any>
+)

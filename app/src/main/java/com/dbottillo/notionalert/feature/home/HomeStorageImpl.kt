@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.map
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Home")
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Home")
 
 private const val DATA_STORE_FILE_NAME = "next_actions.pb"
 

@@ -37,5 +37,38 @@
         app:layout_constraintTop_toBottomOf="@id/button_stop"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/pocket_log"/>
+
+    <TextView
+        android:id="@+id/pocket_log"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:text="Log 1"
+        android:gravity="center"
+        android:padding="16dp"
+        app:layout_constraintTop_toBottomOf="@id/log"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/pocket_log_error"/>
+    <TextView
+        android:id="@+id/pocket_log_error"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:text="Log 1"
+        android:gravity="center"
+        android:padding="16dp"
+        app:layout_constraintTop_toBottomOf="@id/log"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/connect_pocket"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@android:drawable/ic_menu_more" />
 </androidx.constraintlayout.widget.ConstraintLayout>

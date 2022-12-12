@@ -1,11 +1,6 @@
 package com.dbottillo.notionalert.feature.home
 
-import com.dbottillo.notionalert.ApiInterface
-import com.dbottillo.notionalert.ApiResult
-import com.dbottillo.notionalert.NotificationProvider
-import com.dbottillo.notionalert.NotionDatabaseQueryResult
-import com.dbottillo.notionalert.NextAction
-import com.dbottillo.notionalert.FilterRequest
+import com.dbottillo.notionalert.*
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -14,8 +9,10 @@ import javax.inject.Inject
 
 class HomeRepository @Inject constructor(
     private val api: ApiInterface,
+    private val pocketApi: PocketApiInterface,
     private val storage: HomeStorage,
-    private val notificationProvider: NotificationProvider
+    private val notificationProvider: NotificationProvider,
+    private val pocketStorage: PocketStorage
 ) {
 
     val state = MutableStateFlow<AppState>(AppState.Idle)
@@ -89,6 +86,66 @@ class HomeRepository @Inject constructor(
             nextActions.actionsOrBuilderList.joinToString("\n") { it.text }
         notificationProvider.updateNextActions(titles)
         storage.timestamp.first().let { state.emit(AppState.Restored(it)) }
+    }
+
+    suspend fun getPocketToken(): ApiResult<String> {
+        return try {
+            val response = pocketApi.oauthRequest(
+                consumerKey = BuildConfig.POCKET_CONSUMER_KEY,
+                redirectUri = "pocketapp104794:authorizationFinished"
+            )
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    return ApiResult.Success(body.string().split("=")[1])
+                }
+            }
+            ApiResult.Error(Throwable("${response.code()} ${response.message()}"))
+        } catch (e: Exception) {
+            ApiResult.Error(e)
+        }
+    }
+
+    suspend fun authorizePocket(code: String): ApiResult<Pair<String, String>> {
+        return try {
+            val response = pocketApi.oauthAuthorize(
+                consumerKey = BuildConfig.POCKET_CONSUMER_KEY,
+                code = code
+            )
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    val result = body.string().split("&")
+                    val accessToken = result[0].split("=")[1]
+                    val userName = result[1].split("=")[1]
+                    return ApiResult.Success(accessToken to userName)
+                }
+            }
+            ApiResult.Error(Throwable("${response.code()} ${response.message()}"))
+        } catch (e: Exception) {
+            ApiResult.Error(e)
+        }
+    }
+
+    suspend fun fetchPocketArticles() = coroutineScope {
+        val authorizationCode = pocketStorage.authorizationCodeFlow.first()
+        if (authorizationCode.isNotEmpty()) {
+            try {
+                val response = pocketApi.getArticles(
+                    consumerKey = BuildConfig.POCKET_CONSUMER_KEY,
+                    accessToken = authorizationCode
+                )
+                if (response.isSuccessful) {
+                    val body = response.body()
+                    if (body != null) {
+                        pocketStorage.updateNumberToRead(body.list.count())
+                    } else {
+                    }
+                } else {
+                }
+            } catch (e: Exception) {
+            }
+        }
     }
 }
 

@@ -1,14 +1,28 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" ?>
 <SmellBaseline>
-  <ManuallySuppressedIssues/>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
+    <ID>EmptyCatchBlock:HomeRepository.kt$HomeRepository${ }</ID>
+    <ID>EmptyElseBlock:HomeRepository.kt$HomeRepository${ }</ID>
     <ID>MaximumLineLength:com.dbottillo.notionalert.NotificationManager.kt:118</ID>
     <ID>NoWildcardImports:build.gradle.kts:2</ID>
+    <ID>NoWildcardImports:com.dbottillo.notionalert.PocketApiInterface.kt:5</ID>
+    <ID>NoWildcardImports:com.dbottillo.notionalert.di.AppModule.kt:4</ID>
+    <ID>NoWildcardImports:com.dbottillo.notionalert.feature.home.HomeRepository.kt:3</ID>
+    <ID>NoWildcardImports:com.dbottillo.notionalert.feature.home.HomeViewModel.kt:9</ID>
     <ID>StringLiteralDuplication:Config.kt$"implementation"</ID>
     <ID>StringLiteralDuplication:Config.kt$"testImplementation"</ID>
+    <ID>StringLiteralDuplication:HomeRepository.kt$HomeRepository$"${response.code()} ${response.message()}"</ID>
     <ID>StringLiteralDuplication:Versions.kt$Versions.AndroidX$"1.0.0"</ID>
+    <ID>StringLiteralDuplication:build.gradle.kts$"String"</ID>
     <ID>StringLiteralDuplication:build.gradle.kts$"engBuild"</ID>
     <ID>StringLiteralDuplication:common-android-test-precompiled.gradle.kts$"testReleaseUnitTest"</ID>
+    <ID>SwallowedException:HomeRepository.kt$HomeRepository$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:HomeRepository.kt$HomeRepository$e: Exception</ID>
+    <ID>WildcardImport:AppModule.kt$import com.dbottillo.notionalert.*</ID>
+    <ID>WildcardImport:HomeRepository.kt$import com.dbottillo.notionalert.*</ID>
+    <ID>WildcardImport:HomeViewModel.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:PocketApiInterface.kt$import retrofit2.http.*</ID>
     <ID>WildcardImport:build.gradle.kts$import com.google.protobuf.gradle.*</ID>
   </CurrentIssues>
 </SmellBaseline>
