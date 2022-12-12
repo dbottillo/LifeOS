@@ -1,5 +1,6 @@
 package com.dbottillo.notionalert
 
+import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
@@ -35,6 +36,15 @@ class PocketWidgetProvider : AppWidgetProvider() {
         val views = RemoteViews(context.packageName, R.layout.pocket_widget)
         val total = runBlocking { pocketStorage.numberToReadFlow.first().toString() }
         views.setTextViewText(R.id.pocket_widget_count, total)
+        context.packageManager.getLaunchIntentForPackage("com.ideashower.readitlater.pro")?.let {
+            val pendingIntent: PendingIntent = PendingIntent.getActivity(
+                /* context = */ context,
+                /* requestCode = */ 0,
+                /* intent = */ it,
+                /* flags = */ PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            views.setOnClickPendingIntent(R.id.pocket_widget_count, pendingIntent)
+        }
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 }

@@ -82,11 +82,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private fun openPocket(code: String) {
         startActivity(
             Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse(
-                "https://getpocket.com/auth/authorize?request_token=$code&redirect_uri=pocketapp104794:authorizationFinished"
+                Intent.ACTION_VIEW,
+                Uri.parse(
+                    "https://getpocket.com/auth/authorize?request_token=$code&redirect_uri=pocketapp104794:authorizationFinished"
+                )
             )
-        )
         )
     }
 
