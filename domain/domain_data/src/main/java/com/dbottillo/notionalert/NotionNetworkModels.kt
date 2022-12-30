@@ -37,19 +37,9 @@ data class NotionTitle(
 @JsonClass(generateAdapter = true)
 class FilterRequest(
     val filter: Map<String, Any> = mapOf(
-        "and" to listOf(
-            mapOf(
-                "property" to "Status",
-                "select" to mapOf(
-                    "equals" to "Next Actions"
-                )
-            ),
-            mapOf(
-                "property" to "Archived",
-                "checkbox" to mapOf(
-                    "equals" to false
-                )
-            )
+        "property" to "Status",
+        "status" to mapOf(
+            "equals" to "Next Actions"
         )
     )
 )
