@@ -17,7 +17,6 @@ if (rootProject.extra.get("engBuild") == "true") {
     println("eng build pattern on!")
 }
 
-apply(from = "githooks.gradle")
 apply(plugin = "com.github.ben-manes.versions")
 
 tasks {
