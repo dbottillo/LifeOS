@@ -16,6 +16,7 @@ class NotionRemoteViewsFactory(
 ) : RemoteViewsService.RemoteViewsFactory {
 
     private var dataList = mutableListOf<Pair<String, Int>>()
+    private var urls = mutableMapOf<Int, String>()
 
     override fun onCreate() {
         initData()
@@ -50,7 +51,7 @@ class NotionRemoteViewsFactory(
         view.setOnClickPendingIntent(R.id.widget_row_id, pendingIntent)*/
         val fillInIntent = Intent().apply {
             Bundle().also { extras ->
-                extras.putString(LINK_URL, "https://www.notion.so/TIH-Array-6aaf79f7251c4244849bd559256608e7")
+                extras.putString(LINK_URL, urls.getOrDefault(position, ""))
                 extras.putInt(EXTRA_ITEM, position)
                 putExtras(extras)
             }
@@ -76,8 +77,9 @@ class NotionRemoteViewsFactory(
     private fun initData() {
         dataList.clear()
         runBlocking {
-            homeStorage.nextActionsFlow.first().actionsList.forEach { entry ->
+            homeStorage.nextActionsFlow.first().actionsList.forEachIndexed { index, entry ->
                 dataList.add(entry.text to entry.color.split(",").first().toDrawable())
+                urls[index] = entry.url
             }
         }
     }

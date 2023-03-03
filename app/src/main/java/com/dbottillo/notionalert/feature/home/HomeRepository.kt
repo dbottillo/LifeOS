@@ -50,7 +50,7 @@ class HomeRepository @Inject constructor(
             val text = emoji + name
             NextAction.newBuilder().setColor(
                 page.properties["Type"]?.multiSelect!!.joinToString(",") { it.color }
-            ).setText(text).build()
+            ).setText(text).setUrl(page.url).build()
         }
         val titles =
             sortedActions.map { page ->

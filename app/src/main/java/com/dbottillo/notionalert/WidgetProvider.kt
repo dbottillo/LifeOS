@@ -6,10 +6,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.widget.ListView
 import android.widget.RemoteViews
-import android.widget.Toast
-import androidx.annotation.NonNull
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -43,7 +40,12 @@ class WidgetProvider : AppWidgetProvider() {
         linkIntent.action = LINK_ACTION
         linkIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
         intent.data = Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME))
-        val linkPendingIntent = PendingIntent.getBroadcast(context, 0, linkIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
+        val linkPendingIntent = PendingIntent.getBroadcast(
+            context,
+            0,
+            linkIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        )
         remoteView.setPendingIntentTemplate(R.id.widget_next_actions, linkPendingIntent)
 
         appWidgetManager.updateAppWidget(appWidgetId, remoteView)
@@ -52,15 +54,17 @@ class WidgetProvider : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == LINK_ACTION) {
             val link: String? = intent.getStringExtra(LINK_URL)
-            val viewIndex: Int = intent.getIntExtra(EXTRA_ITEM, 0)
-            Toast.makeText(context, "viewIndex: $viewIndex Link $link", Toast.LENGTH_SHORT).show()
+            link?.let {
+                val intentUrl = Intent(Intent.ACTION_VIEW)
+                intentUrl.data = Uri.parse(it)
+                intentUrl.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(intentUrl)
+            }
         }
         super.onReceive(context, intent)
     }
-
 }
 
 const val LINK_ACTION = "com.dbottillo.notionalert.list.LINK_ACTION"
 const val LINK_URL = "com.dbottillo.notionalert.list.LINK_URL"
 const val EXTRA_ITEM = "com.dbottillo.notionalert.list.EXTRA_ITEM"
-

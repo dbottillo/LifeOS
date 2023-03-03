@@ -10,4 +10,5 @@ message NextActions {
 message NextAction {
     string text = 1;
     string color = 2;
+    string url = 3;
 }
