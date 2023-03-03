@@ -2,13 +2,14 @@ package com.dbottillo.notionalert
 
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import com.dbottillo.notionalert.feature.home.HomeStorage
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
-class WidgetDataProvider(
+class NotionRemoteViewsFactory(
     private val context: Context,
     intent: Intent,
     private val homeStorage: HomeStorage
@@ -37,6 +38,26 @@ class WidgetDataProvider(
         )
         view.setTextViewText(R.id.widget_row_id, dataList[position].first)
         view.setInt(R.id.widget_row_id, "setBackgroundResource", dataList[position].second)
+        /*val pendingIntent: PendingIntent = PendingIntent.getActivity(
+            *//* context = *//* context,
+            *//* requestCode = *//* 0,
+            *//* intent = *//* Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://www.notion.so/TIH-Array-6aaf79f7251c4244849bd559256608e7")
+            ),
+            *//* flags = *//* PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        view.setOnClickPendingIntent(R.id.widget_row_id, pendingIntent)*/
+        val fillInIntent = Intent().apply {
+            Bundle().also { extras ->
+                extras.putString(LINK_URL, "https://www.notion.so/TIH-Array-6aaf79f7251c4244849bd559256608e7")
+                extras.putInt(EXTRA_ITEM, position)
+                putExtras(extras)
+            }
+        }
+        // Make it possible to distinguish the individual on-click
+        // action of a given item.
+        view.setOnClickFillInIntent(R.id.widget_row_id, fillInIntent)
         return view
     }
 

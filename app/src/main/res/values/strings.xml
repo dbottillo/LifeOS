@@ -10,4 +10,5 @@
     <string name="hello_home_detail_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="widget_description">Notion next actions</string>
     <string name="pocket_widget_description">Pocket unread count</string>
+    <string name="widget_empty_view_text">Loading...</string>
 </resources>

@@ -8,7 +8,8 @@ data class NotionPage(
     @Json(name = "object")
     val obj: String,
     val icon: NotionPageIcon?,
-    val properties: Map<String, NotionProperty>
+    val properties: Map<String, NotionProperty>,
+    val url: String
 )
 
 @JsonClass(generateAdapter = true)

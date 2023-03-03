@@ -12,6 +12,6 @@ class WidgetService : RemoteViewsService() {
     @Inject lateinit var homeStorage: HomeStorage
 
     override fun onGetViewFactory(intent: Intent): RemoteViewsFactory {
-        return WidgetDataProvider(this, intent, homeStorage)
+        return NotionRemoteViewsFactory(this, intent, homeStorage)
     }
 }
