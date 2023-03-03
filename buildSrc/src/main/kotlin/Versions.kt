@@ -43,5 +43,5 @@ object Versions {
     const val mockito_android = "3.8.0"
     const val junit = "5.9.2"
     const val truth = "1.1.3"
-    const val lint = "30.4.1"
+    const val lint = "30.4.2"
 }
