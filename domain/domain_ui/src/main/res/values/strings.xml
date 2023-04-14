@@ -1,7 +1,0 @@
-<resources>
-    <string name="app_name">Notion Alert</string>
-    <string name="channel_main_name">Main</string>
-    <string name="channel_main_description">Notion Alert - Main</string>
-    <string name="channel_next_name">Next actions</string>
-    <string name="channel_next_description">Notion Alert - Next actions</string>
-</resources>

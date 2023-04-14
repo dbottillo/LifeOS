@@ -11,4 +11,9 @@
     <string name="widget_description">Notion next actions</string>
     <string name="pocket_widget_description">Pocket unread count</string>
     <string name="widget_empty_view_text">Loading...</string>
+    <string name="app_name">Notion Alert</string>
+    <string name="channel_main_name">Main</string>
+    <string name="channel_main_description">Notion Alert - Main</string>
+    <string name="channel_next_name">Next actions</string>
+    <string name="channel_next_description">Notion Alert - Next actions</string>
 </resources>

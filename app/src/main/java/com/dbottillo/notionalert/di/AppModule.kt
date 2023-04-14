@@ -25,12 +25,6 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun provideNavigator(): Navigator {
-        return NavigatorImpl()
-    }
-
-    @Singleton
-    @Provides
     fun provideApiService(
         okHttpClient: Lazy<OkHttpClient>,
     ): ApiInterface {
