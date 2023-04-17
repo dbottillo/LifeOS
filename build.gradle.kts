@@ -1,8 +1,11 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
-    id("io.gitlab.arturbosch.detekt") version BuildPluginsVersion.DETEKT
-    id("com.github.ben-manes.versions") version BuildPluginsVersion.VERSIONS_PLUGIN
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.hilt) apply false
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.versions)
 }
 
 allprojects {
@@ -76,5 +79,5 @@ val detektAllBaseline by tasks.registering(io.gitlab.arturbosch.detekt.DetektCre
 }
 
 dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:${BuildPluginsVersion.DETEKT}")
+    detektPlugins(libs.detekt.formatting)
 }

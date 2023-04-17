@@ -33,7 +33,7 @@ class HomeViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, PocketState.Idle)
 
-    val pocketState = _pocketFlow as StateFlow<PocketState>
+    val pocketState = _pocketFlow
 
     fun load() {
         viewModelScope.launch {

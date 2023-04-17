@@ -2,27 +2,18 @@ package com.dbottillo.notionalert.feature.home
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.dbottillo.notionalert.NextAction
-import com.dbottillo.notionalert.NextActions
-import com.dbottillo.notionalert.NextActionsSerializer
+import com.dbottillo.notionalert.data.NextAction
+import com.dbottillo.notionalert.data.NextActions
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Home")
-
-private const val DATA_STORE_FILE_NAME = "next_actions.pb"
-
-val Context.nextActionsDataStore: DataStore<NextActions> by dataStore(
-    fileName = DATA_STORE_FILE_NAME,
-    serializer = NextActionsSerializer
-)
 
 class HomeStorageImpl constructor(
     private val context: Context
@@ -32,10 +23,26 @@ class HomeStorageImpl constructor(
         .map { preferences ->
             preferences[TIMESTAMP]?.let {
                 OffsetDateTime.parse(it, DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-            } ?: run { OffsetDateTime.now() }
+            } ?: OffsetDateTime.now()
         }
 
-    override val nextActionsFlow: Flow<NextActions> = context.nextActionsDataStore.data
+    override val nextActionsFlow: Flow<NextActions> = context.dataStore.data
+        .map { preferences ->
+            preferences[NEXT_ACTIONS]?.let {
+                val list = mutableListOf<NextAction>()
+                it.split("***").forEach {
+                    val split = it.split("###")
+                    list.add(
+                        NextAction(
+                        text = split[1],
+                        color = split[0],
+                        url = split[2]
+                    )
+                    )
+                }
+                NextActions(list)
+            } ?: NextActions(emptyList())
+    }
 
     override suspend fun updateTimestamp() {
         val now = OffsetDateTime.now()
@@ -46,10 +53,14 @@ class HomeStorageImpl constructor(
     }
 
     override suspend fun updateNextActions(nextActions: List<NextAction>) {
-        context.nextActionsDataStore.updateData { data ->
-            data.toBuilder().clearActions().addAllActions(nextActions).build()
+        context.dataStore.edit { settings ->
+            val joined = nextActions.joinToString(separator = "***") {
+                "${it.color}###${it.text}###${it.url}"
+            }
+            settings[NEXT_ACTIONS] = joined
         }
     }
 }
 
 private val TIMESTAMP = stringPreferencesKey("timestamp")
+private val NEXT_ACTIONS = stringPreferencesKey("next_actions")

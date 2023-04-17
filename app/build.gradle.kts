@@ -1,24 +1,22 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
-import com.google.protobuf.gradle.*
 
 plugins {
     id("com.android.application")
     id("kotlin-android")
     id("kotlin-kapt")
-    id("common-dagger-precompiled")
-    id("com.google.protobuf") version "0.8.19"
+    id("dagger.hilt.android.plugin")
 }
 
 android {
-    compileSdk = Config.Android.compileSdk
-    buildToolsVersion = Config.Android.buildTools
+    compileSdk = 33
+    buildToolsVersion = "33.0.0"
 
     defaultConfig {
-        applicationId = Config.Android.applicationId
-        minSdk = Config.Android.minSDk
-        targetSdk = Config.Android.targetSdk
-        versionCode = Config.Android.versionCode
-        versionName = Config.Android.versionName
+        applicationId = "com.dbottillo.notionalert"
+        minSdk = 26
+        targetSdk = 33
+        versionCode = 1
+        versionName = "0.0.1"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -49,12 +47,12 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 
     lint {
@@ -62,36 +60,20 @@ android {
         checkDependencies = true
         lintConfig = file("$rootDir/config/lint/lint.xml")
     }
-}
 
-protobuf {
-    protoc {
-        artifact = "com.google.protobuf:protoc:3.14.0:osx-x86_64"
-    }
-
-    // Generates the java Protobuf-lite code for the Protobufs in this project. See
-    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
-    // for more information.
-    generateProtoTasks {
-        all().forEach { task ->
-            task.plugins {
-                create("java") {
-                    option("lite")
-                }
-            }
-        }
-    }
+    namespace = "com.dbottillo.notionalert"
 }
 
 dependencies {
-    core()
-    ui()
-    di()
-    network()
-    debug()
-    workManager()
-
-    test()
+    implementation(libs.bundles.ui)
+    implementation(libs.bundles.network)
+    kapt(libs.moshi.codegen)
+    implementation(libs.bundles.old.ui)
+    implementation(libs.bundles.work.manager)
+    implementation(libs.bundles.hilt)
+    implementation(libs.bundles.datastore)
+    kapt(libs.dagger.hilt.compiler)
+    kapt(libs.hilt.compiler)
 }
 
 kapt {

@@ -77,7 +77,7 @@ class NotionRemoteViewsFactory(
     private fun initData() {
         dataList.clear()
         runBlocking {
-            homeStorage.nextActionsFlow.first().actionsList.forEachIndexed { index, entry ->
+            homeStorage.nextActionsFlow.first().actions.forEachIndexed { index, entry ->
                 dataList.add(entry.text to entry.color.split(",").first().toDrawable())
                 urls[index] = entry.url
             }

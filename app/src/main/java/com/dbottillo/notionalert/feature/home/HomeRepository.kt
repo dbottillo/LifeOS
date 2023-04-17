@@ -1,6 +1,7 @@
 package com.dbottillo.notionalert.feature.home
 
 import com.dbottillo.notionalert.*
+import com.dbottillo.notionalert.data.NextAction
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -48,9 +49,11 @@ class HomeRepository @Inject constructor(
             val name = page.properties["Name"]?.title?.get(0)?.plainText
             val emoji = page.icon?.emoji ?: ""
             val text = emoji + name
-            NextAction.newBuilder().setColor(
-                page.properties["Type"]?.multiSelect!!.joinToString(",") { it.color }
-            ).setText(text).setUrl(page.url).build()
+            NextAction(
+                color = page.properties["Type"]?.multiSelect!!.joinToString(",") { it.color },
+                text = text,
+                url = page.url
+            )
         }
         val titles =
             sortedActions.map { page ->
@@ -83,7 +86,7 @@ class HomeRepository @Inject constructor(
     suspend fun init() {
         val nextActions = storage.nextActionsFlow.first()
         val titles =
-            nextActions.actionsOrBuilderList.joinToString("\n") { it.text }
+            nextActions.actions.joinToString("\n") { it.text }
         notificationProvider.updateNextActions(titles)
         storage.timestamp.first().let { state.emit(AppState.Restored(it)) }
     }
