@@ -1,5 +1,6 @@
 package com.dbottillo.notionalert
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -8,7 +9,9 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -20,6 +23,13 @@ class NotificationManager @Inject constructor(
 
     private fun updateMainPage(text: String) {
         with(NotificationManagerCompat.from(context)) {
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return
+            }
             notify(
                 MAIN_NOTIFICATION_ID,
                 getNotificationBuilder(
@@ -34,6 +44,13 @@ class NotificationManager @Inject constructor(
 
     override fun updateNextActions(text: String) {
         with(NotificationManagerCompat.from(context)) {
+            if (ActivityCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                return
+            }
             notify(
                 MAIN_DATABASE_ID,
                 getNotificationBuilder(

@@ -40,13 +40,21 @@ class NotionRemoteViewsFactory(
         view.setTextViewText(R.id.widget_row_id, dataList[position].first)
         view.setInt(R.id.widget_row_id, "setBackgroundResource", dataList[position].second)
         /*val pendingIntent: PendingIntent = PendingIntent.getActivity(
-            *//* context = *//* context,
-            *//* requestCode = *//* 0,
-            *//* intent = *//* Intent(
+         */
+        /* context = */
+        /* context,
+         */
+        /* requestCode = */
+        /* 0,
+         */
+        /* intent = */
+        /* Intent(
                 Intent.ACTION_VIEW,
                 Uri.parse("https://www.notion.so/TIH-Array-6aaf79f7251c4244849bd559256608e7")
             ),
-            *//* flags = *//* PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+         */
+        /* flags = */
+        /* PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         view.setOnClickPendingIntent(R.id.widget_row_id, pendingIntent)*/
         val fillInIntent = Intent().apply {

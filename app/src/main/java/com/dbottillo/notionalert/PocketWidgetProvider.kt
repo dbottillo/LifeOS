@@ -38,10 +38,14 @@ class PocketWidgetProvider : AppWidgetProvider() {
         views.setTextViewText(R.id.pocket_widget_count, total)
         context.packageManager.getLaunchIntentForPackage("com.ideashower.readitlater.pro")?.let {
             val pendingIntent: PendingIntent = PendingIntent.getActivity(
-                /* context = */ context,
-                /* requestCode = */ 0,
-                /* intent = */ it,
-                /* flags = */ PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                /* context = */
+                context,
+                /* requestCode = */
+                0,
+                /* intent = */
+                it,
+                /* flags = */
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
             views.setOnClickPendingIntent(R.id.pocket_widget_count, pendingIntent)
         }

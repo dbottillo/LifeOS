@@ -25,7 +25,9 @@ data class NotionProperty(
     val title: List<NotionTitle>?,
     val checkbox: Boolean?,
     @Json(name = "multi_select")
-    val multiSelect: List<MultiSelectPropertyOption>?
+    val multiSelect: List<MultiSelectPropertyOption>?,
+    @Json(name = "select")
+    val select: MultiSelectPropertyOption?
 )
 
 @JsonClass(generateAdapter = true)
@@ -38,9 +40,19 @@ data class NotionTitle(
 @JsonClass(generateAdapter = true)
 class FilterRequest(
     val filter: Map<String, Any> = mapOf(
-        "property" to "Status",
-        "status" to mapOf(
-            "equals" to "Next Actions"
+        "or" to listOf(
+            mapOf(
+                "property" to "Status",
+                "status" to mapOf(
+                    "equals" to "Next Actions"
+                )
+            ),
+            mapOf(
+                "property" to "Status",
+                "status" to mapOf(
+                    "equals" to "Focus"
+                )
+            )
         )
     )
 )
@@ -61,7 +73,7 @@ data class NotionDatabaseProperty(
     val id: String,
     val name: String,
     @Json(name = "multi_select")
-    val multiSelect: List<MultiSelectProperty>?
+    val multiSelect: List<MultiSelectProperty>?,
 )
 
 @JsonClass(generateAdapter = true)
