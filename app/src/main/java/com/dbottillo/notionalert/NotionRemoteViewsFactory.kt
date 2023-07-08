@@ -9,6 +9,7 @@ import com.dbottillo.notionalert.feature.home.HomeStorage
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
+@Suppress("UNUSED_PARAMETER")
 class NotionRemoteViewsFactory(
     private val context: Context,
     intent: Intent,

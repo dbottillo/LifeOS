@@ -1,6 +1,12 @@
 package com.dbottillo.notionalert.feature.home
 
-import com.dbottillo.notionalert.*
+import com.dbottillo.notionalert.ApiInterface
+import com.dbottillo.notionalert.ApiResult
+import com.dbottillo.notionalert.BuildConfig
+import com.dbottillo.notionalert.FilterRequest
+import com.dbottillo.notionalert.NotificationProvider
+import com.dbottillo.notionalert.NotionDatabaseQueryResult
+import com.dbottillo.notionalert.PocketApiInterface
 import com.dbottillo.notionalert.data.NextAction
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,6 +38,7 @@ class HomeRepository @Inject constructor(
             is ApiResult.Success -> {
                 storeAndNotify(databaseResult.data)
             }
+
             is ApiResult.Error -> state.emit(
                 AppState.Error(
                     databaseResult.exception.localizedMessage ?: "",

@@ -1,7 +1,13 @@
 package com.dbottillo.notionalert.di
 
 import android.content.Context
-import com.dbottillo.notionalert.*
+import com.dbottillo.notionalert.ApiInterface
+import com.dbottillo.notionalert.BuildConfig
+import com.dbottillo.notionalert.NotificationManager
+import com.dbottillo.notionalert.NotificationProvider
+import com.dbottillo.notionalert.PocketApiInterface
+import com.dbottillo.notionalert.RefreshManager
+import com.dbottillo.notionalert.RefreshProvider
 import com.dbottillo.notionalert.feature.home.HomeStorage
 import com.dbottillo.notionalert.feature.home.HomeStorageImpl
 import com.dbottillo.notionalert.feature.home.PocketStorage
