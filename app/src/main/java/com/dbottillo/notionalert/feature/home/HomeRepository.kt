@@ -51,9 +51,9 @@ class HomeRepository @Inject constructor(
     private suspend fun storeAndNotify(
         result: NotionDatabaseQueryResult
     ) {
-        val sortedActions = result.results.sortedBy { it.icon == null }.filter {
-            it.properties["Category"]!!.select!!.name == "Task"
-        }
+        val sortedActions = result.results.filter {
+            it.properties["Category"]?.select?.name == "Task"
+        }.sortedBy { it.properties["Status"]?.status?.name }
         val nextActions = sortedActions.map { page ->
             val name = page.properties["Name"]?.title?.get(0)?.plainText
             val emoji = page.icon?.emoji ?: ""

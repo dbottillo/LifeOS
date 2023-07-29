@@ -27,7 +27,9 @@ data class NotionProperty(
     @Json(name = "multi_select")
     val multiSelect: List<MultiSelectPropertyOption>?,
     @Json(name = "select")
-    val select: MultiSelectPropertyOption?
+    val select: MultiSelectPropertyOption?,
+    @Json(name = "status")
+    val status: NotionStatus? = null
 )
 
 @JsonClass(generateAdapter = true)
@@ -35,6 +37,11 @@ data class NotionTitle(
     val type: String,
     @Json(name = "plain_text")
     val plainText: String
+)
+
+@JsonClass(generateAdapter = true)
+data class NotionStatus(
+    val name: String
 )
 
 @JsonClass(generateAdapter = true)
