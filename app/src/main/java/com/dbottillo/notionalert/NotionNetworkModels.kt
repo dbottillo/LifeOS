@@ -45,23 +45,35 @@ data class NotionStatus(
 )
 
 @JsonClass(generateAdapter = true)
+class NotionBodyRequest(
+    val filter: FilterRequest,
+    val sorts: List<SortRequest>
+)
+
+@JsonClass(generateAdapter = true)
 class FilterRequest(
-    val filter: Map<String, Any> = mapOf(
-        "or" to listOf(
-            mapOf(
-                "property" to "Status",
-                "status" to mapOf(
-                    "equals" to "Next Actions"
-                )
-            ),
-            mapOf(
-                "property" to "Status",
-                "status" to mapOf(
-                    "equals" to "Focus"
-                )
-            )
-        )
-    )
+    val property: String? = null,
+    val status: FilterSelectRequest? = null,
+    val date: FilterBeforeRequest? = null,
+    val or: List<FilterRequest>? = null,
+    val and: List<FilterRequest>? = null,
+    val select: FilterSelectRequest? = null
+)
+
+@JsonClass(generateAdapter = true)
+class FilterSelectRequest(
+    val equals: String
+)
+
+@JsonClass(generateAdapter = true)
+class FilterBeforeRequest(
+    val before: String
+)
+
+@JsonClass(generateAdapter = true)
+class SortRequest(
+    val property: String,
+    val direction: String
 )
 
 @JsonClass(generateAdapter = true)

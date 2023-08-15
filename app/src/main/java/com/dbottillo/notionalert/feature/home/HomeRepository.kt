@@ -3,15 +3,22 @@ package com.dbottillo.notionalert.feature.home
 import com.dbottillo.notionalert.ApiInterface
 import com.dbottillo.notionalert.ApiResult
 import com.dbottillo.notionalert.BuildConfig
+import com.dbottillo.notionalert.FilterBeforeRequest
 import com.dbottillo.notionalert.FilterRequest
+import com.dbottillo.notionalert.FilterSelectRequest
 import com.dbottillo.notionalert.NotificationProvider
+import com.dbottillo.notionalert.NotionBodyRequest
 import com.dbottillo.notionalert.NotionDatabaseQueryResult
 import com.dbottillo.notionalert.PocketApiInterface
+import com.dbottillo.notionalert.SortRequest
 import com.dbottillo.notionalert.data.NextAction
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import java.time.Instant
 import java.time.OffsetDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 class HomeRepository @Inject constructor(
@@ -51,10 +58,7 @@ class HomeRepository @Inject constructor(
     private suspend fun storeAndNotify(
         result: NotionDatabaseQueryResult
     ) {
-        val sortedActions = result.results.filter {
-            it.properties["Category"]?.select?.name == "Task"
-        }.sortedBy { it.properties["Status"]?.status?.name }
-        val nextActions = sortedActions.map { page ->
+        val nextActions = result.results.map { page ->
             val name = page.properties["Name"]?.title?.get(0)?.plainText
             val emoji = page.icon?.emoji ?: ""
             val text = emoji + name
@@ -65,7 +69,7 @@ class HomeRepository @Inject constructor(
             )
         }
         val titles =
-            sortedActions.map { page ->
+            result.results.map { page ->
                 val name = page.properties["Name"]?.title?.get(0)?.plainText
                 val emoji = page.icon?.emoji ?: ""
                 emoji + name
@@ -79,7 +83,52 @@ class HomeRepository @Inject constructor(
     @Suppress("TooGenericExceptionCaught")
     private suspend fun fetchNextActions(): ApiResult<NotionDatabaseQueryResult> {
         return try {
-            val response = api.queryDatabase(GTD_ONE_DATABASE_ID, FilterRequest())
+            val now = Instant.now()
+            val dtm = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
+            val date = dtm.format(now)
+            val request = NotionBodyRequest(
+                filter = FilterRequest(
+                    and = listOf(
+                        FilterRequest(
+                            property = "Category",
+                            select = FilterSelectRequest(
+                                equals = "Task"
+                            )
+                        ),
+                        FilterRequest(
+                            or = listOf(
+                                FilterRequest(
+                                    property = "Status",
+                                    status = FilterSelectRequest(
+                                        equals = "Focus"
+                                    )
+                                ),
+                                FilterRequest(
+                                    property = "Due",
+                                    date = FilterBeforeRequest(
+                                        before = date
+                                    )
+                                )
+                            )
+                        )
+                    )
+                ),
+                sorts = listOf(
+                    SortRequest(
+                        property = "Favourite",
+                        direction = "descending"
+                    ),
+                    SortRequest(
+                        property = "Status",
+                        direction = "ascending"
+                    ),
+                    SortRequest(
+                        property = "Due",
+                        direction = "ascending"
+                    )
+                )
+            )
+            val response = api.queryDatabase(GTD_ONE_DATABASE_ID, request)
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {

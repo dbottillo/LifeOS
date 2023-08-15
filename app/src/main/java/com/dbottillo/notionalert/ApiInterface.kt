@@ -17,6 +17,6 @@ interface ApiInterface {
     @POST("v1/databases/{id}/query")
     suspend fun queryDatabase(
         @Path(value = "id") databaseId: String,
-        @Body body: FilterRequest
+        @Body body: NotionBodyRequest
     ): Response<NotionDatabaseQueryResult>
 }
