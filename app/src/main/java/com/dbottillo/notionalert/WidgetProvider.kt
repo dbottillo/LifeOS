@@ -7,6 +7,8 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.RemoteViews
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -55,10 +57,15 @@ class WidgetProvider : AppWidgetProvider() {
         if (intent.action == LINK_ACTION) {
             val link: String? = intent.getStringExtra(LINK_URL)
             link?.let {
-                val intentUrl = Intent(Intent.ACTION_VIEW)
-                intentUrl.data = Uri.parse(it)
-                intentUrl.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intentUrl)
+                if (it == "refresh") {
+                    val immediateRequest = OneTimeWorkRequestBuilder<RefreshWorker>().build()
+                    WorkManager.getInstance(context).enqueue(immediateRequest)
+                } else {
+                    val intentUrl = Intent(Intent.ACTION_VIEW)
+                    intentUrl.data = Uri.parse(it)
+                    intentUrl.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    context.startActivity(intentUrl)
+                }
             }
         }
         super.onReceive(context, intent)

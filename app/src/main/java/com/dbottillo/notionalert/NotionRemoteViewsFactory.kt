@@ -31,33 +31,30 @@ class NotionRemoteViewsFactory(
     override fun onDestroy() {
     }
 
-    override fun getCount() = dataList.size
+    override fun getCount() = dataList.size + 1
 
     override fun getViewAt(position: Int): RemoteViews {
+        if (position == dataList.size) {
+            // last entry
+            val buttonView = RemoteViews(
+                context.packageName,
+                R.layout.notion_widget_add
+            )
+            val refreshIntent = Intent().apply {
+                Bundle().also { extras ->
+                    extras.putString(LINK_URL, "refresh")
+                    putExtras(extras)
+                }
+            }
+            buttonView.setOnClickFillInIntent(R.id.notion_widget_add_image_button, refreshIntent)
+            return buttonView
+        }
         val view = RemoteViews(
             context.packageName,
             R.layout.widget_row
         )
         view.setTextViewText(R.id.widget_row_id, dataList[position].first)
         view.setInt(R.id.widget_row_id, "setBackgroundResource", dataList[position].second)
-        /*val pendingIntent: PendingIntent = PendingIntent.getActivity(
-         */
-        /* context = */
-        /* context,
-         */
-        /* requestCode = */
-        /* 0,
-         */
-        /* intent = */
-        /* Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse("https://www.notion.so/TIH-Array-6aaf79f7251c4244849bd559256608e7")
-            ),
-         */
-        /* flags = */
-        /* PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        view.setOnClickPendingIntent(R.id.widget_row_id, pendingIntent)*/
         val fillInIntent = Intent().apply {
             Bundle().also { extras ->
                 extras.putString(LINK_URL, urls.getOrDefault(position, ""))
@@ -65,8 +62,7 @@ class NotionRemoteViewsFactory(
                 putExtras(extras)
             }
         }
-        // Make it possible to distinguish the individual on-click
-        // action of a given item.
+        // Make it possible to distinguish the individual on-click action of a given item.
         view.setOnClickFillInIntent(R.id.widget_row_id, fillInIntent)
         return view
     }
@@ -75,7 +71,7 @@ class NotionRemoteViewsFactory(
         return null
     }
 
-    override fun getViewTypeCount() = 1
+    override fun getViewTypeCount() = 2
 
     override fun getItemId(position: Int): Long {
         return position.toLong()
