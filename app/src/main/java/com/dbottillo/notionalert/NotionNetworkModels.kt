@@ -53,21 +53,28 @@ class NotionBodyRequest(
 @JsonClass(generateAdapter = true)
 class FilterRequest(
     val property: String? = null,
-    val status: FilterSelectRequest? = null,
+    val status: FilterEqualsRequest? = null,
     val date: FilterBeforeRequest? = null,
     val or: List<FilterRequest>? = null,
     val and: List<FilterRequest>? = null,
-    val select: FilterSelectRequest? = null
+    val select: FilterEqualsRequest? = null,
+    val checkbox: FilterCheckboxRequest? = null
 )
 
 @JsonClass(generateAdapter = true)
-class FilterSelectRequest(
+class FilterEqualsRequest(
     val equals: String
 )
 
 @JsonClass(generateAdapter = true)
 class FilterBeforeRequest(
-    val before: String
+    @Json(name = "on_or_before")
+    val onOrBefore: String
+)
+
+@JsonClass(generateAdapter = true)
+class FilterCheckboxRequest(
+    val equals: Boolean
 )
 
 @JsonClass(generateAdapter = true)

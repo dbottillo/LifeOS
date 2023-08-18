@@ -4,8 +4,9 @@ import com.dbottillo.notionalert.ApiInterface
 import com.dbottillo.notionalert.ApiResult
 import com.dbottillo.notionalert.BuildConfig
 import com.dbottillo.notionalert.FilterBeforeRequest
+import com.dbottillo.notionalert.FilterCheckboxRequest
 import com.dbottillo.notionalert.FilterRequest
-import com.dbottillo.notionalert.FilterSelectRequest
+import com.dbottillo.notionalert.FilterEqualsRequest
 import com.dbottillo.notionalert.NotificationProvider
 import com.dbottillo.notionalert.NotionBodyRequest
 import com.dbottillo.notionalert.NotionDatabaseQueryResult
@@ -59,7 +60,7 @@ class HomeRepository @Inject constructor(
         result: NotionDatabaseQueryResult
     ) {
         val nextActions = result.results.map { page ->
-            val name = page.properties["Name"]?.title?.get(0)?.plainText
+            val name = page.properties["Name"]?.title?.getOrNull(0)?.plainText ?: "No title"
             val emoji = page.icon?.emoji ?: ""
             val text = emoji + name
             NextAction(
@@ -70,7 +71,7 @@ class HomeRepository @Inject constructor(
         }
         val titles =
             result.results.map { page ->
-                val name = page.properties["Name"]?.title?.get(0)?.plainText
+                val name = page.properties["Name"]?.title?.getOrNull(0)?.plainText ?: "No title"
                 val emoji = page.icon?.emoji ?: ""
                 emoji + name
             }
@@ -80,7 +81,7 @@ class HomeRepository @Inject constructor(
         state.emit(AppState.Loaded(storage.timestamp.first()))
     }
 
-    @Suppress("TooGenericExceptionCaught")
+    @Suppress("TooGenericExceptionCaught", "LongMethod", "StringLiteralDuplication")
     private suspend fun fetchNextActions(): ApiResult<NotionDatabaseQueryResult> {
         return try {
             val now = Instant.now()
@@ -88,25 +89,49 @@ class HomeRepository @Inject constructor(
             val date = dtm.format(now)
             val request = NotionBodyRequest(
                 filter = FilterRequest(
-                    and = listOf(
+                    or = listOf(
                         FilterRequest(
-                            property = "Category",
-                            select = FilterSelectRequest(
-                                equals = "Task"
+                            and = listOf(
+                                FilterRequest(
+                                    property = "Due",
+                                    date = FilterBeforeRequest(onOrBefore = date)
+                                ),
+                                FilterRequest(
+                                    property = "Category",
+                                    select = FilterEqualsRequest(
+                                        equals = "Task"
+                                    )
+                                )
                             )
                         ),
                         FilterRequest(
-                            or = listOf(
+                            and = listOf(
                                 FilterRequest(
                                     property = "Status",
-                                    status = FilterSelectRequest(
+                                    status = FilterEqualsRequest(
                                         equals = "Focus"
                                     )
                                 ),
                                 FilterRequest(
-                                    property = "Due",
-                                    date = FilterBeforeRequest(
-                                        before = date
+                                    property = "Category",
+                                    select = FilterEqualsRequest(
+                                        equals = "Task"
+                                    )
+                                )
+                            )
+                        ),
+                        FilterRequest(
+                            and = listOf(
+                                FilterRequest(
+                                    property = "Status",
+                                    status = FilterEqualsRequest(
+                                        equals = "Inbox"
+                                    )
+                                ),
+                                FilterRequest(
+                                    property = "Favourite",
+                                    checkbox = FilterCheckboxRequest(
+                                        equals = false
                                     )
                                 )
                             )
