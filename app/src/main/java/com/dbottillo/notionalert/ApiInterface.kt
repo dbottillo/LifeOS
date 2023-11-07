@@ -19,4 +19,9 @@ interface ApiInterface {
         @Path(value = "id") databaseId: String,
         @Body body: NotionBodyRequest
     ): Response<NotionDatabaseQueryResult>
+
+    @POST("v1/pages")
+    suspend fun addPage(
+        @Body body: AddPageNotionBodyRequest
+    ): Response<Any>
 }

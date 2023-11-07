@@ -214,7 +214,7 @@ class HomeRepository @Inject constructor(
     }
 
     suspend fun fetchPocketArticles() = coroutineScope {
-        val authorizationCode = pocketStorage.authorizationCodeFlow.first()
+        /*val authorizationCode = pocketStorage.authorizationCodeFlow.first()
         if (authorizationCode.isNotEmpty()) {
             try {
                 val response = pocketApi.getArticles(
@@ -231,6 +231,25 @@ class HomeRepository @Inject constructor(
                 }
             } catch (e: Exception) {
             }
+        }*/
+        try {
+            val request = NotionBodyRequest(
+                filter = FilterRequest(
+                    property = "Read",
+                    checkbox = FilterCheckboxRequest(equals = false)
+                ),
+                sorts = emptyList()
+            )
+            val response = api.queryDatabase(POCKET_DATABASE_ID, request)
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    pocketStorage.updateNumberToRead(body.results.count())
+                }
+            }
+            ApiResult.Error(Throwable("${response.code()} ${response.message()}"))
+        } catch (e: Exception) {
+            ApiResult.Error(Throwable(e.message ?: e.toString()))
         }
     }
 }
@@ -243,4 +262,5 @@ sealed class AppState {
     data class Restored(val timestamp: OffsetDateTime) : AppState()
 }
 
-private const val GTD_ONE_DATABASE_ID = "1ecf1aad5b75430686cb91676942e5f1"
+const val GTD_ONE_DATABASE_ID = "1ecf1aad5b75430686cb91676942e5f1"
+const val POCKET_DATABASE_ID = "ef1963ca16574555874f5c3dc2523b61"

@@ -119,3 +119,42 @@ data class PocketGetResult(
     val status: Int,
     val list: Map<String, Any>
 )
+
+@JsonClass(generateAdapter = true)
+class AddPageNotionBodyRequest(
+    val parent: AddPageNotionBodyRequestParent,
+    val properties: Map<String, AddPageNotionProperty>,
+)
+
+@JsonClass(generateAdapter = true)
+data class AddPageNotionBodyRequestParent(
+    val type: String = "database_id",
+    @Json(name = "database_id") val databaseId: String
+)
+
+@JsonClass(generateAdapter = true)
+data class AddPageNotionProperty(
+    @Json(name = "rich_text") val richText: List<AddPageNotionPropertyRichText>? = null,
+    val title: List<AddPageNotionPropertyTitle>? = null,
+    val url: String? = null
+)
+
+@JsonClass(generateAdapter = true)
+data class AddPageNotionPropertyRichText(
+    val text: AddPageNotionPropertyText
+)
+
+@JsonClass(generateAdapter = true)
+data class AddPageNotionPropertyTitle(
+    val text: AddPageNotionPropertyText
+)
+
+@JsonClass(generateAdapter = true)
+data class AddPageNotionPropertyText(
+    val content: String?
+)
+
+@JsonClass(generateAdapter = true)
+data class AddPageNotionPropertyUrl(
+    val url: String
+)
