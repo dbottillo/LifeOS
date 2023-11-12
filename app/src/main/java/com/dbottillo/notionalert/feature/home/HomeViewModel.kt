@@ -43,6 +43,7 @@ class HomeViewModel @Inject constructor(
     fun load() {
         viewModelScope.launch {
             repository.makeNetworkRequest()
+            repository.fetchPocketArticles()
             refreshProvider.start()
         }
     }

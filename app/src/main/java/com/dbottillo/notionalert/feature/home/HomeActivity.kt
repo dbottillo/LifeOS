@@ -1,19 +1,69 @@
 package com.dbottillo.notionalert.feature.home
 
 import android.os.Bundle
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.dbottillo.notionalert.databinding.ActivityMainBinding
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 
+@ExperimentalMaterial3Api
 @AndroidEntryPoint
 class HomeActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    private val viewModel: HomeViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContent {
+            val state = viewModel.state.collectAsStateWithLifecycle()
+            Scaffold(
+                topBar = {
+                    TopAppBar(title = { Text("Notion companion") })
+                }
+            ) {
+                Column(
+                    modifier = Modifier.padding(it).fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Button(
+                        modifier = Modifier.padding(top = 24.dp),
+                        onClick = { viewModel.load() }
+                    ) {
+                        Text(text = "Load")
+                    }
+                    Button(
+                        modifier = Modifier.padding(top = 24.dp),
+                        onClick = { viewModel.removeNotification() }
+                    ) {
+                        Text(text = "Stop")
+                    }
+                    Text(
+                        modifier = Modifier.padding(top = 32.dp),
+                        text = when (val appState = state.value) {
+                            is AppState.Idle -> "Idle"
+                            is AppState.Loading -> "Loading"
+                            is AppState.Loaded -> "Success, last try: ${appState.timestamp}"
+                            is AppState.Error -> "Error ${appState.message}, last try: ${appState.timestamp}"
+                            is AppState.Restored -> "Restored, last try: ${appState.timestamp}"
+                        }
+                    )
+                }
+            }
+        }
+        /*binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setSupportActionBar(binding.toolbar)
+        setSupportActionBar(binding.toolbar)*/
     }
 }

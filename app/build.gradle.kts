@@ -27,7 +27,8 @@ android {
         renderScript = false
         resValues = false
         shaders = false
-        viewBinding = true
+        viewBinding = false
+        compose = true
     }
 
     buildTypes {
@@ -62,6 +63,10 @@ android {
     }
 
     namespace = "com.dbottillo.notionalert"
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.3"
+    }
 }
 
 dependencies {
@@ -72,6 +77,9 @@ dependencies {
     implementation(libs.bundles.work.manager)
     implementation(libs.bundles.hilt)
     implementation(libs.bundles.datastore)
+    val composeBom = platform(libs.androidx.compose.bom)
+    implementation(composeBom)
+    implementation(libs.bundles.compose.ui)
     kapt(libs.dagger.hilt.compiler)
     kapt(libs.hilt.compiler)
 }
