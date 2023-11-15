@@ -2,8 +2,26 @@ package com.dbottillo.notionalert.sharing
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.channels.consumeEach
@@ -26,19 +44,76 @@ class ShareLinkActivity : AppCompatActivity() {
         val url = intent.getStringExtra(Intent.EXTRA_TEXT)
         if (intent.action.equals(Intent.ACTION_SEND) && url != null) {
             val title = intent.getStringExtra(Intent.EXTRA_SUBJECT)
-            TODO("something with $title")
-            /*binding.sharingUrl.text = url
-            binding.sharingTitle.text = title
-
-            binding.sharingSaveArticle.setOnClickListener {
-                viewModel.saveArticle(url = url, title = title)
+            setContent {
+                ShareLinkScreen(
+                    url = url,
+                    title = title,
+                    saveArticle = viewModel::saveArticle,
+                    saveLifeOs = viewModel::saveLifeOs)
             }
-
-            binding.sharingSaveLifeOs.setOnClickListener {
-                viewModel.saveLifeOs(url = url, title = title)
-            }*/
         } else {
             finish()
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ShareLinkScreen(
+    url: String,
+    title: String?,
+    saveArticle: (String, String?) -> Unit,
+    saveLifeOs: (String, String?) -> Unit
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Notion companion") },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.DarkGray,
+                    titleContentColor = Color.White
+                )
+            )
+        }
+    ) {
+        Column(modifier = Modifier.padding(it)) {
+            Text(
+                modifier = Modifier.padding(top = 24.dp, start = 16.dp),
+                text = "Url: $url"
+            )
+            Text(
+                modifier = Modifier.padding(top = 24.dp, start = 16.dp),
+                text = "Title: $title"
+            )
+            Spacer(modifier = Modifier.weight(1f))
+            Row (
+                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(
+                    modifier = Modifier.padding(top = 24.dp),
+                    onClick = { saveArticle(url, title) }
+                ) {
+                    Text(text = "Article")
+                }
+                Button(
+                    modifier = Modifier.padding(top = 24.dp),
+                    onClick = { saveLifeOs(url, title) }
+                ) {
+                    Text(text = "Life Os")
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun ShareScreenPreview() {
+    ShareLinkScreen(
+        url = "https://www.google.com",
+        title = "Google",
+        saveArticle = { _,_ -> },
+        saveLifeOs = { _,_ -> },
+    )
 }
