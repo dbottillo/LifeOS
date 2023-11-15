@@ -13,13 +13,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.DarkGray
-import androidx.compose.ui.graphics.Color.Companion.Yellow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
@@ -40,7 +38,7 @@ class HomeActivity : AppCompatActivity() {
                         TopAppBar(
                             title = { Text("Notion companion") },
                             colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = Color.DarkGray,
+                                containerColor = DarkGray,
                                 titleContentColor = Color.White
                             )
                         )

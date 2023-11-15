@@ -21,7 +21,7 @@ class RefreshWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
             repository.makeNetworkRequest()
-            repository.fetchPocketArticles()
+            repository.fetchArticles()
             return@withContext Result.success()
         } catch (error: Throwable) {
             return@withContext Result.failure()

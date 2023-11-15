@@ -49,7 +49,8 @@ class ShareLinkActivity : AppCompatActivity() {
                     url = url,
                     title = title,
                     saveArticle = viewModel::saveArticle,
-                    saveLifeOs = viewModel::saveLifeOs)
+                    saveLifeOs = viewModel::saveLifeOs
+                )
             }
         } else {
             finish()
@@ -86,7 +87,7 @@ fun ShareLinkScreen(
                 text = "Title: $title"
             )
             Spacer(modifier = Modifier.weight(1f))
-            Row (
+            Row(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
@@ -113,7 +114,7 @@ fun ShareScreenPreview() {
     ShareLinkScreen(
         url = "https://www.google.com",
         title = "Google",
-        saveArticle = { _,_ -> },
-        saveLifeOs = { _,_ -> },
+        saveArticle = { _, _ -> },
+        saveLifeOs = { _, _ -> },
     )
 }

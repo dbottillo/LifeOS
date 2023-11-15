@@ -5,6 +5,8 @@ plugins {
     id("kotlin-android")
     id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.crashlytics)
 }
 
 android {
@@ -12,7 +14,7 @@ android {
     buildToolsVersion = "34.0.0"
 
     defaultConfig {
-        applicationId = "com.dbottillo.notionalert"
+        applicationId = "com.dbottillo.notioncompanion"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -77,9 +79,10 @@ dependencies {
     implementation(libs.bundles.work.manager)
     implementation(libs.bundles.hilt)
     implementation(libs.bundles.datastore)
-    val composeBom = platform(libs.androidx.compose.bom)
-    implementation(composeBom)
+    implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.compose.ui)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.bundles.firebase)
     kapt(libs.dagger.hilt.compiler)
     kapt(libs.hilt.compiler)
 }

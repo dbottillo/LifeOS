@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.detekt)
     alias(libs.plugins.versions)
+    alias(libs.plugins.google.services) apply false
+    alias(libs.plugins.crashlytics) apply false
 }
 
 allprojects {
@@ -24,6 +26,7 @@ apply(plugin = "com.github.ben-manes.versions")
 
 tasks {
     register("clean", Delete::class.java) {
+        @Suppress("DEPRECATION")
         delete(rootProject.buildDir)
     }
 

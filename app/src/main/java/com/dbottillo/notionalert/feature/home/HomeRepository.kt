@@ -213,25 +213,7 @@ class HomeRepository @Inject constructor(
         }
     }
 
-    suspend fun fetchPocketArticles() = coroutineScope {
-        /*val authorizationCode = pocketStorage.authorizationCodeFlow.first()
-        if (authorizationCode.isNotEmpty()) {
-            try {
-                val response = pocketApi.getArticles(
-                    consumerKey = BuildConfig.POCKET_CONSUMER_KEY,
-                    accessToken = authorizationCode
-                )
-                if (response.isSuccessful) {
-                    val body = response.body()
-                    if (body != null) {
-                        pocketStorage.updateNumberToRead(body.list.count())
-                    } else {
-                    }
-                } else {
-                }
-            } catch (e: Exception) {
-            }
-        }*/
+    suspend fun fetchArticles() = coroutineScope {
         try {
             val request = NotionBodyRequest(
                 filter = FilterRequest(
@@ -255,8 +237,8 @@ class HomeRepository @Inject constructor(
 }
 
 sealed class AppState {
-    object Idle : AppState()
-    object Loading : AppState()
+    data object Idle : AppState()
+    data object Loading : AppState()
     data class Loaded(val timestamp: OffsetDateTime) : AppState()
     data class Error(val message: String, val timestamp: OffsetDateTime) : AppState()
     data class Restored(val timestamp: OffsetDateTime) : AppState()
