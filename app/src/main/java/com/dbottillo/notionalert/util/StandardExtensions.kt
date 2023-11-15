@@ -1,4 +1,4 @@
-package com.dbottillo.notionalert
+package com.dbottillo.notionalert.util
 
 inline infix fun <T> T?.guard(block: () -> Nothing): T {
     return this ?: block()

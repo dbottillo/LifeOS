@@ -35,17 +35,14 @@ android {
 
     buildTypes {
         val notionKey = gradleLocalProperties(rootDir).getProperty("notion_key")
-        val pocketConsumerKey = gradleLocalProperties(rootDir).getProperty("pocket_consumer_key")
         getByName("debug") {
             buildConfigField("String", "NOTION_KEY", notionKey)
-            buildConfigField("String", "POCKET_CONSUMER_KEY", pocketConsumerKey)
             matchingFallbacks.add("release")
         }
         getByName("release") {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             buildConfigField("string", "NOTION_KEY", notionKey)
-            buildConfigField("String", "POCKET_CONSUMER_KEY", pocketConsumerKey)
         }
     }
 

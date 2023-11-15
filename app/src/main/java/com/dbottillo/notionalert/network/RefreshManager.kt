@@ -1,4 +1,4 @@
-package com.dbottillo.notionalert
+package com.dbottillo.notionalert.network
 
 import android.content.Context
 import androidx.work.OneTimeWorkRequestBuilder

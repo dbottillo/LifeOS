@@ -1,4 +1,4 @@
-package com.dbottillo.notionalert
+package com.dbottillo.notionalert.feature.widgets
 
 import android.content.Intent
 import android.widget.RemoteViewsService
@@ -7,11 +7,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class WidgetService : RemoteViewsService() {
+class NextActionsWidgetService : RemoteViewsService() {
 
     @Inject lateinit var homeStorage: HomeStorage
 
     override fun onGetViewFactory(intent: Intent): RemoteViewsFactory {
-        return NotionRemoteViewsFactory(this, intent, homeStorage)
+        return NextActionsRemoteViewsFactory(this, intent, homeStorage)
     }
 }

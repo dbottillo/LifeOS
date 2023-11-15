@@ -1,4 +1,4 @@
-package com.dbottillo.notionalert
+package com.dbottillo.notionalert.network
 
 import retrofit2.Response
 import retrofit2.http.Body

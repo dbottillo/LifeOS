@@ -1,17 +1,16 @@
 package com.dbottillo.notionalert.di
 
 import android.content.Context
-import com.dbottillo.notionalert.ApiInterface
+import com.dbottillo.notionalert.network.ApiInterface
 import com.dbottillo.notionalert.BuildConfig
-import com.dbottillo.notionalert.NotificationManager
-import com.dbottillo.notionalert.NotificationProvider
-import com.dbottillo.notionalert.PocketApiInterface
-import com.dbottillo.notionalert.RefreshManager
-import com.dbottillo.notionalert.RefreshProvider
+import com.dbottillo.notionalert.notification.NotificationManager
+import com.dbottillo.notionalert.notification.NotificationProvider
+import com.dbottillo.notionalert.network.RefreshManager
+import com.dbottillo.notionalert.network.RefreshProvider
 import com.dbottillo.notionalert.feature.home.HomeStorage
 import com.dbottillo.notionalert.feature.home.HomeStorageImpl
-import com.dbottillo.notionalert.feature.home.PocketStorage
-import com.dbottillo.notionalert.feature.home.PocketStorageImpl
+import com.dbottillo.notionalert.feature.home.ArticlesStorage
+import com.dbottillo.notionalert.feature.home.ArticlesStorageImpl
 import com.dbottillo.notionalert.network.HeaderInterceptor
 import dagger.Lazy
 import dagger.Module
@@ -44,19 +43,6 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun providePocketApiService(
-        okHttpClient: Lazy<OkHttpClient>,
-    ): PocketApiInterface {
-        return Retrofit.Builder()
-            .baseUrl("https://getpocket.com/")
-            .client(okHttpClient.get())
-            .addConverterFactory(MoshiConverterFactory.create())
-            .build()
-            .create(PocketApiInterface::class.java)
-    }
-
-    @Singleton
-    @Provides
     fun provideOkHttpClient(
         headerInterceptor: HeaderInterceptor
     ): OkHttpClient {
@@ -80,10 +66,10 @@ class AppModule {
 
     @Singleton
     @Provides
-    fun providePocketStorage(
+    fun provideArticlesStorage(
         @ApplicationContext appContext: Context
-    ): PocketStorage {
-        return PocketStorageImpl(appContext)
+    ): ArticlesStorage {
+        return ArticlesStorageImpl(appContext)
     }
 
     @Singleton

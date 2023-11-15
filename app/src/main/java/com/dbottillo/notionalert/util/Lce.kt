@@ -1,4 +1,4 @@
-package com.dbottillo.notionalert
+package com.dbottillo.notionalert.util
 
 sealed class Lce<out T> {
     object Loading : Lce<Nothing>()

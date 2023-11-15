@@ -17,18 +17,11 @@
 
         <activity
             android:name=".feature.home.HomeActivity"
-            android:label="@string/app_name"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="pocketapp104794" />
             </intent-filter>
         </activity>
 
@@ -46,25 +39,25 @@
             android:authorities="${applicationId}.androidx-startup"
             tools:node="remove"/>
 
-        <receiver android:name="WidgetProvider"
+        <receiver android:name=".feature.widgets.NextActionsWidgetProvider"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
-                android:resource="@xml/widget" />
+                android:resource="@xml/next_actions_widget" />
         </receiver>
 
-        <receiver android:name="PocketWidgetProvider"
+        <receiver android:name=".feature.widgets.ArticlesWidgetProvider"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data android:name="android.appwidget.provider"
-                android:resource="@xml/pocket_widget" />
+                android:resource="@xml/articles_widget" />
         </receiver>
 
-        <service android:name=".WidgetService"
+        <service android:name=".feature.widgets.NextActionsWidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
     </application>
 

@@ -1,15 +1,15 @@
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:minWidth="40dp"
+    android:minWidth="120dp"
     android:minHeight="40dp"
-    android:targetCellWidth="1"
+    android:targetCellWidth="2"
     android:targetCellHeight="1"
-    android:maxResizeWidth="120dp"
+    android:maxResizeWidth="250dp"
     android:maxResizeHeight="120dp"
     android:updatePeriodMillis="900000"
     android:description="@string/widget_description"
-    android:previewLayout="@layout/pocket_widget"
+    android:previewLayout="@layout/next_actions_widget"
     android:initialLayout="@layout/widget_loading"
     android:resizeMode="horizontal|vertical"
     android:widgetCategory="home_screen"
-    android:widgetFeatures="reconfigurable">
+    android:widgetFeatures="reconfigurable|configuration_optional">
 </appwidget-provider>

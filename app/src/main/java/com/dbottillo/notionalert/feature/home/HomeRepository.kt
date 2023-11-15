@@ -1,17 +1,15 @@
 package com.dbottillo.notionalert.feature.home
 
-import com.dbottillo.notionalert.ApiInterface
-import com.dbottillo.notionalert.ApiResult
-import com.dbottillo.notionalert.BuildConfig
-import com.dbottillo.notionalert.FilterBeforeRequest
-import com.dbottillo.notionalert.FilterCheckboxRequest
-import com.dbottillo.notionalert.FilterRequest
-import com.dbottillo.notionalert.FilterEqualsRequest
-import com.dbottillo.notionalert.NotificationProvider
-import com.dbottillo.notionalert.NotionBodyRequest
-import com.dbottillo.notionalert.NotionDatabaseQueryResult
-import com.dbottillo.notionalert.PocketApiInterface
-import com.dbottillo.notionalert.SortRequest
+import com.dbottillo.notionalert.network.ApiInterface
+import com.dbottillo.notionalert.network.ApiResult
+import com.dbottillo.notionalert.network.FilterBeforeRequest
+import com.dbottillo.notionalert.network.FilterCheckboxRequest
+import com.dbottillo.notionalert.network.FilterRequest
+import com.dbottillo.notionalert.network.FilterEqualsRequest
+import com.dbottillo.notionalert.notification.NotificationProvider
+import com.dbottillo.notionalert.network.NotionBodyRequest
+import com.dbottillo.notionalert.network.NotionDatabaseQueryResult
+import com.dbottillo.notionalert.network.SortRequest
 import com.dbottillo.notionalert.data.NextAction
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,10 +22,9 @@ import javax.inject.Inject
 
 class HomeRepository @Inject constructor(
     private val api: ApiInterface,
-    private val pocketApi: PocketApiInterface,
     private val storage: HomeStorage,
     private val notificationProvider: NotificationProvider,
-    private val pocketStorage: PocketStorage
+    private val articlesStorage: ArticlesStorage
 ) {
 
     val state = MutableStateFlow<AppState>(AppState.Idle)
@@ -174,45 +171,6 @@ class HomeRepository @Inject constructor(
         storage.timestamp.first().let { state.emit(AppState.Restored(it)) }
     }
 
-    suspend fun getPocketToken(): ApiResult<String> {
-        return try {
-            val response = pocketApi.oauthRequest(
-                consumerKey = BuildConfig.POCKET_CONSUMER_KEY,
-                redirectUri = "pocketapp104794:authorizationFinished"
-            )
-            if (response.isSuccessful) {
-                val body = response.body()
-                if (body != null) {
-                    return ApiResult.Success(body.string().split("=")[1])
-                }
-            }
-            ApiResult.Error(Throwable("${response.code()} ${response.message()}"))
-        } catch (e: Exception) {
-            ApiResult.Error(e)
-        }
-    }
-
-    suspend fun authorizePocket(code: String): ApiResult<Pair<String, String>> {
-        return try {
-            val response = pocketApi.oauthAuthorize(
-                consumerKey = BuildConfig.POCKET_CONSUMER_KEY,
-                code = code
-            )
-            if (response.isSuccessful) {
-                val body = response.body()
-                if (body != null) {
-                    val result = body.string().split("&")
-                    val accessToken = result[0].split("=")[1]
-                    val userName = result[1].split("=")[1]
-                    return ApiResult.Success(accessToken to userName)
-                }
-            }
-            ApiResult.Error(Throwable("${response.code()} ${response.message()}"))
-        } catch (e: Exception) {
-            ApiResult.Error(e)
-        }
-    }
-
     suspend fun fetchArticles() = coroutineScope {
         try {
             val request = NotionBodyRequest(
@@ -222,11 +180,11 @@ class HomeRepository @Inject constructor(
                 ),
                 sorts = emptyList()
             )
-            val response = api.queryDatabase(POCKET_DATABASE_ID, request)
+            val response = api.queryDatabase(ARTICLES_DATABASE_ID, request)
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {
-                    pocketStorage.updateNumberToRead(body.results.count())
+                    articlesStorage.updateNumberToRead(body.results.count())
                 }
             }
             ApiResult.Error(Throwable("${response.code()} ${response.message()}"))
@@ -245,4 +203,4 @@ sealed class AppState {
 }
 
 const val GTD_ONE_DATABASE_ID = "1ecf1aad5b75430686cb91676942e5f1"
-const val POCKET_DATABASE_ID = "ef1963ca16574555874f5c3dc2523b61"
+const val ARTICLES_DATABASE_ID = "ef1963ca16574555874f5c3dc2523b61"

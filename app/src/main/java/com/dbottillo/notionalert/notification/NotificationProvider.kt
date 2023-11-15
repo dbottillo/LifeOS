@@ -1,4 +1,4 @@
-package com.dbottillo.notionalert
+package com.dbottillo.notionalert.notification
 
 interface NotificationProvider {
     fun updateNextActions(text: String)

@@ -1,4 +1,4 @@
-package com.dbottillo.notionalert
+package com.dbottillo.notionalert.network
 
 interface RefreshProvider {
     fun start()

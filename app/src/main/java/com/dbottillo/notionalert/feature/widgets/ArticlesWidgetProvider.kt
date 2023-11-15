@@ -1,4 +1,4 @@
-package com.dbottillo.notionalert
+package com.dbottillo.notionalert.feature.widgets
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -7,16 +7,17 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.RemoteViews
-import com.dbottillo.notionalert.feature.home.PocketStorage
+import com.dbottillo.notionalert.R
+import com.dbottillo.notionalert.feature.home.ArticlesStorage
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class PocketWidgetProvider : AppWidgetProvider() {
+class ArticlesWidgetProvider : AppWidgetProvider() {
 
-    @Inject lateinit var pocketStorage: PocketStorage
+    @Inject lateinit var articlesStorage: ArticlesStorage
 
     override fun onUpdate(
         context: Context,
@@ -35,32 +36,9 @@ class PocketWidgetProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetId: Int
     ) {
-        val views = RemoteViews(context.packageName, R.layout.pocket_widget)
-        val total = runBlocking { pocketStorage.numberToReadFlow.first().toString() }
-        views.setTextViewText(R.id.pocket_widget_count, total)
-        /*context.packageManager.getLaunchIntentForPackage("com.ideashower.readitlater.pro")?.let {
-            val pendingIntent: PendingIntent = PendingIntent.getActivity(
-         */
-        /* context = */
-        /*
-                context,
-         */
-        /* requestCode = */
-        /*
-                0,
-         */
-        /* intent = */
-        /*
-                it,
-         */
-        /* flags = */
-        /*
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-            )
-            views.setOnClickPendingIntent(R.id.pocket_widget_count, pendingIntent)
-        }
-        appWidgetManager.updateAppWidget(appWidgetId, views)*/
-
+        val views = RemoteViews(context.packageName, R.layout.articles_widget)
+        val total = runBlocking { articlesStorage.numberToReadFlow.first().toString() }
+        views.setTextViewText(R.id.articles_widget_count, total)
         val intent =
             Intent(
                 Intent.ACTION_VIEW,
@@ -74,7 +52,7 @@ class PocketWidgetProvider : AppWidgetProvider() {
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        views.setOnClickPendingIntent(R.id.pocket_widget_count, pendingIntent)
+        views.setOnClickPendingIntent(R.id.articles_widget_count, pendingIntent)
 
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }

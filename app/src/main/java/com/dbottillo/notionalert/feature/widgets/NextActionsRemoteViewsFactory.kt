@@ -1,16 +1,17 @@
-package com.dbottillo.notionalert
+package com.dbottillo.notionalert.feature.widgets
 
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
+import com.dbottillo.notionalert.R
 import com.dbottillo.notionalert.feature.home.HomeStorage
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
 @Suppress("UNUSED_PARAMETER")
-class NotionRemoteViewsFactory(
+class NextActionsRemoteViewsFactory(
     private val context: Context,
     intent: Intent,
     private val homeStorage: HomeStorage

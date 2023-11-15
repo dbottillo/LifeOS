@@ -1,4 +1,4 @@
-package com.dbottillo.notionalert
+package com.dbottillo.notionalert.notification
 
 import android.Manifest
 import android.app.NotificationChannel
@@ -14,6 +14,8 @@ import android.net.Uri
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.dbottillo.notionalert.R
+import com.dbottillo.notionalert.feature.widgets.NextActionsWidgetProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -66,7 +68,9 @@ class NotificationManager @Inject constructor(
 
     private fun updateWidgets() {
         val appWidgetManager = AppWidgetManager.getInstance(context)
-        val appWidgetIds = appWidgetManager.getAppWidgetIds(ComponentName(context, WidgetProvider::class.java))
+        val appWidgetIds = appWidgetManager.getAppWidgetIds(
+            ComponentName(context, NextActionsWidgetProvider::class.java)
+        )
         appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_next_actions)
     }
 

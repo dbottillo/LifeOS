@@ -1,4 +1,4 @@
-package com.dbottillo.notionalert
+package com.dbottillo.notionalert.network
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -112,12 +112,6 @@ data class MultiSelectPropertyOption(
     val id: String,
     val name: String,
     val color: String
-)
-
-@JsonClass(generateAdapter = true)
-data class PocketGetResult(
-    val status: Int,
-    val list: Map<String, Any>
 )
 
 @JsonClass(generateAdapter = true)

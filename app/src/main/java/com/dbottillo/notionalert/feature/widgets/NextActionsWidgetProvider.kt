@@ -1,4 +1,4 @@
-package com.dbottillo.notionalert
+package com.dbottillo.notionalert.feature.widgets
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -9,10 +9,12 @@ import android.net.Uri
 import android.widget.RemoteViews
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
+import com.dbottillo.notionalert.R
+import com.dbottillo.notionalert.network.RefreshWorker
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class WidgetProvider : AppWidgetProvider() {
+class NextActionsWidgetProvider : AppWidgetProvider() {
 
     override fun onUpdate(
         context: Context,
@@ -30,15 +32,15 @@ class WidgetProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetId: Int
     ) {
-        val intent = Intent(context, WidgetService::class.java).apply {
+        val intent = Intent(context, NextActionsWidgetService::class.java).apply {
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
         }
-        val remoteView = RemoteViews(context.packageName, R.layout.widget).apply {
+        val remoteView = RemoteViews(context.packageName, R.layout.next_actions_widget).apply {
             setRemoteAdapter(R.id.widget_next_actions, intent)
             setEmptyView(R.id.widget_next_actions, R.id.empty_view)
         }
 
-        val linkIntent = Intent(context, WidgetProvider::class.java)
+        val linkIntent = Intent(context, NextActionsWidgetProvider::class.java)
         linkIntent.action = LINK_ACTION
         linkIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
         intent.data = Uri.parse(intent.toUri(Intent.URI_INTENT_SCHEME))

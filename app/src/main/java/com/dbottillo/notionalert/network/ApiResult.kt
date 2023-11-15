@@ -1,4 +1,4 @@
-package com.dbottillo.notionalert
+package com.dbottillo.notionalert.network
 
 sealed class ApiResult<out R> {
     data class Success<out T>(val data: T) : ApiResult<T>()

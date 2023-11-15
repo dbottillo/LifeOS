@@ -1,4 +1,4 @@
-package com.dbottillo.notionalert
+package com.dbottillo.notionalert.notification
 
 const val CHANNEL_MAIN_ID = "NotionAlertMainChannelId"
 const val CHANNEL_NEXT_ID = "NotionAlertNextChannelId"

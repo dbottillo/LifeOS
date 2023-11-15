@@ -2,8 +2,8 @@ package com.dbottillo.notionalert.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dbottillo.notionalert.NotificationProvider
-import com.dbottillo.notionalert.RefreshProvider
+import com.dbottillo.notionalert.notification.NotificationProvider
+import com.dbottillo.notionalert.network.RefreshProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
