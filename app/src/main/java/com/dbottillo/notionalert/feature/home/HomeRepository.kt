@@ -175,8 +175,20 @@ class HomeRepository @Inject constructor(
         try {
             val request = NotionBodyRequest(
                 filter = FilterRequest(
-                    property = "Read",
-                    checkbox = FilterCheckboxRequest(equals = false)
+                    or = listOf(
+                        FilterRequest(
+                            property = "Status",
+                            status = FilterEqualsRequest(
+                                equals = "Inbox"
+                            )
+                        ),
+                        FilterRequest(
+                            property = "Status",
+                            status = FilterEqualsRequest(
+                                equals = "Long read"
+                            )
+                        )
+                    )
                 ),
                 sorts = emptyList()
             )
