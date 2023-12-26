@@ -22,7 +22,9 @@ import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class HomeRepository @Inject constructor(
     private val api: ApiInterface,
     private val storage: HomeStorage,
@@ -217,7 +219,7 @@ class HomeRepository @Inject constructor(
         }
     }
 
-    suspend fun articles(): Flow<List<Article>> {
+    fun articles(): Flow<List<Article>> {
         return db.articleDao().getAll()
     }
 }

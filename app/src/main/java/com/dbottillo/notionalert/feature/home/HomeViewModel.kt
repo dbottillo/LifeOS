@@ -2,6 +2,7 @@ package com.dbottillo.notionalert.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkInfo
 import com.dbottillo.notionalert.db.Article
 import com.dbottillo.notionalert.notification.NotificationProvider
 import com.dbottillo.notionalert.network.RefreshProvider
@@ -22,36 +23,39 @@ class HomeViewModel @Inject constructor(
 
     val state = MutableStateFlow<HomeState>(
         HomeState(
-        appState = AppState.Idle,
-        articles = emptyList()
-    )
+            appState = AppState.Idle,
+            articles = emptyList(),
+            workInfo = emptyList()
+        )
     )
 
     init {
         viewModelScope.launch {
-            repository.state.combine(repository.articles()) { appState, articles ->
-                appState to articles
+            combine(
+                repository.state,
+                repository.articles(),
+                refreshProvider.workManagerStatus()
+            ) { appState, articles, workManagerStatus ->
+                Triple(appState, articles, workManagerStatus)
             }.collectLatest {
                 state.value = state.first().copy(
                     appState = it.first,
-                    articles = it.second
+                    articles = it.second,
+                    workInfo = it.third
                 )
             }
         }
+        refreshProvider.start()
     }
 
     fun load() {
-        viewModelScope.launch {
-            repository.makeNetworkRequest()
-            repository.fetchArticles()
-            refreshProvider.start()
-        }
+        refreshProvider.immediate()
     }
 
-    fun removeNotification() {
+    fun stop() {
         notificationProvider.clear()
         refreshProvider.stop()
     }
 }
 
-data class HomeState(val appState: AppState, val articles: List<Article>)
+data class HomeState(val appState: AppState, val articles: List<Article>, val workInfo: List<WorkInfo>)
