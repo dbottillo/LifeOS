@@ -8,7 +8,7 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.RemoteViews
 import com.dbottillo.notionalert.R
-import com.dbottillo.notionalert.feature.home.ArticlesStorage
+import com.dbottillo.notionalert.db.AppDatabase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -17,7 +17,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ArticlesWidgetProvider : AppWidgetProvider() {
 
-    @Inject lateinit var articlesStorage: ArticlesStorage
+    @Inject lateinit var db: AppDatabase
 
     override fun onUpdate(
         context: Context,
@@ -37,7 +37,7 @@ class ArticlesWidgetProvider : AppWidgetProvider() {
         appWidgetId: Int
     ) {
         val views = RemoteViews(context.packageName, R.layout.articles_widget)
-        val total = runBlocking { articlesStorage.numberToReadFlow.first().toString() }
+        val total = runBlocking { db.articleDao().getAll().first().count().toString() }
         views.setTextViewText(R.id.articles_widget_count, total)
         val intent =
             Intent(

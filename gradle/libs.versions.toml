@@ -121,3 +121,4 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "dagger" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServicesPlugin"}
 crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlyticsPlugin"}
+room = { id = "androidx.room", version.ref = "room" }

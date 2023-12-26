@@ -11,8 +11,6 @@ import com.dbottillo.notionalert.network.RefreshManager
 import com.dbottillo.notionalert.network.RefreshProvider
 import com.dbottillo.notionalert.feature.home.HomeStorage
 import com.dbottillo.notionalert.feature.home.HomeStorageImpl
-import com.dbottillo.notionalert.feature.home.ArticlesStorage
-import com.dbottillo.notionalert.feature.home.ArticlesStorageImpl
 import com.dbottillo.notionalert.network.HeaderInterceptor
 import dagger.Lazy
 import dagger.Module
@@ -64,14 +62,6 @@ class AppModule {
         @ApplicationContext appContext: Context
     ): HomeStorage {
         return HomeStorageImpl(appContext)
-    }
-
-    @Singleton
-    @Provides
-    fun provideArticlesStorage(
-        @ApplicationContext appContext: Context
-    ): ArticlesStorage {
-        return ArticlesStorageImpl(appContext)
     }
 
     @Singleton

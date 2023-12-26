@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.versions)
     alias(libs.plugins.google.services) apply false
     alias(libs.plugins.crashlytics) apply false
+    alias(libs.plugins.room) apply false
 }
 
 allprojects {

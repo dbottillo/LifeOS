@@ -27,7 +27,6 @@ class HomeRepository @Inject constructor(
     private val api: ApiInterface,
     private val storage: HomeStorage,
     private val notificationProvider: NotificationProvider,
-    private val articlesStorage: ArticlesStorage,
     private val db: AppDatabase
 ) {
 
@@ -210,7 +209,6 @@ class HomeRepository @Inject constructor(
                         )
                     }
                     db.articleDao().deleteAndInsertAll(articles)
-                    articlesStorage.updateNumberToRead(body.results.count())
                 }
             }
             ApiResult.Error(Throwable("${response.code()} ${response.message()}"))
