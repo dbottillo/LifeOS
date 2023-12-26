@@ -11,7 +11,10 @@ import com.dbottillo.notionalert.network.NotionBodyRequest
 import com.dbottillo.notionalert.network.NotionDatabaseQueryResult
 import com.dbottillo.notionalert.network.SortRequest
 import com.dbottillo.notionalert.data.NextAction
+import com.dbottillo.notionalert.db.AppDatabase
+import com.dbottillo.notionalert.db.Article
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import java.time.Instant
@@ -24,7 +27,8 @@ class HomeRepository @Inject constructor(
     private val api: ApiInterface,
     private val storage: HomeStorage,
     private val notificationProvider: NotificationProvider,
-    private val articlesStorage: ArticlesStorage
+    private val articlesStorage: ArticlesStorage,
+    private val db: AppDatabase
 ) {
 
     val state = MutableStateFlow<AppState>(AppState.Idle)
@@ -196,6 +200,16 @@ class HomeRepository @Inject constructor(
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {
+                    val articles = body.results.map {
+                        Article(
+                            uid = it.id,
+                            url = it.properties["URL"]?.url ?: "",
+                            longRead = it.properties["Status"]?.status?.name == "Long read",
+                            title = it.properties["Name"]?.title?.get(0)?.plainText ?: "",
+                            synced = true
+                        )
+                    }
+                    db.articleDao().deleteAndInsertAll(articles)
                     articlesStorage.updateNumberToRead(body.results.count())
                 }
             }
@@ -203,6 +217,10 @@ class HomeRepository @Inject constructor(
         } catch (e: Exception) {
             ApiResult.Error(Throwable(e.message ?: e.toString()))
         }
+    }
+
+    suspend fun articles(): Flow<List<Article>> {
+        return db.articleDao().getAll()
     }
 }
 

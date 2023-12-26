@@ -62,13 +62,17 @@ class HomeActivity : AppCompatActivity() {
                         }
                         Text(
                             modifier = Modifier.padding(top = 32.dp),
-                            text = when (val appState = state.value) {
+                            text = when (val appState = state.value.appState) {
                                 is AppState.Idle -> "Idle"
                                 is AppState.Loading -> "Loading"
-                                is AppState.Loaded -> "Success, last try: ${appState.timestamp}"
+                                is AppState.Loaded -> "Success, last try:\n${appState.timestamp}"
                                 is AppState.Error -> "Error ${appState.message}, last try: ${appState.timestamp}"
                                 is AppState.Restored -> "Restored, last try: ${appState.timestamp}"
                             }
+                        )
+                        Text(
+                            modifier = Modifier.padding(top = 32.dp),
+                            text = "Number of articles: ${state.value.articles.size}"
                         )
                     }
                 }

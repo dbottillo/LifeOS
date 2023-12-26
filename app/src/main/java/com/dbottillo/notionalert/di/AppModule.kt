@@ -1,8 +1,10 @@
 package com.dbottillo.notionalert.di
 
 import android.content.Context
+import androidx.room.Room
 import com.dbottillo.notionalert.network.ApiInterface
 import com.dbottillo.notionalert.BuildConfig
+import com.dbottillo.notionalert.db.AppDatabase
 import com.dbottillo.notionalert.notification.NotificationManager
 import com.dbottillo.notionalert.notification.NotificationProvider
 import com.dbottillo.notionalert.network.RefreshManager
@@ -86,5 +88,17 @@ class AppModule {
         @ApplicationContext appContext: Context
     ): RefreshProvider {
         return RefreshManager(appContext)
+    }
+
+    @Singleton
+    @Provides
+    fun provideDatabase(
+        @ApplicationContext appContext: Context
+    ): AppDatabase {
+        return Room.databaseBuilder(
+            appContext,
+            AppDatabase::class.java,
+            "notion-alert-articles"
+        ).build()
     }
 }

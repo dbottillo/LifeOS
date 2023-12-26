@@ -7,6 +7,7 @@ import com.squareup.moshi.JsonClass
 data class NotionPage(
     @Json(name = "object")
     val obj: String,
+    val id: String,
     val icon: NotionPageIcon?,
     val properties: Map<String, NotionProperty>,
     val url: String
@@ -23,6 +24,7 @@ data class NotionProperty(
     val id: String,
     val type: String,
     val title: List<NotionTitle>?,
+    val url: String?,
     val checkbox: Boolean?,
     @Json(name = "multi_select")
     val multiSelect: List<MultiSelectPropertyOption>?,

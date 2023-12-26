@@ -82,6 +82,9 @@ dependencies {
     implementation(libs.bundles.firebase)
     kapt(libs.dagger.hilt.compiler)
     kapt(libs.hilt.compiler)
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    kapt(libs.room.compiler)
 }
 
 kapt {
