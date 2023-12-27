@@ -8,8 +8,8 @@
     android:textColor="@color/color_on_primary"
     android:background="@drawable/widget_row_background"
     android:gravity="center_vertical"
-    android:paddingStart="8dp"
+    android:paddingStart="4dp"
     android:paddingTop="4dp"
     android:paddingBottom="4dp"
     tools:text="Widget action"
-    android:paddingEnd="8dp" />
+    android:paddingEnd="4dp" />
