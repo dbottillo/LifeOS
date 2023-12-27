@@ -5,10 +5,11 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.widget.RemoteViews
+import androidx.compose.material3.ExperimentalMaterial3Api
 import com.dbottillo.notionalert.R
 import com.dbottillo.notionalert.db.AppDatabase
+import com.dbottillo.notionalert.feature.home.HomeActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -31,6 +32,7 @@ class ArticlesWidgetProvider : AppWidgetProvider() {
         super.onUpdate(context, appWidgetManager, appWidgetIds)
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     private fun updateAppWidget(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -39,13 +41,7 @@ class ArticlesWidgetProvider : AppWidgetProvider() {
         val views = RemoteViews(context.packageName, R.layout.articles_widget)
         val total = runBlocking { db.articleDao().getAll().first().count().toString() }
         views.setTextViewText(R.id.articles_widget_count, total)
-        val intent =
-            Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse(
-                    "https://www.notion.so/dbottillo/ef1963ca16574555874f5c3dc2523b61?v=e0eb4cd891f9456e89da25314d772523"
-                )
-            )
+        val intent = Intent(context, HomeActivity::class.java)
         val pendingIntent: PendingIntent = PendingIntent.getActivity(
             context,
             0,

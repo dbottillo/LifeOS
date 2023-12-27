@@ -1,7 +1,5 @@
 package com.dbottillo.notionalert.feature.articles
 
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,6 +18,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.dbottillo.notionalert.db.Article
 import com.dbottillo.notionalert.feature.home.HomeViewModel
+import com.dbottillo.notionalert.util.openLink
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
@@ -69,10 +68,7 @@ fun Article(article: Article) {
         .fillMaxWidth()
         .defaultMinSize(minHeight = 48.dp)
         .clickable {
-            val intentUrl = Intent(Intent.ACTION_VIEW)
-            intentUrl.data = Uri.parse(article.url)
-            intentUrl.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            context.startActivity(intentUrl)
+            context.openLink(article.url)
         }
     ) {
         Column {

@@ -1,5 +1,6 @@
 package com.dbottillo.notionalert.feature.home
 
+import com.dbottillo.notionalert.data.AppConstant
 import com.dbottillo.notionalert.network.ApiInterface
 import com.dbottillo.notionalert.network.ApiResult
 import com.dbottillo.notionalert.network.FilterBeforeRequest
@@ -155,7 +156,7 @@ class HomeRepository @Inject constructor(
                     )
                 )
             )
-            val response = api.queryDatabase(GTD_ONE_DATABASE_ID, request)
+            val response = api.queryDatabase(AppConstant.GTD_ONE_DATABASE_ID, request)
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {
@@ -197,7 +198,7 @@ class HomeRepository @Inject constructor(
                 ),
                 sorts = emptyList()
             )
-            val response = api.queryDatabase(ARTICLES_DATABASE_ID, request)
+            val response = api.queryDatabase(AppConstant.ARTICLES_DATABASE_ID, request)
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {
@@ -231,6 +232,3 @@ sealed class AppState {
     data class Error(val message: String, val timestamp: OffsetDateTime) : AppState()
     data class Restored(val timestamp: OffsetDateTime) : AppState()
 }
-
-const val GTD_ONE_DATABASE_ID = "1ecf1aad5b75430686cb91676942e5f1"
-const val ARTICLES_DATABASE_ID = "ef1963ca16574555874f5c3dc2523b61"

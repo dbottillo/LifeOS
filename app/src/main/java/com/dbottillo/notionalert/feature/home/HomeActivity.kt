@@ -7,6 +7,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -16,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -25,9 +27,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.dbottillo.notionalert.R
+import com.dbottillo.notionalert.data.AppConstant
 import com.dbottillo.notionalert.feature.articles.ArticlesScreen
 import com.dbottillo.notionalert.feature.status.StatusScreen
 import com.dbottillo.notionalert.ui.AppTheme
+import com.dbottillo.notionalert.util.openLink
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -49,17 +53,27 @@ class HomeActivity : AppCompatActivity() {
                 Screen.Articles,
                 Screen.Status,
             )
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentDestination = navBackStackEntry?.destination
+            val context = LocalContext.current
             AppTheme {
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = { Text("Notion companion") }
+                            title = { Text("Notion companion") },
+                            actions = {
+                                if (currentDestination?.hierarchy?.any { it.route == Screen.Articles.route } == true) {
+                                    Button(onClick = {
+                                        context.openLink(AppConstant.NOTION_ARTICLE_PAGE_URL)
+                                    }) {
+                                        Text("In Notion")
+                                    }
+                                }
+                            }
                         )
                     },
                     bottomBar = {
                         NavigationBar {
-                            val navBackStackEntry by navController.currentBackStackEntryAsState()
-                            val currentDestination = navBackStackEntry?.destination
                             items.forEach { screen ->
                                 NavigationBarItem(
                                     icon = {
