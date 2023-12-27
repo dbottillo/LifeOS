@@ -1,11 +1,9 @@
-package com.dbottillo.notionalert.feature.status
+package com.dbottillo.notionalert.feature.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import com.dbottillo.notionalert.db.Article
-import com.dbottillo.notionalert.feature.home.AppState
-import com.dbottillo.notionalert.feature.home.HomeRepository
 import com.dbottillo.notionalert.notification.NotificationProvider
 import com.dbottillo.notionalert.network.RefreshProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,7 +15,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class StatusViewModel @Inject constructor(
+class HomeViewModel @Inject constructor(
     private val repository: HomeRepository,
     private val notificationProvider: NotificationProvider,
     private val refreshProvider: RefreshProvider
@@ -26,7 +24,7 @@ class StatusViewModel @Inject constructor(
     val state = MutableStateFlow<HomeState>(
         HomeState(
             appState = AppState.Idle,
-            articles = emptyList(),
+            articles = Articles(emptyList(), emptyList()),
             workInfo = emptyList()
         )
     )
@@ -42,7 +40,10 @@ class StatusViewModel @Inject constructor(
             }.collectLatest {
                 state.value = state.first().copy(
                     appState = it.first,
-                    articles = it.second,
+                    articles = Articles(
+                        inbox = it.second.filter { !it.longRead },
+                        longRead = it.second.filter { it.longRead }
+                    ),
                     workInfo = it.third
                 )
             }
@@ -60,4 +61,6 @@ class StatusViewModel @Inject constructor(
     }
 }
 
-data class HomeState(val appState: AppState, val articles: List<Article>, val workInfo: List<WorkInfo>)
+data class HomeState(val appState: AppState, val articles: Articles, val workInfo: List<WorkInfo>)
+
+data class Articles(val inbox: List<Article>, val longRead: List<Article>)

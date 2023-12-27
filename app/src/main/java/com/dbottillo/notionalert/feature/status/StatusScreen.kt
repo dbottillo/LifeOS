@@ -16,6 +16,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.work.WorkInfo
 import com.dbottillo.notionalert.feature.home.AppState
+import com.dbottillo.notionalert.feature.home.HomeViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -23,7 +24,7 @@ import java.util.Date
 @Composable
 fun StatusScreen(
     navController: NavController,
-    viewModel: StatusViewModel,
+    viewModel: HomeViewModel,
     dateFormatter: SimpleDateFormat
 ) {
     val state = viewModel.state.collectAsStateWithLifecycle()
@@ -64,7 +65,7 @@ fun StatusScreen(
             item {
                 Text(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    text = "Number of articles: ${state.value.articles.size}"
+                    text = "Number of articles: ${state.value.articles.inbox.size + state.value.articles.longRead.size}"
                 )
             }
             if (state.value.workInfo.isEmpty()) {

@@ -27,7 +27,6 @@ import androidx.navigation.compose.rememberNavController
 import com.dbottillo.notionalert.R
 import com.dbottillo.notionalert.feature.articles.ArticlesScreen
 import com.dbottillo.notionalert.feature.status.StatusScreen
-import com.dbottillo.notionalert.feature.status.StatusViewModel
 import com.dbottillo.notionalert.ui.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
@@ -38,7 +37,7 @@ import java.util.Locale
 @AndroidEntryPoint
 class HomeActivity : AppCompatActivity() {
 
-    private val statusViewModel: StatusViewModel by viewModels()
+    private val homeViewModel: HomeViewModel by viewModels()
 
     private val dateFormatter = SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS", Locale.getDefault())
 
@@ -96,11 +95,16 @@ class HomeActivity : AppCompatActivity() {
                         startDestination = Screen.Articles.route,
                         Modifier.padding(innerPadding)
                     ) {
-                        composable(Screen.Articles.route) { ArticlesScreen(navController) }
+                        composable(Screen.Articles.route) {
+                            ArticlesScreen(
+                                navController,
+                                homeViewModel
+                            )
+                        }
                         composable(Screen.Status.route) {
                             StatusScreen(
                                 navController,
-                                statusViewModel,
+                                homeViewModel,
                                 dateFormatter
                             )
                         }
