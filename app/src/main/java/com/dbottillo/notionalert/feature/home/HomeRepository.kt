@@ -14,10 +14,16 @@ import com.dbottillo.notionalert.network.SortRequest
 import com.dbottillo.notionalert.data.NextAction
 import com.dbottillo.notionalert.db.AppDatabase
 import com.dbottillo.notionalert.db.Article
+import com.dbottillo.notionalert.network.ArchiveBodyRequest
+import com.dbottillo.notionalert.network.NotionStatus
+import com.dbottillo.notionalert.network.NotionUpdateProperty
+import com.dbottillo.notionalert.network.UpdateBodyRequest
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -208,7 +214,7 @@ class HomeRepository @Inject constructor(
                             url = it.properties["URL"]?.url ?: "",
                             longRead = it.properties["Status"]?.status?.name == "Long read",
                             title = it.properties["Name"]?.title?.get(0)?.plainText ?: "",
-                            synced = true
+                            status = "synced"
                         )
                     }
                     db.articleDao().deleteAndInsertAll(articles)
@@ -221,7 +227,37 @@ class HomeRepository @Inject constructor(
     }
 
     fun articles(): Flow<List<Article>> {
-        return db.articleDao().getAll()
+        return db.articleDao().getAllSyncedArticles()
+    }
+
+    suspend fun deleteArticle(article: Article) {
+        withContext(Dispatchers.IO) {
+            db.articleDao().updateArticle(article.copy(status = "delete"))
+        }
+    }
+
+    suspend fun markArticleAsRead(article: Article) {
+        withContext(Dispatchers.IO) {
+            db.articleDao().updateArticle(article.copy(status = "read"))
+        }
+    }
+
+    suspend fun syncArticles() {
+        withContext(Dispatchers.IO) {
+            db.articleDao().getAllDeletedArticles().first().forEach {
+                api.archivePage(it.uid, ArchiveBodyRequest(true))
+            }
+            db.articleDao().getAllReadArticles().first().forEach {
+                api.updatePage(
+                    it.uid,
+                    UpdateBodyRequest(
+                        properties = mapOf(
+                        "Status" to NotionUpdateProperty(status = NotionStatus("Done"))
+                    )
+                )
+                )
+            }
+        }
     }
 }
 

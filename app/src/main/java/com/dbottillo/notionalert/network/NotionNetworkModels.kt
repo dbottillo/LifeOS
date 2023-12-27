@@ -154,3 +154,18 @@ data class AddPageNotionPropertyText(
 data class AddPageNotionPropertyUrl(
     val url: String
 )
+
+@JsonClass(generateAdapter = true)
+class ArchiveBodyRequest(
+    val archived: Boolean
+)
+
+@JsonClass(generateAdapter = true)
+class UpdateBodyRequest(
+    val properties: Map<String, NotionUpdateProperty>,
+)
+
+@JsonClass(generateAdapter = true)
+data class NotionUpdateProperty(
+    val status: NotionStatus
+)

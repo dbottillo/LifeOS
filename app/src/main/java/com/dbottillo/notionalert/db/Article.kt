@@ -10,5 +10,5 @@ data class Article(
     @ColumnInfo(name = "title") val title: String,
     @ColumnInfo(name = "url") val url: String,
     @ColumnInfo(name = "long_read") val longRead: Boolean,
-    @ColumnInfo(name = "synced") val synced: Boolean
+    @ColumnInfo(name = "status") val status: String
 )

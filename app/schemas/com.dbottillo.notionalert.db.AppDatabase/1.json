@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "332cadf7d3fb98b525dc980129db1fe4",
+    "identityHash": "6d9c7866c5bbb4376644f7e62c1dd22b",
     "entities": [
       {
         "tableName": "Article",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` TEXT NOT NULL, `title` TEXT NOT NULL, `url` TEXT NOT NULL, `long_read` INTEGER NOT NULL, `synced` INTEGER NOT NULL, PRIMARY KEY(`uid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uid` TEXT NOT NULL, `title` TEXT NOT NULL, `url` TEXT NOT NULL, `long_read` INTEGER NOT NULL, `status` TEXT NOT NULL, PRIMARY KEY(`uid`))",
         "fields": [
           {
             "fieldPath": "uid",
@@ -33,9 +33,9 @@
             "notNull": true
           },
           {
-            "fieldPath": "synced",
-            "columnName": "synced",
-            "affinity": "INTEGER",
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
             "notNull": true
           }
         ],
@@ -52,7 +52,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '332cadf7d3fb98b525dc980129db1fe4')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6d9c7866c5bbb4376644f7e62c1dd22b')"
     ]
   }
 }

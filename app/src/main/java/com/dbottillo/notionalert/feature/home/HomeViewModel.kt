@@ -59,6 +59,18 @@ class HomeViewModel @Inject constructor(
         notificationProvider.clear()
         refreshProvider.stop()
     }
+
+    fun delete(article: Article) {
+        viewModelScope.launch {
+            repository.deleteArticle(article)
+        }
+    }
+
+    fun markAsRead(article: Article) {
+        viewModelScope.launch {
+            repository.markArticleAsRead(article)
+        }
+    }
 }
 
 data class HomeState(val appState: AppState, val articles: Articles, val workInfo: List<WorkInfo>)

@@ -3,6 +3,7 @@ package com.dbottillo.notionalert.network
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 
@@ -24,4 +25,10 @@ interface ApiInterface {
     suspend fun addPage(
         @Body body: AddPageNotionBodyRequest
     ): Response<Any>
+
+    @PATCH("v1/pages/{id}")
+    suspend fun archivePage(@Path(value = "id") pageId: String, @Body body: ArchiveBodyRequest): Response<NotionPage>
+
+    @PATCH("v1/pages/{id}")
+    suspend fun updatePage(@Path(value = "id") pageId: String, @Body body: UpdateBodyRequest): Response<NotionPage>
 }

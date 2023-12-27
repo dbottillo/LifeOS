@@ -20,6 +20,7 @@ class RefreshWorker @AssistedInject constructor(
     @Suppress("SwallowedException", "TooGenericExceptionCaught")
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
+            repository.syncArticles()
             repository.makeNetworkRequest()
             repository.fetchArticles()
             return@withContext Result.success()
