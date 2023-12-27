@@ -16,4 +16,6 @@
     <string name="channel_main_description">Notion Alert - Main</string>
     <string name="channel_next_name">Next actions</string>
     <string name="channel_next_description">Notion Alert - Next actions</string>
+    <string name="status">Status</string>
+    <string name="articles">Articles</string>
 </resources>
