@@ -14,16 +14,21 @@ import com.dbottillo.notionalert.network.SortRequest
 import com.dbottillo.notionalert.data.NextAction
 import com.dbottillo.notionalert.db.AppDatabase
 import com.dbottillo.notionalert.db.Article
-import com.dbottillo.notionalert.network.ArchiveBodyRequest
-import com.dbottillo.notionalert.network.NotionStatus
-import com.dbottillo.notionalert.network.NotionUpdateProperty
-import com.dbottillo.notionalert.network.UpdateBodyRequest
+import com.dbottillo.notionalert.feature.articles.ArticleManager
+import com.dbottillo.notionalert.network.AddPageNotionBodyRequest
+import com.dbottillo.notionalert.network.AddPageNotionBodyRequestParent
+import com.dbottillo.notionalert.network.AddPageNotionProperty
+import com.dbottillo.notionalert.network.AddPageNotionPropertyText
+import com.dbottillo.notionalert.network.AddPageNotionPropertyTitle
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import retrofit2.Response
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -36,12 +41,13 @@ class HomeRepository @Inject constructor(
     private val api: ApiInterface,
     private val storage: HomeStorage,
     private val notificationProvider: NotificationProvider,
-    private val db: AppDatabase
+    private val db: AppDatabase,
+    private val articleManager: ArticleManager
 ) {
 
     val state = MutableStateFlow<AppState>(AppState.Idle)
 
-    suspend fun makeNetworkRequest() = coroutineScope {
+    suspend fun loadNextActions() = coroutineScope {
         state.emit(AppState.Loading)
         storage.updateTimestamp()
         val nextActions = fetchNextActions()
@@ -213,16 +219,20 @@ class HomeRepository @Inject constructor(
                             uid = it.id,
                             url = it.properties["URL"]?.url ?: "",
                             longRead = it.properties["Status"]?.status?.name == "Long read",
-                            title = it.properties["Name"]?.title?.get(0)?.plainText ?: "",
+                            title = it.properties["Name"]?.title?.getOrNull(0)?.plainText ?: "",
                             status = "synced"
                         )
                     }
                     db.articleDao().deleteAndInsertAll(articles)
                 }
             }
-            ApiResult.Error(Throwable("${response.code()} ${response.message()}"))
+            val throwable = Throwable("${response.code()} ${response.message()}")
+            Firebase.crashlytics.recordException(throwable)
+            ApiResult.Error(throwable)
         } catch (e: Exception) {
-            ApiResult.Error(Throwable(e.message ?: e.toString()))
+            val throwable = Throwable(e.message ?: e.toString())
+            Firebase.crashlytics.recordException(throwable)
+            ApiResult.Error(throwable)
         }
     }
 
@@ -233,31 +243,38 @@ class HomeRepository @Inject constructor(
     suspend fun deleteArticle(article: Article) {
         withContext(Dispatchers.IO) {
             db.articleDao().updateArticle(article.copy(status = "delete"))
+            articleManager.deleteArticle(article)
         }
     }
 
     suspend fun markArticleAsRead(article: Article) {
         withContext(Dispatchers.IO) {
             db.articleDao().updateArticle(article.copy(status = "read"))
+            articleManager.updateArticleStatus(article, "Done")
         }
     }
 
-    suspend fun syncArticles() {
-        withContext(Dispatchers.IO) {
-            db.articleDao().getAllDeletedArticles().first().forEach {
-                api.archivePage(it.uid, ArchiveBodyRequest(true))
-            }
-            db.articleDao().getAllReadArticles().first().forEach {
-                api.updatePage(
-                    it.uid,
-                    UpdateBodyRequest(
-                        properties = mapOf(
-                        "Status" to NotionUpdateProperty(status = NotionStatus("Done"))
+    suspend fun addPage(databaseId: String, title: String?, url: String): Response<Any> {
+        return api.addPage(
+            body = AddPageNotionBodyRequest(
+                parent = AddPageNotionBodyRequestParent(
+                    type = "database_id",
+                    databaseId = databaseId
+                ),
+                properties = mapOf(
+                    "Name" to AddPageNotionProperty(
+                        title = listOf(
+                            AddPageNotionPropertyTitle(
+                                AddPageNotionPropertyText(content = title)
+                            )
+                        )
+                    ),
+                    "URL" to AddPageNotionProperty(
+                        url = url
                     )
                 )
-                )
-            }
-        }
+            )
+        )
     }
 }
 

@@ -16,13 +16,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
+import com.dbottillo.notionalert.ui.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
@@ -45,12 +45,14 @@ class ShareLinkActivity : AppCompatActivity() {
         if (intent.action.equals(Intent.ACTION_SEND) && url != null) {
             val title = intent.getStringExtra(Intent.EXTRA_SUBJECT)
             setContent {
-                ShareLinkScreen(
-                    url = url,
-                    title = title,
-                    saveArticle = viewModel::saveArticle,
-                    saveLifeOs = viewModel::saveLifeOs
-                )
+                AppTheme {
+                    ShareLinkScreen(
+                        url = url,
+                        title = title,
+                        saveArticle = viewModel::saveArticle,
+                        saveLifeOs = viewModel::saveLifeOs
+                    )
+                }
             }
         } else {
             finish()
@@ -66,14 +68,11 @@ fun ShareLinkScreen(
     saveArticle: (String, String?) -> Unit,
     saveLifeOs: (String, String?) -> Unit
 ) {
+    val sanitizedUrl = remember { url.split("?").first() }
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Notion companion") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.DarkGray,
-                    titleContentColor = Color.White
-                )
+                title = { Text("Link handler") }
             )
         }
     ) {
@@ -84,22 +83,28 @@ fun ShareLinkScreen(
             )
             Text(
                 modifier = Modifier.padding(top = 24.dp, start = 16.dp),
+                text = "Sanitized Url: $sanitizedUrl"
+            )
+            Text(
+                modifier = Modifier.padding(top = 24.dp, start = 16.dp),
                 text = "Title: $title"
             )
             Spacer(modifier = Modifier.weight(1f))
             Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(
                     modifier = Modifier.padding(top = 24.dp),
-                    onClick = { saveArticle(url, title) }
+                    onClick = { saveArticle(sanitizedUrl, title) }
                 ) {
                     Text(text = "Article")
                 }
                 Button(
                     modifier = Modifier.padding(top = 24.dp),
-                    onClick = { saveLifeOs(url, title) }
+                    onClick = { saveLifeOs(sanitizedUrl, title) }
                 ) {
                     Text(text = "Life Os")
                 }
@@ -111,10 +116,12 @@ fun ShareLinkScreen(
 @Preview
 @Composable
 fun ShareScreenPreview() {
-    ShareLinkScreen(
-        url = "https://www.google.com",
-        title = "Google",
-        saveArticle = { _, _ -> },
-        saveLifeOs = { _, _ -> },
-    )
+    AppTheme {
+        ShareLinkScreen(
+            url = "https://www.google.com",
+            title = "Google",
+            saveArticle = { _, _ -> },
+            saveLifeOs = { _, _ -> },
+        )
+    }
 }

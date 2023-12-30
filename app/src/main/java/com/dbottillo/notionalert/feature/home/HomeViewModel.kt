@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import com.dbottillo.notionalert.db.Article
+import com.dbottillo.notionalert.feature.articles.ArticleManager
 import com.dbottillo.notionalert.notification.NotificationProvider
 import com.dbottillo.notionalert.network.RefreshProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +19,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val repository: HomeRepository,
     private val notificationProvider: NotificationProvider,
-    private val refreshProvider: RefreshProvider
+    private val refreshProvider: RefreshProvider,
+    private val articleManager: ArticleManager
 ) : ViewModel() {
 
     val state = MutableStateFlow<HomeState>(
@@ -34,9 +36,10 @@ class HomeViewModel @Inject constructor(
             combine(
                 repository.state,
                 repository.articles(),
-                refreshProvider.workManagerStatus()
-            ) { appState, articles, workManagerStatus ->
-                Triple(appState, articles, workManagerStatus)
+                refreshProvider.workManagerStatus(),
+                articleManager.status()
+            ) { appState, articles, workManagerStatus, articleManagerStatus ->
+                Triple(appState, articles, workManagerStatus to articleManagerStatus)
             }.collectLatest {
                 state.value = state.first().copy(
                     appState = it.first,
@@ -44,7 +47,7 @@ class HomeViewModel @Inject constructor(
                         inbox = it.second.filter { !it.longRead },
                         longRead = it.second.filter { it.longRead }
                     ),
-                    workInfo = it.third
+                    workInfo = it.third.first + it.third.second.filter { it.state != WorkInfo.State.SUCCEEDED }
                 )
             }
         }

@@ -1,10 +1,11 @@
-package com.dbottillo.notionalert.network
+package com.dbottillo.notionalert.feature.articles
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.dbottillo.notionalert.feature.home.HomeRepository
+import com.dbottillo.notionalert.network.ApiInterface
+import com.dbottillo.notionalert.network.ArchiveBodyRequest
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import dagger.assisted.Assisted
@@ -13,21 +14,26 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @HiltWorker
-class RefreshWorker @AssistedInject constructor(
+class DeleteArticleWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val repository: HomeRepository
+    private val api: ApiInterface
 ) : CoroutineWorker(appContext, workerParams) {
 
     @Suppress("SwallowedException", "TooGenericExceptionCaught")
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
-            repository.loadNextActions()
-            repository.fetchArticles()
-            return@withContext Result.success()
+            val uuid =
+                inputData.getString(ARTICLE_DATA_UUID) ?: return@withContext Result.failure()
+            val response = api.archivePage(uuid, ArchiveBodyRequest(true))
+            if (response.isSuccessful) {
+                return@withContext Result.success()
+            }
+            Firebase.crashlytics.recordException(Throwable(response.errorBody().toString()))
+            return@withContext Result.retry()
         } catch (error: Throwable) {
             Firebase.crashlytics.recordException(error)
-            return@withContext Result.failure()
+            return@withContext Result.retry()
         }
     }
 }

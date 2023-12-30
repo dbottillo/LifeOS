@@ -3,12 +3,8 @@ package com.dbottillo.notionalert.sharing
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dbottillo.notionalert.data.AppConstant
-import com.dbottillo.notionalert.network.AddPageNotionBodyRequest
-import com.dbottillo.notionalert.network.AddPageNotionBodyRequestParent
-import com.dbottillo.notionalert.network.AddPageNotionProperty
-import com.dbottillo.notionalert.network.AddPageNotionPropertyText
-import com.dbottillo.notionalert.network.AddPageNotionPropertyTitle
-import com.dbottillo.notionalert.network.ApiInterface
+import com.dbottillo.notionalert.feature.articles.ArticleManager
+import com.dbottillo.notionalert.feature.home.HomeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
@@ -16,41 +12,20 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SharingViewModel @Inject constructor(
-    private val api: ApiInterface,
+    private val homeRepository: HomeRepository,
+    private val articleManager: ArticleManager
 ) : ViewModel() {
 
     val events: Channel<Boolean> = Channel()
 
     fun saveArticle(url: String, title: String?) {
-        callApi(AppConstant.ARTICLES_DATABASE_ID, url, title)
+        articleManager.addArticle(title = title, url = url)
+        events.trySend(true)
     }
 
     fun saveLifeOs(url: String, title: String?) {
-        callApi(AppConstant.GTD_ONE_DATABASE_ID, url, title)
-    }
-
-    private fun callApi(databaseId: String, url: String, title: String?) {
         viewModelScope.launch {
-            api.addPage(
-                body = AddPageNotionBodyRequest(
-                    parent = AddPageNotionBodyRequestParent(
-                        type = "database_id",
-                        databaseId = databaseId
-                    ),
-                    properties = mapOf(
-                        "Name" to AddPageNotionProperty(
-                            title = listOf(
-                                AddPageNotionPropertyTitle(
-                                    AddPageNotionPropertyText(content = title)
-                                )
-                            )
-                        ),
-                        "URL" to AddPageNotionProperty(
-                            url = url
-                        )
-                    )
-                )
-            )
+            homeRepository.addPage(AppConstant.GTD_ONE_DATABASE_ID, title, url)
             events.send(true)
         }
     }
