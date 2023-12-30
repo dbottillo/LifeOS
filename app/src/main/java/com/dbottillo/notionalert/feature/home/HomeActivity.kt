@@ -7,9 +7,9 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -63,10 +63,19 @@ class HomeActivity : AppCompatActivity() {
                             title = { Text("Notion companion") },
                             actions = {
                                 if (currentDestination?.hierarchy?.any { it.route == Screen.Articles.route } == true) {
-                                    Button(onClick = {
+                                    IconButton(onClick = {
                                         context.openLink(AppConstant.NOTION_ARTICLE_PAGE_URL)
                                     }) {
-                                        Text("In Notion")
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.baseline_external),
+                                            contentDescription = null
+                                        )
+                                    }
+                                    IconButton(onClick = { homeViewModel.load() }) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.baseline_reload),
+                                            contentDescription = null
+                                        )
                                     }
                                 }
                             }
