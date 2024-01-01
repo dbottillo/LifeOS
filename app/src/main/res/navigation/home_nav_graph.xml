@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/HomeFragment"
-        android:name="com.dbottillo.notionalert.feature.home.HomeFragment"
+        android:name="com.dbottillo.lifeos.feature.home.HomeFragment"
         android:label="@string/home_fragment_label"
         tools:layout="@layout/fragment_home">
 
@@ -17,7 +17,7 @@
     </fragment>
     <fragment
         android:id="@+id/HomeDetailFragment"
-        android:name="com.dbottillo.notionalert.feature.home.HomeDetailFragment"
+        android:name="com.dbottillo.lifeos.feature.home.HomeDetailFragment"
         android:label="@string/home_detail_fragment_label"
         tools:layout="@layout/fragment_detail_home">
 

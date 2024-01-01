@@ -16,6 +16,6 @@ pluginManagement {
     }
 }
 
-rootProject.name = "NotionAlert"
+rootProject.name = "LifeOS"
 
 include(":app")

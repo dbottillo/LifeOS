@@ -15,7 +15,7 @@ android {
     buildToolsVersion = "34.0.0"
 
     defaultConfig {
-        applicationId = "com.dbottillo.notioncompanion"
+        applicationId = "com.dbottillo.lifeos"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
@@ -62,7 +62,7 @@ android {
         lintConfig = file("$rootDir/config/lint/lint.xml")
     }
 
-    namespace = "com.dbottillo.notionalert"
+    namespace = "com.dbottillo.lifeos"
 
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.3"
