@@ -2,6 +2,8 @@ package com.dbottillo.lifeos.feature.articles
 
 import android.content.Context
 import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
@@ -20,8 +22,13 @@ class ArticleManager @Inject constructor(
 
     private val workManager by lazy { WorkManager.getInstance(context) }
 
+    private val constraints = Constraints.Builder()
+        .setRequiredNetworkType(NetworkType.CONNECTED)
+        .build()
+
     fun addArticle(title: String?, url: String) {
         val request = OneTimeWorkRequestBuilder<AddArticleWorker>()
+            .setConstraints(constraints)
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .addTag(ARTICLE_WORKER_TAG)
             .setInputData(
@@ -32,8 +39,8 @@ class ArticleManager @Inject constructor(
             )
             .setBackoffCriteria(
                 BackoffPolicy.LINEAR,
-                10,
-                TimeUnit.SECONDS
+                15,
+                TimeUnit.MINUTES
             )
             .build()
         workManager.enqueue(request)
@@ -41,6 +48,7 @@ class ArticleManager @Inject constructor(
 
     fun deleteArticle(article: Article) {
         val request = OneTimeWorkRequestBuilder<DeleteArticleWorker>()
+            .setConstraints(constraints)
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .addTag(ARTICLE_WORKER_TAG)
             .setInputData(
@@ -50,8 +58,8 @@ class ArticleManager @Inject constructor(
             )
             .setBackoffCriteria(
                 BackoffPolicy.LINEAR,
-                10,
-                TimeUnit.SECONDS
+                15,
+                TimeUnit.MINUTES
             )
             .build()
         workManager.enqueue(request)
@@ -59,6 +67,7 @@ class ArticleManager @Inject constructor(
 
     fun updateArticleStatus(article: Article, status: String) {
         val request = OneTimeWorkRequestBuilder<UpdateStatusArticleWorker>()
+            .setConstraints(constraints)
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .addTag(ARTICLE_WORKER_TAG)
             .setInputData(
@@ -69,8 +78,8 @@ class ArticleManager @Inject constructor(
             )
             .setBackoffCriteria(
                 BackoffPolicy.LINEAR,
-                10,
-                TimeUnit.SECONDS
+                15,
+                TimeUnit.MINUTES
             )
             .build()
         workManager.enqueue(request)

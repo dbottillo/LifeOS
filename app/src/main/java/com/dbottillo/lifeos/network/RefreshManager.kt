@@ -1,7 +1,9 @@
 package com.dbottillo.lifeos.network
 
 import android.content.Context
+import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
@@ -17,6 +19,10 @@ class RefreshManager @Inject constructor(
 
     private val workManager = WorkManager.getInstance(context)
 
+    private val constraints = Constraints.Builder()
+        .setRequiredNetworkType(NetworkType.CONNECTED)
+        .build()
+
     override fun start() {
         val refreshRequest =
             PeriodicWorkRequestBuilder<RefreshWorker>(
@@ -25,6 +31,7 @@ class RefreshManager @Inject constructor(
                 flexTimeInterval = REFRESH_WORKER_FLEX_INTERVAL,
                 flexTimeIntervalUnit = TimeUnit.MINUTES
             )
+                .setConstraints(constraints)
                 .build()
         workManager.enqueueUniquePeriodicWork(
             REFRESH_WORKER_PERIODIC_TAG,
@@ -38,7 +45,9 @@ class RefreshManager @Inject constructor(
     }
 
     override fun immediate() {
-        val immediateRequest = OneTimeWorkRequestBuilder<RefreshWorker>().build()
+        val immediateRequest = OneTimeWorkRequestBuilder<RefreshWorker>()
+            .setConstraints(constraints)
+            .build()
         workManager.enqueue(immediateRequest)
     }
 
