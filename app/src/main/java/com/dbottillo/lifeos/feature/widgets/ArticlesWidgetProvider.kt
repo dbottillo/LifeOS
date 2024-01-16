@@ -48,7 +48,8 @@ class ArticlesWidgetProvider : AppWidgetProvider() {
         val spannable = SpannableString("$inbox\n$longRead")
         spannable.setSpan(
             RelativeSizeSpan(2f),
-            0, inbox.length,
+            0,
+            inbox.length,
             Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
         )
         views.setTextViewText(R.id.articles_widget_count, spannable)

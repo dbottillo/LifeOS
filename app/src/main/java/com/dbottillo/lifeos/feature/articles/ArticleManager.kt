@@ -2,9 +2,8 @@ package com.dbottillo.lifeos.feature.articles
 
 import android.content.Context
 import androidx.work.BackoffPolicy
-import androidx.work.Constraints
-import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.Operation
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
@@ -22,67 +21,60 @@ class ArticleManager @Inject constructor(
 
     private val workManager by lazy { WorkManager.getInstance(context) }
 
-    private val constraints = Constraints.Builder()
-        .setRequiredNetworkType(NetworkType.CONNECTED)
-        .build()
-
-    fun addArticle(title: String?, url: String) {
+    fun addArticle(title: String?, url: String): Operation {
         val request = OneTimeWorkRequestBuilder<AddArticleWorker>()
-            .setConstraints(constraints)
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .addTag(ARTICLE_WORKER_TAG)
             .setInputData(
                 workDataOf(
-                ADD_ARTICLE_DATA_TITLE to title,
-                ADD_ARTICLE_DATA_URL to url
-            )
+                    ADD_ARTICLE_DATA_TITLE to title,
+                    ADD_ARTICLE_DATA_URL to url
+                )
             )
             .setBackoffCriteria(
                 BackoffPolicy.LINEAR,
-                15,
-                TimeUnit.MINUTES
+                10,
+                TimeUnit.SECONDS
             )
             .build()
-        workManager.enqueue(request)
+        return workManager.enqueue(request)
     }
 
-    fun deleteArticle(article: Article) {
+    fun deleteArticle(article: Article): Operation {
         val request = OneTimeWorkRequestBuilder<DeleteArticleWorker>()
-            .setConstraints(constraints)
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .addTag(ARTICLE_WORKER_TAG)
             .setInputData(
                 workDataOf(
-                ARTICLE_DATA_UUID to article.uid
-            )
+                    ARTICLE_DATA_UUID to article.uid
+                )
             )
             .setBackoffCriteria(
                 BackoffPolicy.LINEAR,
-                15,
-                TimeUnit.MINUTES
+                10,
+                TimeUnit.SECONDS
             )
             .build()
-        workManager.enqueue(request)
+        return workManager.enqueue(request)
     }
 
-    fun updateArticleStatus(article: Article, status: String) {
+    fun updateArticleStatus(article: Article, status: String): Operation {
         val request = OneTimeWorkRequestBuilder<UpdateStatusArticleWorker>()
-            .setConstraints(constraints)
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .addTag(ARTICLE_WORKER_TAG)
             .setInputData(
                 workDataOf(
-                ARTICLE_DATA_UUID to article.uid,
-                ARTICLE_DATA_STATUS to status
-            )
+                    ARTICLE_DATA_UUID to article.uid,
+                    ARTICLE_DATA_STATUS to status
+                )
             )
             .setBackoffCriteria(
                 BackoffPolicy.LINEAR,
-                15,
-                TimeUnit.MINUTES
+                10,
+                TimeUnit.SECONDS
             )
             .build()
-        workManager.enqueue(request)
+        return workManager.enqueue(request)
     }
 
     fun status(): Flow<List<WorkInfo>> {

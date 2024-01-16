@@ -53,7 +53,7 @@ fun StatusScreen(
             item {
                 Text(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    text = when (val appState = state.value.appState) {
+                    text = when (val appState = state.value.tasksState) {
                         is AppState.Idle -> "AppState - Idle"
                         is AppState.Loading -> "AppState - Loading"
                         is AppState.Loaded -> "AppState - Success, last try:\n${appState.timestamp}"
@@ -90,10 +90,12 @@ fun StatusScreen(
 }
 
 private fun WorkInfo.prettyPrint(dateFormatter: SimpleDateFormat): String {
+    this.stopReason
     val date = Date(this.nextScheduleTimeMillis)
     return "WorkInfo [${this.id}]\n" +
             "State: ${this.state}\n" +
             "Next scheduled: ${dateFormatter.format(date)}\n" +
             "Tags: ${this.tags}\n" +
-            "${this.constraints}"
+            "Run attempt count: ${this.runAttemptCount}"
+            // "${this.constraints}"
 }

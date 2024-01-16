@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dbottillo.lifeos.data.AppConstant
 import com.dbottillo.lifeos.feature.articles.ArticleManager
-import com.dbottillo.lifeos.feature.home.HomeRepository
+import com.dbottillo.lifeos.feature.tasks.TasksRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SharingViewModel @Inject constructor(
-    private val homeRepository: HomeRepository,
+    private val tasksRepository: TasksRepository,
     private val articleManager: ArticleManager
 ) : ViewModel() {
 
@@ -25,7 +25,7 @@ class SharingViewModel @Inject constructor(
 
     fun saveLifeOs(url: String, title: String?) {
         viewModelScope.launch {
-            homeRepository.addPage(AppConstant.GTD_ONE_DATABASE_ID, title, url)
+            tasksRepository.addTask(AppConstant.GTD_ONE_DATABASE_ID, title, url)
             events.send(true)
         }
     }

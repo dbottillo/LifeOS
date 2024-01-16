@@ -4,7 +4,8 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.dbottillo.lifeos.feature.home.HomeRepository
+import com.dbottillo.lifeos.feature.articles.ArticleRepository
+import com.dbottillo.lifeos.feature.tasks.TasksRepository
 import com.google.firebase.crashlytics.ktx.crashlytics
 import com.google.firebase.ktx.Firebase
 import dagger.assisted.Assisted
@@ -16,14 +17,15 @@ import kotlinx.coroutines.withContext
 class RefreshWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val repository: HomeRepository
+    private val tasksRepository: TasksRepository,
+    private val articleRepository: ArticleRepository
 ) : CoroutineWorker(appContext, workerParams) {
 
     @Suppress("SwallowedException", "TooGenericExceptionCaught")
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
-            repository.loadNextActions()
-            repository.fetchArticles()
+            tasksRepository.loadNextActions()
+            articleRepository.fetchArticles()
             return@withContext Result.success()
         } catch (error: Throwable) {
             Firebase.crashlytics.recordException(error)

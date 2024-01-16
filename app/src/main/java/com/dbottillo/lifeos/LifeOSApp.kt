@@ -3,7 +3,7 @@ package com.dbottillo.lifeos
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
-import com.dbottillo.lifeos.feature.home.HomeRepository
+import com.dbottillo.lifeos.feature.tasks.TasksRepository
 import com.dbottillo.lifeos.notification.NotificationProvider
 import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
@@ -16,7 +16,7 @@ import javax.inject.Inject
 class LifeOSApp : Application(), Configuration.Provider {
 
     @Inject
-    lateinit var repository: HomeRepository
+    lateinit var repository: TasksRepository
 
     @Inject
     lateinit var notificationProvider: NotificationProvider

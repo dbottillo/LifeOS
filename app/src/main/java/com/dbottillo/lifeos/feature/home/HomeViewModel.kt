@@ -5,6 +5,10 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import com.dbottillo.lifeos.db.Article
 import com.dbottillo.lifeos.feature.articles.ArticleManager
+import com.dbottillo.lifeos.feature.articles.ArticleRepository
+import com.dbottillo.lifeos.feature.tasks.TasksRepository
+import com.dbottillo.lifeos.feature.tasks.TasksState
+import com.dbottillo.lifeos.feature.workers.WorkerRepository
 import com.dbottillo.lifeos.notification.NotificationProvider
 import com.dbottillo.lifeos.network.RefreshProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,15 +21,17 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val repository: HomeRepository,
+    private val tasksRepository: TasksRepository,
+    private val articleRepository: ArticleRepository,
     private val notificationProvider: NotificationProvider,
     private val refreshProvider: RefreshProvider,
-    private val articleManager: ArticleManager
+    private val articleManager: ArticleManager,
+    private val workerRepository: WorkerRepository
 ) : ViewModel() {
 
     val state = MutableStateFlow<HomeState>(
         HomeState(
-            appState = AppState.Idle,
+            tasksState = TasksState.Idle,
             articles = Articles(emptyList(), emptyList()),
             workInfo = emptyList()
         )
@@ -34,15 +40,15 @@ class HomeViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             combine(
-                repository.state,
-                repository.articles(),
+                tasksRepository.state,
+                articleRepository.articles(),
                 refreshProvider.workManagerStatus(),
                 articleManager.status()
             ) { appState, articles, workManagerStatus, articleManagerStatus ->
                 Triple(appState, articles, workManagerStatus to articleManagerStatus)
             }.collectLatest {
                 state.value = state.first().copy(
-                    appState = it.first,
+                    tasksState = it.first,
                     articles = Articles(
                         inbox = it.second.filter { !it.longRead },
                         longRead = it.second.filter { it.longRead }
@@ -65,17 +71,17 @@ class HomeViewModel @Inject constructor(
 
     fun delete(article: Article) {
         viewModelScope.launch {
-            repository.deleteArticle(article)
+            articleRepository.deleteArticle(article)
         }
     }
 
     fun markAsRead(article: Article) {
         viewModelScope.launch {
-            repository.markArticleAsRead(article)
+            articleRepository.markArticleAsRead(article)
         }
     }
 }
 
-data class HomeState(val appState: AppState, val articles: Articles, val workInfo: List<WorkInfo>)
+data class HomeState(val tasksState: TasksState, val articles: Articles, val workInfo: List<WorkInfo>)
 
 data class Articles(val inbox: List<Article>, val longRead: List<Article>)
