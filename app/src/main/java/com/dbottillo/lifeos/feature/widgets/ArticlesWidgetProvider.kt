@@ -5,6 +5,9 @@ import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.RelativeSizeSpan
 import android.widget.RemoteViews
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.dbottillo.lifeos.R
@@ -39,8 +42,16 @@ class ArticlesWidgetProvider : AppWidgetProvider() {
         appWidgetId: Int
     ) {
         val views = RemoteViews(context.packageName, R.layout.articles_widget)
-        val total = runBlocking { db.articleDao().getAll().first().count().toString() }
-        views.setTextViewText(R.id.articles_widget_count, total)
+        val total = runBlocking { db.articleDao().getAll().first() }
+        val inbox = total.count { !it.longRead }.toString()
+        val longRead = total.count { it.longRead }.toString()
+        val spannable = SpannableString("$inbox\n$longRead")
+        spannable.setSpan(
+            RelativeSizeSpan(2f),
+            0, inbox.length,
+            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        views.setTextViewText(R.id.articles_widget_count, spannable)
         val intent = Intent(context, HomeActivity::class.java)
         val pendingIntent: PendingIntent = PendingIntent.getActivity(
             context,
