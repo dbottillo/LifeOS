@@ -22,6 +22,9 @@ interface ArticleDao {
     @Query("SELECT * FROM article WHERE status='read'")
     fun getAllReadArticles(): Flow<List<Article>>
 
+    @Query("SELECT * FROM article WHERE uid=:uuid")
+    suspend fun findArticle(uuid: String): Article
+
     @Insert
     suspend fun insertAll(vararg articles: Article)
 

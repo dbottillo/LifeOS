@@ -2,14 +2,9 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>EmptyCatchBlock:HomeRepository.kt$HomeRepository${ }</ID>
-    <ID>EmptyElseBlock:HomeRepository.kt$HomeRepository${ }</ID>
     <ID>MagicNumber:build.gradle.kts$26</ID>
     <ID>MagicNumber:build.gradle.kts$34</ID>
-    <ID>StringLiteralDuplication:HomeRepository.kt$HomeRepository$"${response.code()} ${response.message()}"</ID>
-    <ID>StringLiteralDuplication:build.gradle.kts$"String"</ID>
+    <ID>StringLiteralDuplication:ArticleRepository.kt$ArticleRepository$"Status"</ID>
     <ID>StringLiteralDuplication:build.gradle.kts$"engBuild"</ID>
-    <ID>SwallowedException:HomeRepository.kt$HomeRepository$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:HomeRepository.kt$HomeRepository$e: Exception</ID>
   </CurrentIssues>
 </SmellBaseline>

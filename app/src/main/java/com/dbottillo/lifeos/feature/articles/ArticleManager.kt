@@ -87,3 +87,4 @@ internal const val ADD_ARTICLE_DATA_TITLE = "title"
 internal const val ARTICLE_DATA_UUID = "uuid"
 internal const val ADD_ARTICLE_DATA_URL = "url"
 internal const val ARTICLE_DATA_STATUS = "status"
+internal const val MAX_RUN_ATTEMPTS = 3

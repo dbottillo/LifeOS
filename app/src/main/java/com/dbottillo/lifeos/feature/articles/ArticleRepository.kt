@@ -36,10 +36,11 @@ class ArticleRepository @Inject constructor(
     suspend fun markArticleAsRead(article: Article) {
         withContext(Dispatchers.IO) {
             db.articleDao().updateArticle(article.copy(status = "read"))
-            articleManager.updateArticleStatus(article, "Done")
+            articleManager.updateArticleStatus(article, "Read")
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     suspend fun fetchArticles() = coroutineScope {
         try {
             val request = NotionBodyRequest(
@@ -66,7 +67,7 @@ class ArticleRepository @Inject constructor(
                 val body = response.body()
                 if (body != null) {
                     val articles = body.results.map {
-                        com.dbottillo.lifeos.db.Article(
+                        Article(
                             uid = it.id,
                             url = it.properties["URL"]?.url ?: "",
                             longRead = it.properties["Status"]?.status?.name == "Long read",
@@ -85,5 +86,9 @@ class ArticleRepository @Inject constructor(
             Firebase.crashlytics.recordException(throwable)
             ApiResult.Error(throwable)
         }
+    }
+
+    suspend fun findArticle(uuid: String): Article {
+        return db.articleDao().findArticle(uuid = uuid)
     }
 }

@@ -4,22 +4,26 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.dbottillo.lifeos.feature.logs.LogLevel
+import com.dbottillo.lifeos.feature.logs.LogTags
+import com.dbottillo.lifeos.feature.logs.LogsRepository
 import com.dbottillo.lifeos.network.ApiInterface
 import com.dbottillo.lifeos.network.NotionStatus
 import com.dbottillo.lifeos.network.NotionUpdateProperty
 import com.dbottillo.lifeos.network.UpdateBodyRequest
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 
 @HiltWorker
 class UpdateStatusArticleWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val api: ApiInterface
+    private val api: ApiInterface,
+    private val articleRepository: ArticleRepository,
+    private val logsRepository: LogsRepository
 ) : CoroutineWorker(appContext, workerParams) {
 
     @Suppress("SwallowedException", "TooGenericExceptionCaught")
@@ -29,6 +33,12 @@ class UpdateStatusArticleWorker @AssistedInject constructor(
                 inputData.getString(ARTICLE_DATA_UUID) ?: return@withContext Result.failure()
             val status =
                 inputData.getString(ARTICLE_DATA_STATUS) ?: return@withContext Result.failure()
+            val entry = articleRepository.findArticle(uuid)
+            logsRepository.addEntry(
+                tag = LogTags.UPDATE_ARTICLE_WORKER,
+                level = LogLevel.INFO,
+                message = "Update [${entry.title}] with status: $status"
+            )
             val response = api.updatePage(
                 uuid,
                 UpdateBodyRequest(
@@ -38,13 +48,35 @@ class UpdateStatusArticleWorker @AssistedInject constructor(
                 )
             )
             if (response.isSuccessful) {
+                logsRepository.addEntry(
+                    tag = LogTags.UPDATE_ARTICLE_WORKER,
+                    level = LogLevel.INFO,
+                    message = "Update [${entry.title}]: successful"
+                )
                 return@withContext Result.success()
             }
-            Firebase.crashlytics.recordException(Throwable(response.errorBody().toString()))
-            return@withContext Result.retry()
+            val error = JSONObject(response.errorBody()?.string() ?: "")
+            logsRepository.addEntry(
+                tag = LogTags.UPDATE_ARTICLE_WORKER,
+                level = LogLevel.ERROR,
+                message = "Error updating [${entry.title}]: $error"
+            )
+            return@withContext if (this@UpdateStatusArticleWorker.runAttemptCount >= MAX_RUN_ATTEMPTS) {
+                Result.success()
+            } else {
+                Result.retry()
+            }
         } catch (error: Throwable) {
-            Firebase.crashlytics.recordException(error)
-            return@withContext Result.retry()
+            logsRepository.addEntry(
+                tag = LogTags.UPDATE_ARTICLE_WORKER,
+                level = LogLevel.ERROR,
+                message = "Error updating $error"
+            )
+            return@withContext if (this@UpdateStatusArticleWorker.runAttemptCount > MAX_RUN_ATTEMPTS) {
+                Result.success()
+            } else {
+                Result.retry()
+            }
         }
     }
 }

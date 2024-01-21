@@ -5,18 +5,22 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.dbottillo.lifeos.data.AppConstant
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import com.dbottillo.lifeos.feature.logs.LogLevel
+import com.dbottillo.lifeos.feature.logs.LogTags
+import com.dbottillo.lifeos.feature.logs.LogsRepository
+import com.dbottillo.lifeos.feature.tasks.TasksRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.json.JSONObject
 
 @HiltWorker
 class AddArticleWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val repository: HomeRepository
+    private val tasksRepository: TasksRepository,
+    private val logsRepository: LogsRepository
 ) : CoroutineWorker(appContext, workerParams) {
 
     @Suppress("SwallowedException", "TooGenericExceptionCaught")
@@ -26,15 +30,41 @@ class AddArticleWorker @AssistedInject constructor(
                 inputData.getString(ADD_ARTICLE_DATA_TITLE) ?: return@withContext Result.failure()
             val url =
                 inputData.getString(ADD_ARTICLE_DATA_URL) ?: return@withContext Result.failure()
-            val response = repository.addPage(AppConstant.ARTICLES_DATABASE_ID, title, url)
+            logsRepository.addEntry(
+                tag = LogTags.ADD_ARTICLE_WORKER,
+                level = LogLevel.INFO,
+                message = "Adding [$title] for url: $url"
+            )
+            val response = tasksRepository.addTask(AppConstant.ARTICLES_DATABASE_ID, title, url)
             if (response.isSuccessful) {
+                logsRepository.addEntry(
+                    tag = LogTags.ADD_ARTICLE_WORKER,
+                    level = LogLevel.INFO,
+                    message = "Article [$title] added successfully"
+                )
                 return@withContext Result.success()
             }
-            Firebase.crashlytics.recordException(Throwable(response.errorBody().toString()))
-            return@withContext Result.retry()
+            logsRepository.addEntry(
+                tag = LogTags.ADD_ARTICLE_WORKER,
+                level = LogLevel.ERROR,
+                message = "Failed with ${JSONObject(response.errorBody()?.string() ?: "")}"
+            )
+            return@withContext if (this@AddArticleWorker.runAttemptCount >= MAX_RUN_ATTEMPTS) {
+                Result.success()
+            } else {
+                Result.retry()
+            }
         } catch (error: Throwable) {
-            Firebase.crashlytics.recordException(error)
-            return@withContext Result.retry()
+            logsRepository.addEntry(
+                tag = LogTags.ADD_ARTICLE_WORKER,
+                level = LogLevel.ERROR,
+                message = "Failed with $error"
+            )
+            return@withContext if (this@AddArticleWorker.runAttemptCount < MAX_RUN_ATTEMPTS) {
+                Result.retry()
+            } else {
+                Result.success()
+            }
         }
     }
 }

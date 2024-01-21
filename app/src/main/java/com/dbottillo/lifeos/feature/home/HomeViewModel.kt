@@ -4,11 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import com.dbottillo.lifeos.db.Article
+import com.dbottillo.lifeos.db.Log
 import com.dbottillo.lifeos.feature.articles.ArticleManager
 import com.dbottillo.lifeos.feature.articles.ArticleRepository
+import com.dbottillo.lifeos.feature.logs.LogsRepository
 import com.dbottillo.lifeos.feature.tasks.TasksRepository
 import com.dbottillo.lifeos.feature.tasks.TasksState
-import com.dbottillo.lifeos.feature.workers.WorkerRepository
 import com.dbottillo.lifeos.notification.NotificationProvider
 import com.dbottillo.lifeos.network.RefreshProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,14 +27,15 @@ class HomeViewModel @Inject constructor(
     private val notificationProvider: NotificationProvider,
     private val refreshProvider: RefreshProvider,
     private val articleManager: ArticleManager,
-    private val workerRepository: WorkerRepository
+    private val logsRepository: LogsRepository
 ) : ViewModel() {
 
     val state = MutableStateFlow<HomeState>(
         HomeState(
             tasksState = TasksState.Idle,
             articles = Articles(emptyList(), emptyList()),
-            workInfo = emptyList()
+            workInfo = emptyList(),
+            logs = emptyList()
         )
     )
 
@@ -43,17 +45,19 @@ class HomeViewModel @Inject constructor(
                 tasksRepository.state,
                 articleRepository.articles(),
                 refreshProvider.workManagerStatus(),
-                articleManager.status()
-            ) { appState, articles, workManagerStatus, articleManagerStatus ->
-                Triple(appState, articles, workManagerStatus to articleManagerStatus)
+                articleManager.status(),
+                logsRepository.entries()
+            ) { appState, articles, workManagerStatus, articleManagerStatus, logs ->
+                Triple(appState, articles to logs, workManagerStatus to articleManagerStatus)
             }.collectLatest {
                 state.value = state.first().copy(
                     tasksState = it.first,
                     articles = Articles(
-                        inbox = it.second.filter { !it.longRead },
-                        longRead = it.second.filter { it.longRead }
+                        inbox = it.second.first.filter { !it.longRead },
+                        longRead = it.second.first.filter { it.longRead }
                     ),
-                    workInfo = it.third.first + it.third.second.filter { it.state != WorkInfo.State.SUCCEEDED }
+                    workInfo = it.third.first + it.third.second.filter { it.state != WorkInfo.State.SUCCEEDED },
+                    logs = it.second.second
                 )
             }
         }
@@ -82,6 +86,11 @@ class HomeViewModel @Inject constructor(
     }
 }
 
-data class HomeState(val tasksState: TasksState, val articles: Articles, val workInfo: List<WorkInfo>)
+data class HomeState(
+    val tasksState: TasksState,
+    val articles: Articles,
+    val workInfo: List<WorkInfo>,
+    val logs: List<Log>
+)
 
 data class Articles(val inbox: List<Article>, val longRead: List<Article>)
