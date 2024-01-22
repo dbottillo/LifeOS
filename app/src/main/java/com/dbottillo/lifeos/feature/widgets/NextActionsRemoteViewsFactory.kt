@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import com.dbottillo.lifeos.R
-import com.dbottillo.lifeos.feature.home.HomeStorage
+import com.dbottillo.lifeos.feature.tasks.TasksRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 
@@ -14,7 +14,7 @@ import kotlinx.coroutines.runBlocking
 class NextActionsRemoteViewsFactory(
     private val context: Context,
     intent: Intent,
-    private val homeStorage: HomeStorage
+    private val tasksRepository: TasksRepository
 ) : RemoteViewsService.RemoteViewsFactory {
 
     private var dataList = mutableListOf<Pair<String, Int>>()
@@ -83,7 +83,7 @@ class NextActionsRemoteViewsFactory(
     private fun initData() {
         dataList.clear()
         runBlocking {
-            homeStorage.nextActionsFlow.first().actions.forEachIndexed { index, entry ->
+            tasksRepository.nextActionsFlow.first().forEachIndexed { index, entry ->
                 dataList.add(entry.text to entry.color.split(",").first().toDrawable())
                 urls[index] = entry.url
             }

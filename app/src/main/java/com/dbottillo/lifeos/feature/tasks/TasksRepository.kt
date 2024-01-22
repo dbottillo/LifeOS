@@ -1,7 +1,8 @@
 package com.dbottillo.lifeos.feature.tasks
 
 import com.dbottillo.lifeos.data.AppConstant
-import com.dbottillo.lifeos.data.NextAction
+import com.dbottillo.lifeos.db.AppDatabase
+import com.dbottillo.lifeos.db.NotionEntry
 import com.dbottillo.lifeos.feature.home.HomeStorage
 import com.dbottillo.lifeos.network.AddPageNotionBodyRequest
 import com.dbottillo.lifeos.network.AddPageNotionBodyRequestParent
@@ -18,8 +19,10 @@ import com.dbottillo.lifeos.network.NotionBodyRequest
 import com.dbottillo.lifeos.network.NotionDatabaseQueryResult
 import com.dbottillo.lifeos.network.SortRequest
 import com.dbottillo.lifeos.notification.NotificationProvider
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import retrofit2.Response
 import java.time.Instant
 import java.time.OffsetDateTime
@@ -31,14 +34,22 @@ class TasksRepository @Inject constructor(
     private val api: ApiInterface,
     private val storage: HomeStorage,
     private val notificationProvider: NotificationProvider,
+    private val db: AppDatabase,
+    private val nextActionMapper: NextActionMapper
 ) {
 
     val state = MutableStateFlow<TasksState>(TasksState.Idle)
 
+    private val dao by lazy { db.notionEntryDao() }
+
+    val nextActionsFlow: Flow<List<NextAction>> = dao.getNextActions().map(nextActionMapper::map)
+
     suspend fun init() {
-        val nextActions = storage.nextActionsFlow.first()
-        val titles =
-            nextActions.actions.joinToString("\n") { it.text }
+        val titles = dao.getNextActions().first().joinToString("\n") {
+            val name = it.title ?: "No title"
+            val emoji = it.emoji ?: ""
+            emoji + name
+        }
         notificationProvider.updateNextActions(titles)
         storage.timestamp.first().let { state.emit(TasksState.Restored(it)) }
     }
@@ -154,15 +165,16 @@ class TasksRepository @Inject constructor(
         result: NotionDatabaseQueryResult
     ) {
         val nextActions = result.results.map { page ->
-            val name = page.properties["Name"]?.title?.getOrNull(0)?.plainText ?: "No title"
-            val emoji = page.icon?.emoji ?: ""
-            val text = emoji + name
-            NextAction(
-                color = page.properties["Type"]?.multiSelect!!.joinToString(",") { it.color },
-                text = text,
-                url = page.url
+            NotionEntry(
+                uid = page.id,
+                color = page.properties["Type"]?.multiSelect?.joinToString(",") { it.color },
+                title = page.properties["Name"]?.title?.getOrNull(0)?.plainText,
+                url = page.url,
+                emoji = page.icon?.emoji,
+                type = "alert"
             )
         }
+        dao.deleteAndInsertAll(nextActions)
         val titles =
             result.results.map { page ->
                 val name = page.properties["Name"]?.title?.getOrNull(0)?.plainText ?: "No title"
@@ -170,7 +182,6 @@ class TasksRepository @Inject constructor(
                 emoji + name
             }
         val notificationData = titles.joinToString("\n")
-        storage.updateNextActions(nextActions)
         notificationProvider.updateNextActions(notificationData)
         state.emit(TasksState.Loaded(storage.timestamp.first()))
     }
