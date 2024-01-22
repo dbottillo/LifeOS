@@ -80,6 +80,10 @@ class ArticleManager @Inject constructor(
     fun status(): Flow<List<WorkInfo>> {
         return workManager.getWorkInfosByTagFlow(ARTICLE_WORKER_TAG)
     }
+
+    fun clear() {
+        workManager.pruneWork()
+    }
 }
 
 private const val ARTICLE_WORKER_TAG = "article"

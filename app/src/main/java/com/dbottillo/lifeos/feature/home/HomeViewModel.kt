@@ -79,6 +79,12 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun clear() {
+        viewModelScope.launch {
+            articleManager.clear()
+        }
+    }
+
     fun markAsRead(article: Article) {
         viewModelScope.launch {
             articleRepository.markArticleAsRead(article)

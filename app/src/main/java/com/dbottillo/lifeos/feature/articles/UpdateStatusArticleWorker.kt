@@ -37,7 +37,7 @@ class UpdateStatusArticleWorker @AssistedInject constructor(
             logsRepository.addEntry(
                 tag = LogTags.UPDATE_ARTICLE_WORKER,
                 level = LogLevel.INFO,
-                message = "Update [${entry.title}] with status: $status"
+                message = "Update [${entry.url}] with status: $status"
             )
             val response = api.updatePage(
                 uuid,
@@ -51,7 +51,7 @@ class UpdateStatusArticleWorker @AssistedInject constructor(
                 logsRepository.addEntry(
                     tag = LogTags.UPDATE_ARTICLE_WORKER,
                     level = LogLevel.INFO,
-                    message = "Update [${entry.title}]: successful"
+                    message = "Update [${entry.url}]: successful"
                 )
                 return@withContext Result.success()
             }
@@ -59,7 +59,7 @@ class UpdateStatusArticleWorker @AssistedInject constructor(
             logsRepository.addEntry(
                 tag = LogTags.UPDATE_ARTICLE_WORKER,
                 level = LogLevel.ERROR,
-                message = "Error updating [${entry.title}]: $error"
+                message = "Error updating [${entry.url}]: $error"
             )
             return@withContext if (this@UpdateStatusArticleWorker.runAttemptCount >= MAX_RUN_ATTEMPTS) {
                 Result.success()

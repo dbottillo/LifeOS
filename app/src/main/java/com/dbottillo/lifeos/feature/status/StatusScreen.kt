@@ -52,6 +52,11 @@ fun StatusScreen(
             ) {
                 Text(text = "Stop")
             }
+            Button(
+                onClick = { viewModel.clear() }
+            ) {
+                Text(text = "Clear")
+            }
         }
         LazyColumn {
             item {

@@ -26,8 +26,7 @@ class AddArticleWorker @AssistedInject constructor(
     @Suppress("SwallowedException", "TooGenericExceptionCaught")
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
-            val title =
-                inputData.getString(ADD_ARTICLE_DATA_TITLE) ?: return@withContext Result.failure()
+            val title = inputData.getString(ADD_ARTICLE_DATA_TITLE) ?: ""
             val url =
                 inputData.getString(ADD_ARTICLE_DATA_URL) ?: return@withContext Result.failure()
             logsRepository.addEntry(
@@ -40,7 +39,7 @@ class AddArticleWorker @AssistedInject constructor(
                 logsRepository.addEntry(
                     tag = LogTags.ADD_ARTICLE_WORKER,
                     level = LogLevel.INFO,
-                    message = "Article [$title] added successfully"
+                    message = "Article [$url] added successfully"
                 )
                 return@withContext Result.success()
             }

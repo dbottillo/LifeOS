@@ -33,21 +33,21 @@ class DeleteArticleWorker @AssistedInject constructor(
             logsRepository.addEntry(
                 tag = LogTags.DELETE_ARTICLE_WORKER,
                 level = LogLevel.INFO,
-                message = "Delete [${entry.title}]"
+                message = "Delete [${entry.url}]"
             )
             val response = api.archivePage(uuid, ArchiveBodyRequest(true))
             if (response.isSuccessful) {
                 logsRepository.addEntry(
                     tag = LogTags.DELETE_ARTICLE_WORKER,
                     level = LogLevel.INFO,
-                    message = "Delete [${entry.title}]: successful"
+                    message = "Delete [${entry.url}]: successful"
                 )
                 return@withContext Result.success()
             }
             logsRepository.addEntry(
                 tag = LogTags.DELETE_ARTICLE_WORKER,
                 level = LogLevel.ERROR,
-                message = "Error deleting [${entry.title}]: ${JSONObject(response.errorBody()?.string() ?: "")}"
+                message = "Error deleting [${entry.url}]: ${JSONObject(response.errorBody()?.string() ?: "")}"
             )
             return@withContext if (this@DeleteArticleWorker.runAttemptCount >= MAX_RUN_ATTEMPTS) {
                 Result.success()
