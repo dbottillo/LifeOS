@@ -171,7 +171,10 @@ class TasksRepository @Inject constructor(
                 title = page.properties["Name"]?.title?.getOrNull(0)?.plainText,
                 url = page.url,
                 emoji = page.icon?.emoji,
-                type = "alert"
+                type = "alert",
+                startDate = page.properties["Due"]?.date?.start,
+                endDate = page.properties["Due"]?.date?.end,
+                timeZone = page.properties["Due"]?.date?.timeZone
             )
         }
         dao.deleteAndInsertAll(nextActions)

@@ -31,7 +31,8 @@ data class NotionProperty(
     @Json(name = "select")
     val select: MultiSelectPropertyOption?,
     @Json(name = "status")
-    val status: NotionStatus? = null
+    val status: NotionStatus? = null,
+    val date: NotionDate? = null
 )
 
 @JsonClass(generateAdapter = true)
@@ -168,4 +169,11 @@ class UpdateBodyRequest(
 @JsonClass(generateAdapter = true)
 data class NotionUpdateProperty(
     val status: NotionStatus
+)
+
+@JsonClass(generateAdapter = true)
+data class NotionDate(
+    val start: String?,
+    val end: String?,
+    @Json(name = "time_zone") val timeZone: String?
 )

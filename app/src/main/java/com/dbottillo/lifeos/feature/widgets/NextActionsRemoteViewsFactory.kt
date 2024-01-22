@@ -3,12 +3,14 @@ package com.dbottillo.lifeos.feature.widgets
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import com.dbottillo.lifeos.R
 import com.dbottillo.lifeos.feature.tasks.TasksRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import java.lang.UnsupportedOperationException
 
 @Suppress("UNUSED_PARAMETER")
 class NextActionsRemoteViewsFactory(
@@ -17,8 +19,22 @@ class NextActionsRemoteViewsFactory(
     private val tasksRepository: TasksRepository
 ) : RemoteViewsService.RemoteViewsFactory {
 
-    private var dataList = mutableListOf<Pair<String, Int>>()
-    private var urls = mutableMapOf<Int, String>()
+    private val data = mutableMapOf<Int, WidgetEntry>()
+
+    /*
+    0 -> task
+    1 -> task
+    2 -> title
+    3 -> task
+    4 -> task
+    5 -> add
+
+    0 -> title
+    1 -> task
+    2 -> task
+    3 -> task
+    5 -> add
+     */
 
     override fun onCreate() {
         initData()
@@ -32,47 +48,61 @@ class NextActionsRemoteViewsFactory(
     override fun onDestroy() {
     }
 
-    override fun getCount() = dataList.size + 1
+    override fun getCount() = data.size
 
     override fun getViewAt(position: Int): RemoteViews {
-        if (position == dataList.size) {
-            // last entry
-            val buttonView = RemoteViews(
+        return when (val entry = data[position]) {
+            WidgetEntry.Focus -> RemoteViews(
                 context.packageName,
-                R.layout.notion_widget_add
+                R.layout.notion_widget_focus
             )
-            val refreshIntent = Intent().apply {
-                Bundle().also { extras ->
-                    extras.putString(LINK_URL, "refresh")
-                    putExtras(extras)
+            WidgetEntry.Footer -> {
+                val buttonView = RemoteViews(
+                    context.packageName,
+                    R.layout.notion_widget_add
+                )
+                val refreshIntent = Intent().apply {
+                    Bundle().also { extras ->
+                        extras.putString(LINK_URL, "refresh")
+                        putExtras(extras)
+                    }
                 }
+                buttonView.setOnClickFillInIntent(R.id.notion_widget_add_image_button, refreshIntent)
+                buttonView
             }
-            buttonView.setOnClickFillInIntent(R.id.notion_widget_add_image_button, refreshIntent)
-            return buttonView
-        }
-        val view = RemoteViews(
-            context.packageName,
-            R.layout.widget_row
-        )
-        view.setTextViewText(R.id.widget_row_id, dataList[position].first)
-        view.setInt(R.id.widget_row_id, "setBackgroundResource", dataList[position].second)
-        val fillInIntent = Intent().apply {
-            Bundle().also { extras ->
-                extras.putString(LINK_URL, urls.getOrDefault(position, ""))
-                extras.putInt(EXTRA_ITEM, position)
-                putExtras(extras)
+            is WidgetEntry.Entry -> {
+                val view = RemoteViews(
+                    context.packageName,
+                    R.layout.widget_row
+                )
+                view.setTextViewText(R.id.widget_row_title_id, entry.text)
+                view.setTextViewText(R.id.widget_row_due_id, entry.due ?: "")
+                view.setViewVisibility(
+                    R.id.widget_row_due_id,
+                    if (entry.due?.isNotEmpty() == true) View.VISIBLE else View.GONE
+                )
+                view.setInt(R.id.widget_row_id, "setBackgroundResource", entry.color)
+                val fillInIntent = Intent().apply {
+                    Bundle().also { extras ->
+                        extras.putString(LINK_URL, entry.url)
+                        extras.putInt(EXTRA_ITEM, position)
+                        putExtras(extras)
+                    }
+                }
+                // Make it possible to distinguish the individual on-click action of a given item.
+                view.setOnClickFillInIntent(R.id.widget_row_id, fillInIntent)
+                view
             }
+
+            else -> throw UnsupportedOperationException("illegal entry")
         }
-        // Make it possible to distinguish the individual on-click action of a given item.
-        view.setOnClickFillInIntent(R.id.widget_row_id, fillInIntent)
-        return view
     }
 
     override fun getLoadingView(): RemoteViews? {
         return null
     }
 
-    override fun getViewTypeCount() = 2
+    override fun getViewTypeCount() = 3
 
     override fun getItemId(position: Int): Long {
         return position.toLong()
@@ -81,14 +111,41 @@ class NextActionsRemoteViewsFactory(
     override fun hasStableIds() = true
 
     private fun initData() {
-        dataList.clear()
+        data.clear()
         runBlocking {
-            tasksRepository.nextActionsFlow.first().forEachIndexed { index, entry ->
-                dataList.add(entry.text to entry.color.split(",").first().toDrawable())
-                urls[index] = entry.url
+            tasksRepository.nextActionsFlow.first().run {
+                val (withDue, withoutDue) = this.partition { it.due.isNotEmpty() }
+                var index = 0
+                withDue.forEach { action ->
+                    data[index] = WidgetEntry.Entry(
+                        text = action.text,
+                        url = action.url,
+                        due = action.due,
+                        color = action.color.split(",").first().toDrawable()
+                    )
+                    index++
+                }
+                data[index] = WidgetEntry.Focus
+                index++
+                withoutDue.forEach { action ->
+                    data[index] = WidgetEntry.Entry(
+                        text = action.text,
+                        url = action.url,
+                        due = action.due,
+                        color = action.color.split(",").first().toDrawable()
+                    )
+                    index++
+                }
+                data[index] = WidgetEntry.Footer
             }
         }
     }
+}
+
+sealed class WidgetEntry {
+    data object Focus : WidgetEntry()
+    data object Footer : WidgetEntry()
+    data class Entry(val text: String, val color: Int, val url: String, val due: String?) : WidgetEntry()
 }
 
 private fun String.toDrawable(): Int {

@@ -11,5 +11,8 @@ data class NotionEntry(
     @ColumnInfo(name = "emoji") val emoji: String?,
     @ColumnInfo(name = "url") val url: String,
     @ColumnInfo(name = "color") val color: String?,
-    @ColumnInfo(name = "type") val type: String
+    @ColumnInfo(name = "type") val type: String,
+    @ColumnInfo(name = "start_date") val startDate: String?,
+    @ColumnInfo(name = "end_date") val endDate: String?,
+    @ColumnInfo(name = "time_zone") val timeZone: String?
 )
