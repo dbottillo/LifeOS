@@ -31,7 +31,7 @@ fun StatusScreen(
     viewModel: HomeViewModel,
     dateFormatter: SimpleDateFormat
 ) {
-    val state = viewModel.state.collectAsStateWithLifecycle()
+    val state = viewModel.statusState.collectAsStateWithLifecycle()
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -69,12 +69,6 @@ fun StatusScreen(
                         is TasksState.Error -> "AppState - Error ${appState.message}, last try: ${appState.timestamp}"
                         is TasksState.Restored -> "AppState - Restored, last try:\n${appState.timestamp}"
                     }
-                )
-            }
-            item {
-                Text(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    text = "Number of articles: ${state.value.articles.inbox.size + state.value.articles.longRead.size}"
                 )
             }
             if (state.value.workInfo.isEmpty()) {

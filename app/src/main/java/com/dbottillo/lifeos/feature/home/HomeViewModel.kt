@@ -8,6 +8,7 @@ import com.dbottillo.lifeos.db.Log
 import com.dbottillo.lifeos.feature.articles.ArticleManager
 import com.dbottillo.lifeos.feature.articles.ArticleRepository
 import com.dbottillo.lifeos.feature.logs.LogsRepository
+import com.dbottillo.lifeos.feature.tasks.NextAction
 import com.dbottillo.lifeos.feature.tasks.TasksRepository
 import com.dbottillo.lifeos.feature.tasks.TasksState
 import com.dbottillo.lifeos.notification.NotificationProvider
@@ -27,13 +28,25 @@ class HomeViewModel @Inject constructor(
     private val notificationProvider: NotificationProvider,
     private val refreshProvider: RefreshProvider,
     private val articleManager: ArticleManager,
-    private val logsRepository: LogsRepository
+    private val logsRepository: LogsRepository,
 ) : ViewModel() {
 
-    val state = MutableStateFlow<HomeState>(
+    val homeState = MutableStateFlow<HomeState>(
         HomeState(
-            tasksState = TasksState.Idle,
+            refreshing = false,
+            nextActions = emptyList()
+        )
+    )
+
+    val articleState = MutableStateFlow<ArticleScreenState>(
+        ArticleScreenState(
             articles = Articles(emptyList(), emptyList()),
+        )
+    )
+
+    val statusState = MutableStateFlow<StatusScreenState>(
+        StatusScreenState(
+            tasksState = TasksState.Idle,
             workInfo = emptyList(),
             logs = emptyList()
         )
@@ -41,27 +54,51 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            combine(
-                tasksRepository.state,
-                articleRepository.articles(),
-                refreshProvider.workManagerStatus(),
-                articleManager.status(),
-                logsRepository.entries()
-            ) { appState, articles, workManagerStatus, articleManagerStatus, logs ->
-                Triple(appState, articles to logs, workManagerStatus to articleManagerStatus)
-            }.collectLatest {
-                state.value = state.first().copy(
-                    tasksState = it.first,
-                    articles = Articles(
-                        inbox = it.second.first.filter { !it.longRead },
-                        longRead = it.second.first.filter { it.longRead }
-                    ),
-                    workInfo = it.third.first + it.third.second.filter { it.state != WorkInfo.State.SUCCEEDED },
-                    logs = it.second.second
-                )
-            }
+            initHome()
+        }
+        viewModelScope.launch {
+            initArticles()
+        }
+        viewModelScope.launch {
+            initStatus()
         }
         refreshProvider.start()
+    }
+
+    private suspend fun initHome() {
+        tasksRepository.nextActionsFlow.collectLatest {
+            homeState.value = homeState.first().copy(
+                nextActions = it
+            )
+        }
+    }
+
+    private suspend fun initArticles() {
+        articleRepository.articles().collectLatest { list ->
+            articleState.value = articleState.first().copy(
+                articles = Articles(
+                    inbox = list.filter { !it.longRead },
+                    longRead = list.filter { it.longRead }
+                )
+            )
+        }
+    }
+
+    private suspend fun initStatus() {
+        combine(
+            tasksRepository.state,
+            refreshProvider.workManagerStatus(),
+            articleManager.status(),
+            logsRepository.entries()
+        ) { appState, workManagerStatus, articleManagerStatus, logs ->
+            Triple(appState, logs, workManagerStatus to articleManagerStatus)
+        }.collectLatest {
+            statusState.value = statusState.first().copy(
+                tasksState = it.first,
+                workInfo = it.third.first + it.third.second.filter { it.state != WorkInfo.State.SUCCEEDED },
+                logs = it.second
+            )
+        }
     }
 
     fun load() {
@@ -90,11 +127,23 @@ class HomeViewModel @Inject constructor(
             articleRepository.markArticleAsRead(article)
         }
     }
+
+    fun reloadHome() {
+        TODO("Not yet implemented")
+    }
 }
 
 data class HomeState(
-    val tasksState: TasksState,
+    val refreshing: Boolean,
+    val nextActions: List<NextAction>
+)
+
+data class ArticleScreenState(
     val articles: Articles,
+)
+
+data class StatusScreenState(
+    val tasksState: TasksState,
     val workInfo: List<WorkInfo>,
     val logs: List<Log>
 )

@@ -51,6 +51,7 @@ class HomeActivity : AppCompatActivity() {
             val navController = rememberNavController()
             val items = listOf(
                 Screen.Articles,
+                Screen.Home,
                 Screen.Status,
             )
             val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -124,6 +125,12 @@ class HomeActivity : AppCompatActivity() {
                                 homeViewModel
                             )
                         }
+                        composable(Screen.Home.route) {
+                            HomeScreen(
+                                navController,
+                                homeViewModel
+                            )
+                        }
                         composable(Screen.Status.route) {
                             StatusScreen(
                                 navController,
@@ -139,6 +146,7 @@ class HomeActivity : AppCompatActivity() {
 }
 
 sealed class Screen(val route: String, @StringRes val resourceId: Int, @DrawableRes val iconId: Int) {
+    data object Home : Screen("home", R.string.home, R.drawable.baseline_sun_24)
     data object Articles : Screen("articles", R.string.articles, R.drawable.baseline_list_24)
     data object Status : Screen("status", R.string.status, R.drawable.baseline_settings_24)
 }

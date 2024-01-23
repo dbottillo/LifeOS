@@ -36,7 +36,7 @@ import java.util.UUID
 @Suppress("UNUSED_PARAMETER")
 @Composable
 fun ArticlesScreen(navController: NavController, viewModel: HomeViewModel) {
-    val state = viewModel.state.collectAsStateWithLifecycle()
+    val state = viewModel.articleState.collectAsStateWithLifecycle()
     ArticlesScreenContent(
         inbox = state.value.articles.inbox,
         longRead = state.value.articles.longRead,

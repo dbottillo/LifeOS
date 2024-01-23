@@ -58,6 +58,7 @@ androidx-compose-animation = { group = "androidx.compose.animation", name = "ani
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
+androidx-compose-material = { group = "androidx.compose.material", name = "material" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-material3-window = { group = "androidx.compose.material3", name = "material3-window-size-class" }
 androidx-accompanist-systemuicontroller = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist"}
@@ -104,7 +105,7 @@ room-ktx = { group ="androidx.room", name = "room-ktx", version.ref = "room" }
 [bundles]
 ui = ["androidx-core", "androidx-core-ktx", "android-compat", "androidx-constraintlayout"]
 old-ui = ["material", "navigation-fragment", "navigation-ui"]
-compose-ui = ["androidx-compose-ui", "androidx-compose-animation", "androidx-compose-foundation", "androidx-compose-material3", "androidx-compose-material3-window", "androidx-accompanist-systemuicontroller", "androidx-compose-ui-tooling", "androidx-compose-ui-tooling-preview", "androidx-navigation-compose", "androidx-lifecycle-compose", "androidx-lifecycle-runtime-compose", "androidx-constraintlayout-compose"]
+compose-ui = ["androidx-compose-ui", "androidx-compose-animation", "androidx-compose-foundation", "androidx-compose-material3", "androidx-compose-material3-window", "androidx-accompanist-systemuicontroller", "androidx-compose-ui-tooling", "androidx-compose-ui-tooling-preview", "androidx-navigation-compose", "androidx-lifecycle-compose", "androidx-lifecycle-runtime-compose", "androidx-constraintlayout-compose", "androidx-compose-material"]
 test = ["coroutines-test", "junit-api", "junit-params", "mockito-core", "mockito-inline", "mockito-kotlin", "truth", "turbine"]
 network = ["moshi-adapters", "okhttp", "okhttp-logging", "retrofit", "retrofit-moshi"]
 debug =  ["leak-canary"]
