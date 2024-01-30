@@ -9,6 +9,8 @@ import com.dbottillo.lifeos.feature.articles.ArticleManager
 import com.dbottillo.lifeos.feature.articles.ArticleRepository
 import com.dbottillo.lifeos.feature.logs.LogsRepository
 import com.dbottillo.lifeos.feature.tasks.NextAction
+import com.dbottillo.lifeos.feature.tasks.Project
+import com.dbottillo.lifeos.feature.tasks.Status
 import com.dbottillo.lifeos.feature.tasks.TasksRepository
 import com.dbottillo.lifeos.feature.tasks.TasksState
 import com.dbottillo.lifeos.notification.NotificationProvider
@@ -34,7 +36,8 @@ class HomeViewModel @Inject constructor(
     val homeState = MutableStateFlow<HomeState>(
         HomeState(
             refreshing = false,
-            nextActions = emptyList()
+            nextActions = emptyList(),
+            projects = emptyList()
         )
     )
 
@@ -66,9 +69,12 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun initHome() {
-        tasksRepository.nextActionsFlow.collectLatest {
+        tasksRepository.nextActionsFlow.combine(tasksRepository.projectsFlow) { actions, projects ->
+            actions to projects
+        }.collectLatest {
             homeState.value = homeState.first().copy(
-                nextActions = it
+                nextActions = it.first,
+                projects = it.second.filter { it.status is Status.Focus }
             )
         }
     }
@@ -129,13 +135,23 @@ class HomeViewModel @Inject constructor(
     }
 
     fun reloadHome() {
-        TODO("Not yet implemented")
+        viewModelScope.launch {
+            homeState.value = homeState.first().copy(
+                refreshing = true
+            )
+            tasksRepository.loadProjects() // projects need to have priority first
+            tasksRepository.loadNextActions()
+            homeState.value = homeState.first().copy(
+                refreshing = false
+            )
+        }
     }
 }
 
 data class HomeState(
     val refreshing: Boolean,
-    val nextActions: List<NextAction>
+    val nextActions: List<NextAction>,
+    val projects: List<Project>
 )
 
 data class ArticleScreenState(

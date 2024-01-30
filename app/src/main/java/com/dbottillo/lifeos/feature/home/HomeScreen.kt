@@ -2,6 +2,7 @@ package com.dbottillo.lifeos.feature.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.dbottillo.lifeos.feature.tasks.NextAction
+import com.dbottillo.lifeos.feature.tasks.Project
+import com.dbottillo.lifeos.feature.tasks.Status
 import com.dbottillo.lifeos.ui.AppTheme
 
 @Suppress("UNUSED_PARAMETER")
@@ -35,6 +38,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
     HomeScreenContent(
         refreshing = state.value.refreshing,
         nextAction = state.value.nextActions,
+        projects = state.value.projects,
         refresh = viewModel::reloadHome
     )
 }
@@ -44,6 +48,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
 fun HomeScreenContent(
     refreshing: Boolean,
     nextAction: List<NextAction>,
+    projects: List<Project>,
     refresh: () -> Unit
 ) {
     val pullRefreshState = rememberPullRefreshState(refreshing, refresh)
@@ -56,8 +61,6 @@ fun HomeScreenContent(
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             item(span = {
-                // LazyGridItemSpanScope:
-                // maxLineSpan
                 GridItemSpan(maxLineSpan)
             }) {
                 Text(
@@ -75,6 +78,35 @@ fun HomeScreenContent(
                     ) {
                         Box(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
                             Text(it.text)
+                        }
+                    }
+                }
+            }
+            item(span = {
+                GridItemSpan(maxLineSpan)
+            }) {
+                Text(
+                    text = "Projects",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+                )
+            }
+            projects.forEach {
+                item(key = it.url) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+                            Text(text = it.text, style = MaterialTheme.typography.bodyLarge)
+                            it.progress?.let {
+                                Text(
+                                    text = "${(it * 100).toInt()}%",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    modifier = Modifier.padding(top = 2.dp)
+                                )
+                            }
                         }
                     }
                 }
@@ -111,6 +143,32 @@ fun HomeScreenPreview() {
                             color = "blue",
                             due = "",
                             url = "url"
+                        )
+                    ),
+                    projects = listOf(
+                        Project(
+                            text = "Decide tooling",
+                            color = "blue",
+                            due = "",
+                            url = "url",
+                            progress = null,
+                            status = Status.Focus
+                        ),
+                        Project(
+                            text = "Replicate home",
+                            color = "blue",
+                            due = "",
+                            url = "url",
+                            progress = 0.2f,
+                            status = Status.Focus
+                        ),
+                        Project(
+                            text = "AOC '23 Day 09 Test Long one",
+                            color = "blue",
+                            due = "",
+                            url = "url",
+                            progress = 1.0f,
+                            status = Status.Focus
                         )
                     ),
                     refresh = {}

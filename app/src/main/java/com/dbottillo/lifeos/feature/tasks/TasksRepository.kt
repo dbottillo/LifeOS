@@ -11,13 +11,7 @@ import com.dbottillo.lifeos.network.AddPageNotionPropertyText
 import com.dbottillo.lifeos.network.AddPageNotionPropertyTitle
 import com.dbottillo.lifeos.network.ApiInterface
 import com.dbottillo.lifeos.network.ApiResult
-import com.dbottillo.lifeos.network.FilterBeforeRequest
-import com.dbottillo.lifeos.network.FilterCheckboxRequest
-import com.dbottillo.lifeos.network.FilterEqualsRequest
-import com.dbottillo.lifeos.network.FilterRequest
-import com.dbottillo.lifeos.network.NotionBodyRequest
 import com.dbottillo.lifeos.network.NotionDatabaseQueryResult
-import com.dbottillo.lifeos.network.SortRequest
 import com.dbottillo.lifeos.notification.NotificationProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,7 +29,8 @@ class TasksRepository @Inject constructor(
     private val storage: HomeStorage,
     private val notificationProvider: NotificationProvider,
     private val db: AppDatabase,
-    private val nextActionMapper: NextActionMapper
+    private val nextActionMapper: NextActionMapper,
+    private val projectMapper: ProjectMapper
 ) {
 
     val state = MutableStateFlow<TasksState>(TasksState.Idle)
@@ -43,6 +38,7 @@ class TasksRepository @Inject constructor(
     private val dao by lazy { db.notionEntryDao() }
 
     val nextActionsFlow: Flow<List<NextAction>> = dao.getNextActions().map(nextActionMapper::map)
+    val projectsFlow: Flow<List<Project>> = dao.getProjects().map(projectMapper::map)
 
     suspend fun init() {
         val titles = dao.getNextActions().first().joinToString("\n") {
@@ -55,8 +51,46 @@ class TasksRepository @Inject constructor(
     }
 
     suspend fun loadNextActions() {
-        val nextActions = fetchNextActions()
-        processDatabaseResult(nextActions)
+        when (val nextActions = fetchNextActions()) {
+            is ApiResult.Success -> {
+                storeAndNotify(nextActions.data)
+            }
+            is ApiResult.Error -> state.emit(
+                TasksState.Error(
+                    nextActions.exception.localizedMessage ?: "",
+                    storage.timestamp.first()
+                )
+            )
+        }
+    }
+
+    suspend fun loadProjects() {
+        when (val projects = fetchProjects()) {
+            is ApiResult.Success -> {
+                val nextActions = projects.data.results.map { page ->
+                    NotionEntry(
+                        uid = page.id,
+                        color = page.properties["Type"]?.multiSelect?.joinToString(",") { it.color },
+                        title = page.properties["Name"]?.title?.getOrNull(0)?.plainText,
+                        url = page.url,
+                        emoji = page.icon?.emoji,
+                        type = "project",
+                        startDate = page.properties["Due"]?.date?.start,
+                        endDate = page.properties["Due"]?.date?.end,
+                        timeZone = page.properties["Due"]?.date?.timeZone,
+                        status = page.properties["Status"]!!.status!!.name,
+                        progress = page.properties["Progress"]?.rollup?.number
+                    )
+                }
+                dao.deleteAndInsertAllProjects(nextActions)
+            }
+            is ApiResult.Error -> state.emit(
+                TasksState.Error(
+                    projects.exception.localizedMessage ?: "",
+                    storage.timestamp.first()
+                )
+            )
+        }
     }
 
     @Suppress("TooGenericExceptionCaught", "LongMethod", "StringLiteralDuplication")
@@ -64,74 +98,8 @@ class TasksRepository @Inject constructor(
         return try {
             val now = Instant.now()
             val dtm = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
-            val date = dtm.format(now)
-            val request = NotionBodyRequest(
-                filter = FilterRequest(
-                    or = listOf(
-                        FilterRequest(
-                            and = listOf(
-                                FilterRequest(
-                                    property = "Due",
-                                    date = FilterBeforeRequest(onOrBefore = date)
-                                ),
-                                FilterRequest(
-                                    property = "Category",
-                                    select = FilterEqualsRequest(
-                                        equals = "Task"
-                                    )
-                                )
-                            )
-                        ),
-                        FilterRequest(
-                            and = listOf(
-                                FilterRequest(
-                                    property = "Status",
-                                    status = FilterEqualsRequest(
-                                        equals = "Focus"
-                                    )
-                                ),
-                                FilterRequest(
-                                    property = "Category",
-                                    select = FilterEqualsRequest(
-                                        equals = "Task"
-                                    )
-                                )
-                            )
-                        ),
-                        FilterRequest(
-                            and = listOf(
-                                FilterRequest(
-                                    property = "Status",
-                                    status = FilterEqualsRequest(
-                                        equals = "Inbox"
-                                    )
-                                ),
-                                FilterRequest(
-                                    property = "Favourite",
-                                    checkbox = FilterCheckboxRequest(
-                                        equals = false
-                                    )
-                                )
-                            )
-                        )
-                    )
-                ),
-                sorts = listOf(
-                    SortRequest(
-                        property = "Favourite",
-                        direction = "descending"
-                    ),
-                    SortRequest(
-                        property = "Status",
-                        direction = "ascending"
-                    ),
-                    SortRequest(
-                        property = "Due",
-                        direction = "ascending"
-                    )
-                )
-            )
-            val response = api.queryDatabase(AppConstant.GTD_ONE_DATABASE_ID, request)
+            val request = NextActionsRequest(dtm.format(now))
+            val response = api.queryDatabase(AppConstant.GTD_ONE_DATABASE_ID, request.get())
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {
@@ -141,23 +109,6 @@ class TasksRepository @Inject constructor(
             ApiResult.Error(Throwable("${response.code()} ${response.message()}"))
         } catch (e: Exception) {
             ApiResult.Error(Throwable(e.message ?: e.toString()))
-        }
-    }
-
-    private suspend fun processDatabaseResult(
-        databaseResult: ApiResult<NotionDatabaseQueryResult>
-    ) {
-        when (databaseResult) {
-            is ApiResult.Success -> {
-                storeAndNotify(databaseResult.data)
-            }
-
-            is ApiResult.Error -> state.emit(
-                TasksState.Error(
-                    databaseResult.exception.localizedMessage ?: "",
-                    storage.timestamp.first()
-                )
-            )
         }
     }
 
@@ -174,7 +125,8 @@ class TasksRepository @Inject constructor(
                 type = "alert",
                 startDate = page.properties["Due"]?.date?.start,
                 endDate = page.properties["Due"]?.date?.end,
-                timeZone = page.properties["Due"]?.date?.timeZone
+                timeZone = page.properties["Due"]?.date?.timeZone,
+                status = page.properties["Status"]!!.status!!.name
             )
         }
         dao.deleteAndInsertAll(nextActions)
@@ -187,6 +139,23 @@ class TasksRepository @Inject constructor(
         val notificationData = titles.joinToString("\n")
         notificationProvider.updateNextActions(notificationData)
         state.emit(TasksState.Loaded(storage.timestamp.first()))
+    }
+
+    @Suppress("TooGenericExceptionCaught", "LongMethod", "StringLiteralDuplication")
+    private suspend fun fetchProjects(): ApiResult<NotionDatabaseQueryResult> {
+        return try {
+            val request = ProjectsRequest()
+            val response = api.queryDatabase(AppConstant.GTD_ONE_DATABASE_ID, request.get())
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    return ApiResult.Success(body)
+                }
+            }
+            ApiResult.Error(Throwable("${response.code()} ${response.message()}"))
+        } catch (e: Exception) {
+            ApiResult.Error(Throwable(e.message ?: e.toString()))
+        }
     }
 
     suspend fun addTask(databaseId: String, title: String?, url: String): Response<Any> {

@@ -32,7 +32,8 @@ data class NotionProperty(
     val select: MultiSelectPropertyOption?,
     @Json(name = "status")
     val status: NotionStatus? = null,
-    val date: NotionDate? = null
+    val date: NotionDate? = null,
+    val rollup: NotionRollup? = null
 )
 
 @JsonClass(generateAdapter = true)
@@ -176,4 +177,9 @@ data class NotionDate(
     val start: String?,
     val end: String?,
     @Json(name = "time_zone") val timeZone: String?
+)
+
+@JsonClass(generateAdapter = true)
+data class NotionRollup(
+    val number: Float?
 )

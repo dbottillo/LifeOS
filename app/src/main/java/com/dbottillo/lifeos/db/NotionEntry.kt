@@ -14,5 +14,7 @@ data class NotionEntry(
     @ColumnInfo(name = "type") val type: String,
     @ColumnInfo(name = "start_date") val startDate: String?,
     @ColumnInfo(name = "end_date") val endDate: String?,
-    @ColumnInfo(name = "time_zone") val timeZone: String?
+    @ColumnInfo(name = "time_zone") val timeZone: String?,
+    @ColumnInfo(name = "status", defaultValue = "") val status: String,
+    @ColumnInfo(name = "progress") val progress: Float? = null,
 )

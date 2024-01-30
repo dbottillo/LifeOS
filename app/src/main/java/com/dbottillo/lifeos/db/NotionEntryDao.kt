@@ -5,7 +5,6 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
-import java.nio.file.Files.delete
 
 @Dao
 interface NotionEntryDao {
@@ -13,16 +12,29 @@ interface NotionEntryDao {
     @Query("SELECT * FROM notionEntry WHERE type = 'alert'")
     fun getNextActions(): Flow<List<NotionEntry>>
 
+    @Query("SELECT * FROM notionEntry WHERE type = 'project'")
+    fun getProjects(): Flow<List<NotionEntry>>
+
     @Insert
     suspend fun insertAll(vararg entries: NotionEntry)
 
     @Suppress("SpreadOperator")
     @Transaction
     suspend fun deleteAndInsertAll(entries: List<NotionEntry>) {
-        delete()
+        deleteNextActions()
         insertAll(*entries.toTypedArray())
     }
 
-    @Query("DELETE FROM notionEntry")
-    suspend fun delete()
+    @Suppress("SpreadOperator")
+    @Transaction
+    suspend fun deleteAndInsertAllProjects(projects: List<NotionEntry>) {
+        deleteProjects()
+        insertAll(*projects.toTypedArray())
+    }
+
+    @Query("DELETE FROM notionEntry WHERE type = 'alert'")
+    suspend fun deleteNextActions()
+
+    @Query("DELETE FROM notionEntry WHERE type = 'project'")
+    suspend fun deleteProjects()
 }
