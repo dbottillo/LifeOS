@@ -27,6 +27,7 @@ class NextActionMapper @Inject constructor() {
                 }
             }
             NextAction(
+                id = entry.uid,
                 text = text,
                 url = entry.url,
                 color = entry.color ?: "",

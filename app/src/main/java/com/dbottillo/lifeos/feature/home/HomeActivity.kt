@@ -50,8 +50,8 @@ class HomeActivity : AppCompatActivity() {
         setContent {
             val navController = rememberNavController()
             val items = listOf(
-                Screen.Articles,
                 Screen.Home,
+                Screen.Articles,
                 Screen.Status,
             )
             val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -115,18 +115,18 @@ class HomeActivity : AppCompatActivity() {
                     }
                 ) { innerPadding ->
                     NavHost(
-                        navController,
-                        startDestination = Screen.Articles.route,
-                        Modifier.padding(innerPadding)
+                        navController = navController,
+                        startDestination = Screen.Home.route,
+                        modifier = Modifier.padding(innerPadding)
                     ) {
-                        composable(Screen.Articles.route) {
-                            ArticlesScreen(
+                        composable(Screen.Home.route) {
+                            HomeScreen(
                                 navController,
                                 homeViewModel
                             )
                         }
-                        composable(Screen.Home.route) {
-                            HomeScreen(
+                        composable(Screen.Articles.route) {
+                            ArticlesScreen(
                                 navController,
                                 homeViewModel
                             )

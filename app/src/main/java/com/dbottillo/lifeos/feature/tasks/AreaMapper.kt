@@ -12,6 +12,7 @@ class AreaMapper @Inject constructor() {
                 "$it $name"
             } ?: name
             Area(
+                id = entry.uid,
                 text = text,
                 url = entry.url,
             )

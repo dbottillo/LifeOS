@@ -1,6 +1,7 @@
 package com.dbottillo.lifeos.feature.tasks
 
 data class Project(
+    val id: String,
     val text: String,
     val url: String,
     val color: String,

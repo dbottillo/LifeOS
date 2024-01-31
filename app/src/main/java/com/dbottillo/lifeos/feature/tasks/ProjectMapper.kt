@@ -28,6 +28,7 @@ class ProjectMapper @Inject constructor() {
                 }
             }
             Project(
+                id = entry.uid,
                 text = text,
                 url = entry.url,
                 color = entry.color ?: "",
