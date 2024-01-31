@@ -31,13 +31,13 @@ interface NotionEntryDao {
     @Suppress("SpreadOperator")
     @Transaction
     suspend fun deleteAndInsertAllProjects(projects: List<NotionEntry>) {
-        deleteProjects()
+        deleteNonAlerts()
         insertAll(*projects.toTypedArray())
     }
 
     @Query("DELETE FROM notionEntry WHERE type = 'alert'")
     suspend fun deleteNextActions()
 
-    @Query("DELETE FROM notionEntry WHERE type = 'project'")
-    suspend fun deleteProjects()
+    @Query("DELETE FROM notionEntry WHERE type != 'alert'")
+    suspend fun deleteNonAlerts()
 }
