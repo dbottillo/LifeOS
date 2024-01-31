@@ -2,7 +2,7 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>LongMethod:HomeScreen.kt$@OptIn(ExperimentalMaterialApi::class) @Composable fun HomeScreenContent( refreshing: Boolean, nextAction: List&lt;NextAction&gt;, projects: List&lt;Project&gt;, refresh: () -&gt; Unit )</ID>
+    <ID>LongMethod:HomeScreen.kt$@OptIn(ExperimentalMaterialApi::class) @Composable fun HomeScreenContent( refreshing: Boolean, nextAction: List&lt;NextAction&gt;, projects: List&lt;Project&gt;, areas: List&lt;Area&gt;, refresh: () -&gt; Unit )</ID>
     <ID>LongMethod:NextActionsRequest.kt$NextActionsRequest$fun get(): NotionBodyRequest</ID>
     <ID>MagicNumber:build.gradle.kts$26</ID>
     <ID>MagicNumber:build.gradle.kts$34</ID>

@@ -8,6 +8,7 @@ import com.dbottillo.lifeos.db.Log
 import com.dbottillo.lifeos.feature.articles.ArticleManager
 import com.dbottillo.lifeos.feature.articles.ArticleRepository
 import com.dbottillo.lifeos.feature.logs.LogsRepository
+import com.dbottillo.lifeos.feature.tasks.Area
 import com.dbottillo.lifeos.feature.tasks.NextAction
 import com.dbottillo.lifeos.feature.tasks.Project
 import com.dbottillo.lifeos.feature.tasks.Status
@@ -37,7 +38,8 @@ class HomeViewModel @Inject constructor(
         HomeState(
             refreshing = false,
             nextActions = emptyList(),
-            projects = emptyList()
+            projects = emptyList(),
+            areas = emptyList()
         )
     )
 
@@ -69,12 +71,17 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun initHome() {
-        tasksRepository.nextActionsFlow.combine(tasksRepository.projectsFlow) { actions, projects ->
-            actions to projects
-        }.collectLatest {
+        combine(
+            tasksRepository.nextActionsFlow,
+            tasksRepository.projectsFlow,
+            tasksRepository.areasFlow
+        ) { actions, projects, areas ->
+            Triple(actions, projects, areas)
+        }.collectLatest { (actions, projects, areas) ->
             homeState.value = homeState.first().copy(
-                nextActions = it.first,
-                projects = it.second.filter { it.status is Status.Focus }
+                nextActions = actions,
+                projects = projects.filter { it.status is Status.Focus },
+                areas = areas
             )
         }
     }
@@ -139,7 +146,7 @@ class HomeViewModel @Inject constructor(
             homeState.value = homeState.first().copy(
                 refreshing = true
             )
-            tasksRepository.loadProjects() // projects need to have priority first
+            tasksRepository.loadProjectsAreaAndIdeas() // projects need to have priority first
             tasksRepository.loadNextActions()
             homeState.value = homeState.first().copy(
                 refreshing = false
@@ -151,7 +158,8 @@ class HomeViewModel @Inject constructor(
 data class HomeState(
     val refreshing: Boolean,
     val nextActions: List<NextAction>,
-    val projects: List<Project>
+    val projects: List<Project>,
+    val areas: List<Area>
 )
 
 data class ArticleScreenState(

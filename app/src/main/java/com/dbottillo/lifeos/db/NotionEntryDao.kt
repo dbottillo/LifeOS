@@ -12,8 +12,11 @@ interface NotionEntryDao {
     @Query("SELECT * FROM notionEntry WHERE type = 'alert'")
     fun getNextActions(): Flow<List<NotionEntry>>
 
-    @Query("SELECT * FROM notionEntry WHERE type = 'project'")
+    @Query("SELECT * FROM notionEntry WHERE type = 'Project'")
     fun getProjects(): Flow<List<NotionEntry>>
+
+    @Query("SELECT * FROM notionEntry WHERE type = 'Area'")
+    fun getAreas(): Flow<List<NotionEntry>>
 
     @Insert
     suspend fun insertAll(vararg entries: NotionEntry)

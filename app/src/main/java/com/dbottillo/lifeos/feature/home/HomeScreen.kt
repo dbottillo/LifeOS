@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -26,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.dbottillo.lifeos.feature.tasks.Area
 import com.dbottillo.lifeos.feature.tasks.NextAction
 import com.dbottillo.lifeos.feature.tasks.Project
 import com.dbottillo.lifeos.feature.tasks.Status
@@ -39,6 +41,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
         refreshing = state.value.refreshing,
         nextAction = state.value.nextActions,
         projects = state.value.projects,
+        areas = state.value.areas,
         refresh = viewModel::reloadHome
     )
 }
@@ -49,6 +52,7 @@ fun HomeScreenContent(
     refreshing: Boolean,
     nextAction: List<NextAction>,
     projects: List<Project>,
+    areas: List<Area>,
     refresh: () -> Unit
 ) {
     val pullRefreshState = rememberPullRefreshState(refreshing, refresh)
@@ -111,6 +115,35 @@ fun HomeScreenContent(
                     }
                 }
             }
+            item(span = {
+                GridItemSpan(maxLineSpan)
+            }) {
+                Text(
+                    text = "Areas",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
+                )
+            }
+            areas.forEach {
+                item(key = it.url) {
+                    Surface(
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Box(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+                            Text(text = it.text, style = MaterialTheme.typography.bodyLarge)
+                        }
+                    }
+                }
+            }
+            item(span = {
+                GridItemSpan(maxLineSpan)
+            }) {
+                Box(
+                    modifier = Modifier.fillMaxWidth().height(24.dp)
+                )
+            }
         }
         PullRefreshIndicator(refreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))
     }
@@ -171,6 +204,7 @@ fun HomeScreenPreview() {
                             status = Status.Focus
                         )
                     ),
+                    areas = emptyList(),
                     refresh = {}
                 )
             }

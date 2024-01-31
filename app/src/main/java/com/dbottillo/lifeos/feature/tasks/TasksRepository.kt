@@ -30,7 +30,8 @@ class TasksRepository @Inject constructor(
     private val notificationProvider: NotificationProvider,
     private val db: AppDatabase,
     private val nextActionMapper: NextActionMapper,
-    private val projectMapper: ProjectMapper
+    private val projectMapper: ProjectMapper,
+    private val areaMapper: AreaMapper
 ) {
 
     val state = MutableStateFlow<TasksState>(TasksState.Idle)
@@ -39,6 +40,7 @@ class TasksRepository @Inject constructor(
 
     val nextActionsFlow: Flow<List<NextAction>> = dao.getNextActions().map(nextActionMapper::map)
     val projectsFlow: Flow<List<Project>> = dao.getProjects().map(projectMapper::map)
+    val areasFlow: Flow<List<Area>> = dao.getAreas().map(areaMapper::map)
 
     suspend fun init() {
         val titles = dao.getNextActions().first().joinToString("\n") {
@@ -64,8 +66,8 @@ class TasksRepository @Inject constructor(
         }
     }
 
-    suspend fun loadProjects() {
-        when (val projects = fetchProjects()) {
+    suspend fun loadProjectsAreaAndIdeas() {
+        when (val projects = fetchProjectsAreaAndIdeas()) {
             is ApiResult.Success -> {
                 val nextActions = projects.data.results.map { page ->
                     NotionEntry(
@@ -74,7 +76,7 @@ class TasksRepository @Inject constructor(
                         title = page.properties["Name"]?.title?.getOrNull(0)?.plainText,
                         url = page.url,
                         emoji = page.icon?.emoji,
-                        type = "project",
+                        type = page.properties["Category"]?.select?.name ?: "",
                         startDate = page.properties["Due"]?.date?.start,
                         endDate = page.properties["Due"]?.date?.end,
                         timeZone = page.properties["Due"]?.date?.timeZone,
@@ -142,9 +144,9 @@ class TasksRepository @Inject constructor(
     }
 
     @Suppress("TooGenericExceptionCaught", "LongMethod", "StringLiteralDuplication")
-    private suspend fun fetchProjects(): ApiResult<NotionDatabaseQueryResult> {
+    private suspend fun fetchProjectsAreaAndIdeas(): ApiResult<NotionDatabaseQueryResult> {
         return try {
-            val request = ProjectsRequest()
+            val request = ProjectsAreaAndIdeasRequest()
             val response = api.queryDatabase(AppConstant.GTD_ONE_DATABASE_ID, request.get())
             if (response.isSuccessful) {
                 val body = response.body()
