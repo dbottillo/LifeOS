@@ -18,8 +18,8 @@ android {
         applicationId = "com.dbottillo.lifeos"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "0.0.1"
+        versionCode = 2
+        versionName = "0.0.2"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -34,16 +34,27 @@ android {
         compose = true
     }
 
+    signingConfigs {
+        create("release") {
+            // You need to specify either an absolute path or include the
+            // keystore file in the same directory as the build.gradle file.
+            storeFile = file("../lifeoskeystore.jks")
+            storePassword = gradleLocalProperties(rootDir).getProperty("store_password")
+            keyAlias = gradleLocalProperties(rootDir).getProperty("key_alias")
+            keyPassword = gradleLocalProperties(rootDir).getProperty("key_password")
+        }
+    }
+
     buildTypes {
         val notionKey = gradleLocalProperties(rootDir).getProperty("notion_key")
         getByName("debug") {
             buildConfigField("String", "NOTION_KEY", notionKey)
-            matchingFallbacks.add("release")
         }
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            buildConfigField("string", "NOTION_KEY", notionKey)
+            buildConfigField("String", "NOTION_KEY", notionKey)
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 
