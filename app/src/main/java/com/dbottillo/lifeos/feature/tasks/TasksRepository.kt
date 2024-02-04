@@ -12,6 +12,7 @@ import com.dbottillo.lifeos.network.AddPageNotionPropertyTitle
 import com.dbottillo.lifeos.network.ApiInterface
 import com.dbottillo.lifeos.network.ApiResult
 import com.dbottillo.lifeos.network.NotionDatabaseQueryResult
+import com.dbottillo.lifeos.network.NotionPage
 import com.dbottillo.lifeos.notification.NotificationProvider
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -90,23 +91,7 @@ class TasksRepository @Inject constructor(
                 else -> {
                     val results = (projectsAreasAndResources as ApiResult.Success).data.results +
                             (ideas as ApiResult.Success).data.results
-                    val nextActions = results.map { page ->
-                        NotionEntry(
-                            uid = page.id,
-                            color = page.properties["Type"]?.multiSelect?.joinToString(",") { it.color },
-                            title = page.properties["Name"]?.title?.getOrNull(0)?.plainText,
-                            url = page.url,
-                            emoji = page.icon?.emoji,
-                            type = page.properties["Category"]?.select?.name ?: "",
-                            startDate = page.properties["Due"]?.date?.start,
-                            endDate = page.properties["Due"]?.date?.end,
-                            timeZone = page.properties["Due"]?.date?.timeZone,
-                            status = page.properties["Status"]!!.status!!.name,
-                            progress = page.properties["Progress"]?.rollup?.number,
-                            link = page.properties["URL"]?.url
-                        )
-                    }
-                    dao.deleteAndInsertAllProjects(nextActions)
+                    dao.deleteAndInsertAllProjects(results.map { it.toEntry() })
                 }
             }
         }
@@ -134,22 +119,7 @@ class TasksRepository @Inject constructor(
     private suspend fun storeAndNotify(
         result: NotionDatabaseQueryResult
     ) {
-        val nextActions = result.results.map { page ->
-            NotionEntry(
-                uid = page.id,
-                color = page.properties["Type"]?.multiSelect?.joinToString(",") { it.color },
-                title = page.properties["Name"]?.title?.getOrNull(0)?.plainText,
-                url = page.url,
-                emoji = page.icon?.emoji,
-                type = "alert",
-                startDate = page.properties["Due"]?.date?.start,
-                endDate = page.properties["Due"]?.date?.end,
-                timeZone = page.properties["Due"]?.date?.timeZone,
-                status = page.properties["Status"]!!.status!!.name,
-                link = page.properties["URL"]?.url
-            )
-        }
-        dao.deleteAndInsertAll(nextActions)
+        dao.deleteAndInsertAll(result.results.map { it.toEntry(typeOverride = "alert") })
         val titles =
             result.results.map { page ->
                 val name = page.properties["Name"]?.title?.getOrNull(0)?.plainText ?: "No title"
@@ -226,3 +196,17 @@ sealed class TasksState {
     data class Error(val message: String, val timestamp: OffsetDateTime) : TasksState()
     data class Restored(val timestamp: OffsetDateTime) : TasksState()
 }
+
+private fun NotionPage.toEntry(typeOverride: String? = null) = NotionEntry(
+    uid = id,
+    color = properties["Type"]?.multiSelect?.joinToString(",") { it.color },
+    title = properties["Name"]?.title?.getOrNull(0)?.plainText,
+    url = url,
+    emoji = icon?.emoji,
+    type = typeOverride ?: properties["Category"]?.select?.name ?: "",
+    startDate = properties["Due"]?.date?.start,
+    endDate = properties["Due"]?.date?.end,
+    timeZone = properties["Due"]?.date?.timeZone,
+    status = properties["Status"]!!.status!!.name,
+    link = properties["URL"]?.url
+)

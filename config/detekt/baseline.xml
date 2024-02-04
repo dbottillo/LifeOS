@@ -6,6 +6,7 @@
     <ID>LongMethod:NextActionsRequest.kt$NextActionsRequest$fun get(): NotionBodyRequest</ID>
     <ID>MagicNumber:HomeViewModel.kt$100</ID>
     <ID>MagicNumber:build.gradle.kts$26</ID>
+    <ID>MagicNumber:build.gradle.kts$3</ID>
     <ID>MagicNumber:build.gradle.kts$34</ID>
     <ID>StringLiteralDuplication:ArticleRepository.kt$ArticleRepository$"Status"</ID>
     <ID>StringLiteralDuplication:NextActionsRequest.kt$NextActionsRequest$"Status"</ID>
