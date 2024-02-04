@@ -13,6 +13,8 @@ import com.dbottillo.lifeos.network.ApiInterface
 import com.dbottillo.lifeos.network.ApiResult
 import com.dbottillo.lifeos.network.NotionDatabaseQueryResult
 import com.dbottillo.lifeos.notification.NotificationProvider
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -29,18 +31,18 @@ class TasksRepository @Inject constructor(
     private val storage: HomeStorage,
     private val notificationProvider: NotificationProvider,
     private val db: AppDatabase,
-    private val nextActionMapper: NextActionMapper,
-    private val projectMapper: ProjectMapper,
-    private val areaMapper: AreaMapper
+    private val mapper: TasksMapper
 ) {
 
     val state = MutableStateFlow<TasksState>(TasksState.Idle)
 
     private val dao by lazy { db.notionEntryDao() }
 
-    val nextActionsFlow: Flow<List<NextAction>> = dao.getNextActions().map(nextActionMapper::map)
-    val projectsFlow: Flow<List<Project>> = dao.getProjects().map(projectMapper::map)
-    val areasFlow: Flow<List<Area>> = dao.getAreas().map(areaMapper::map)
+    val nextActionsFlow: Flow<List<NextAction>> = dao.getNextActions().map(mapper::mapNextActions)
+    val projectsFlow: Flow<List<Project>> = dao.getProjects().map(mapper::mapProjects)
+    val areasFlow: Flow<List<Area>> = dao.getAreas().map(mapper::mapAreas)
+    val ideasFlow: Flow<List<Idea>> = dao.getIdeas().map(mapper::mapIdeas)
+    val resourcesFlow: Flow<List<Resource>> = dao.getResources().map(mapper::mapResources)
 
     suspend fun init() {
         val titles = dao.getNextActions().first().joinToString("\n") {
@@ -66,32 +68,46 @@ class TasksRepository @Inject constructor(
         }
     }
 
-    suspend fun loadProjectsAreaAndIdeas() {
-        when (val projects = fetchProjectsAreaAndIdeas()) {
-            is ApiResult.Success -> {
-                val nextActions = projects.data.results.map { page ->
-                    NotionEntry(
-                        uid = page.id,
-                        color = page.properties["Type"]?.multiSelect?.joinToString(",") { it.color },
-                        title = page.properties["Name"]?.title?.getOrNull(0)?.plainText,
-                        url = page.url,
-                        emoji = page.icon?.emoji,
-                        type = page.properties["Category"]?.select?.name ?: "",
-                        startDate = page.properties["Due"]?.date?.start,
-                        endDate = page.properties["Due"]?.date?.end,
-                        timeZone = page.properties["Due"]?.date?.timeZone,
-                        status = page.properties["Status"]!!.status!!.name,
-                        progress = page.properties["Progress"]?.rollup?.number
+    suspend fun loadProjectsAreaResourcesAndIdeas() {
+        coroutineScope {
+            val projectsAreasAndResourcesRequest = async { fetchProjectsAreaAndResources() }
+            val ideasRequest = async { fetchIdeas() }
+            val projectsAreasAndResources = projectsAreasAndResourcesRequest.await()
+            val ideas = ideasRequest.await()
+            when {
+                projectsAreasAndResources is ApiResult.Error -> state.emit(
+                    TasksState.Error(
+                        projectsAreasAndResources.exception.localizedMessage ?: "",
+                        storage.timestamp.first()
                     )
-                }
-                dao.deleteAndInsertAllProjects(nextActions)
-            }
-            is ApiResult.Error -> state.emit(
-                TasksState.Error(
-                    projects.exception.localizedMessage ?: "",
-                    storage.timestamp.first()
                 )
-            )
+                ideas is ApiResult.Error -> state.emit(
+                    TasksState.Error(
+                        ideas.exception.localizedMessage ?: "",
+                        storage.timestamp.first()
+                    )
+                )
+                else -> {
+                    val results = (projectsAreasAndResources as ApiResult.Success).data.results +
+                            (ideas as ApiResult.Success).data.results
+                    val nextActions = results.map { page ->
+                        NotionEntry(
+                            uid = page.id,
+                            color = page.properties["Type"]?.multiSelect?.joinToString(",") { it.color },
+                            title = page.properties["Name"]?.title?.getOrNull(0)?.plainText,
+                            url = page.url,
+                            emoji = page.icon?.emoji,
+                            type = page.properties["Category"]?.select?.name ?: "",
+                            startDate = page.properties["Due"]?.date?.start,
+                            endDate = page.properties["Due"]?.date?.end,
+                            timeZone = page.properties["Due"]?.date?.timeZone,
+                            status = page.properties["Status"]!!.status!!.name,
+                            progress = page.properties["Progress"]?.rollup?.number
+                        )
+                    }
+                    dao.deleteAndInsertAllProjects(nextActions)
+                }
+            }
         }
     }
 
@@ -144,9 +160,26 @@ class TasksRepository @Inject constructor(
     }
 
     @Suppress("TooGenericExceptionCaught", "LongMethod", "StringLiteralDuplication")
-    private suspend fun fetchProjectsAreaAndIdeas(): ApiResult<NotionDatabaseQueryResult> {
+    private suspend fun fetchProjectsAreaAndResources(): ApiResult<NotionDatabaseQueryResult> {
         return try {
-            val request = ProjectsAreaAndIdeasRequest()
+            val request = ProjectsAreasAndResourcesRequest()
+            val response = api.queryDatabase(AppConstant.GTD_ONE_DATABASE_ID, request.get())
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    return ApiResult.Success(body)
+                }
+            }
+            ApiResult.Error(Throwable("${response.code()} ${response.message()}"))
+        } catch (e: Exception) {
+            ApiResult.Error(Throwable(e.message ?: e.toString()))
+        }
+    }
+
+    @Suppress("TooGenericExceptionCaught", "LongMethod", "StringLiteralDuplication")
+    private suspend fun fetchIdeas(): ApiResult<NotionDatabaseQueryResult> {
+        return try {
+            val request = IdeasRequest()
             val response = api.queryDatabase(AppConstant.GTD_ONE_DATABASE_ID, request.get())
             if (response.isSuccessful) {
                 val body = response.body()

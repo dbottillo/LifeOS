@@ -3,25 +3,14 @@ package com.dbottillo.lifeos.feature.tasks
 import com.dbottillo.lifeos.network.FilterEqualsRequest
 import com.dbottillo.lifeos.network.FilterRequest
 import com.dbottillo.lifeos.network.NotionBodyRequest
+import com.dbottillo.lifeos.network.SortRequest
 
-class ProjectsAreaAndIdeasRequest {
+class IdeasRequest {
 
     fun get(): NotionBodyRequest {
         return NotionBodyRequest(
             filter = FilterRequest(
                 or = listOf(
-                    FilterRequest(
-                        property = "Category",
-                        select = FilterEqualsRequest(
-                            equals = "Area"
-                        )
-                    ),
-                    FilterRequest(
-                        property = "Category",
-                        select = FilterEqualsRequest(
-                            equals = "Project"
-                        )
-                    ),
                     FilterRequest(
                         property = "Status",
                         status = FilterEqualsRequest(
@@ -30,7 +19,16 @@ class ProjectsAreaAndIdeasRequest {
                     )
                 )
             ),
-            sorts = emptyList()
+            sorts = listOf(
+                SortRequest(
+                    property = "Favourite",
+                    direction = "descending"
+                ),
+                SortRequest(
+                    timestamp = "created_time",
+                    direction = "descending"
+                )
+            )
         )
     }
 }

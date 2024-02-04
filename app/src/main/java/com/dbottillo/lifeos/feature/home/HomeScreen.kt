@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,13 +32,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.dbottillo.lifeos.feature.tasks.Area
-import com.dbottillo.lifeos.feature.tasks.NextAction
-import com.dbottillo.lifeos.feature.tasks.Project
-import com.dbottillo.lifeos.feature.tasks.Status
 import com.dbottillo.lifeos.ui.AppTheme
 import com.dbottillo.lifeos.util.openLink
 import java.util.UUID
+
+const val CONTENT_TYPE_ENTRY = "entry"
+const val CONTENT_TYPE_TITLE = "title"
 
 @Suppress("UNUSED_PARAMETER")
 @Composable
@@ -45,27 +45,33 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
     val state = viewModel.homeState.collectAsStateWithLifecycle()
     HomeScreenContent(
         refreshing = state.value.refreshing,
-        nextAction = state.value.nextActions,
-        projects = state.value.projects,
-        areas = state.value.areas,
-        refresh = viewModel::reloadHome
+        top = state.value.top,
+        middle = state.value.middle,
+        bottom = state.value.bottom,
+        refresh = viewModel::reloadHome,
+        bottomSelection = viewModel::bottomSelection
     )
 }
 
 fun LazyStaggeredGridScope.header(
     content: @Composable LazyStaggeredGridItemScope.() -> Unit
 ) {
-    item(span = StaggeredGridItemSpan.FullLine, content = content)
+    item(
+        span = StaggeredGridItemSpan.FullLine,
+        content = content,
+        contentType = CONTENT_TYPE_TITLE
+    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreenContent(
     refreshing: Boolean,
-    nextAction: List<NextAction>,
-    projects: List<Project>,
-    areas: List<Area>,
-    refresh: () -> Unit
+    top: List<EntryContent>,
+    middle: List<EntryContent>,
+    bottom: HomeStateBottom,
+    refresh: () -> Unit,
+    bottomSelection: (BottomSelection) -> Unit
 ) {
     val pullRefreshState = rememberPullRefreshState(refreshing, refresh)
     Box(Modifier.pullRefresh(pullRefreshState)) {
@@ -84,15 +90,9 @@ fun HomeScreenContent(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-            nextAction.forEach { action ->
-                item(key = action.id) {
-                    Entry(
-                        content = EntryContent(
-                            title = action.text,
-                            subtitle = action.due,
-                            url = action.url
-                        )
-                    )
+            top.forEach {
+                item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
+                    Entry(content = it)
                 }
             }
             header {
@@ -105,36 +105,35 @@ fun HomeScreenContent(
                         .padding(top = 16.dp)
                 )
             }
-            projects.forEach { project ->
-                item(key = project.id) {
-                    val subtitle = project.progress?.let { "${(it * 100).toInt()}%" } ?: ""
-                    Entry(
-                        content = EntryContent(
-                            title = project.text,
-                            subtitle = subtitle,
-                            url = project.url
-                        )
-                    )
+            middle.forEach {
+                item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
+                    Entry(content = it)
                 }
             }
             header {
-                Text(
-                    text = "Areas",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.tertiary,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp)
-                )
-            }
-            areas.forEach { area ->
-                item(key = area.id) {
-                    Entry(
-                        content = EntryContent(
-                            title = area.text,
-                            url = area.url
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                    verticalAlignment = Alignment.Bottom
+                ) {
+                    bottom.selection.forEach { selection ->
+                        Text(
+                            text = selection.title,
+                            style = if (!selection.selected) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleSmall,
+                            color = if (selection.selected) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary,
+                            modifier = if (selection.selected) {
+                                Modifier.padding(end = 16.dp)
+                            } else {
+                                Modifier.padding(end = 16.dp).clickable {
+                                bottomSelection.invoke(selection.type)
+                            }
+                            }
                         )
-                    )
+                    }
+                }
+            }
+            bottom.list.forEach {
+                item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
+                    Entry(content = it)
                 }
             }
             header {
@@ -148,8 +147,6 @@ fun HomeScreenContent(
         PullRefreshIndicator(refreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))
     }
 }
-
-data class EntryContent(val title: String, val url: String, val subtitle: String? = null)
 
 @Composable
 private fun Entry(
@@ -186,60 +183,25 @@ fun HomeScreenPreview() {
             Box(modifier = Modifier.padding(it)) {
                 HomeScreenContent(
                     refreshing = false,
-                    nextAction = listOf(
-                        NextAction(
+                    top = listOf(
+                        EntryContent(
                             id = UUID.randomUUID().toString(),
-                            text = "Decide tooling",
-                            color = "blue",
-                            due = "",
+                            title = "Decide tooling",
                             url = "url"
                         ),
-                        NextAction(
+                        EntryContent(
                             id = UUID.randomUUID().toString(),
-                            text = "Replicate home",
-                            color = "blue",
-                            due = "",
-                            url = "url"
-                        ),
-                        NextAction(
-                            id = UUID.randomUUID().toString(),
-                            text = "AOC '23 Day 09 Test Long one",
-                            color = "blue",
-                            due = "",
+                            title = "Replicate home",
                             url = "url"
                         )
                     ),
-                    projects = listOf(
-                        Project(
-                            id = UUID.randomUUID().toString(),
-                            text = "Decide tooling",
-                            color = "blue",
-                            due = "",
-                            url = "url",
-                            progress = null,
-                            status = Status.Focus
-                        ),
-                        Project(
-                            id = UUID.randomUUID().toString(),
-                            text = "Replicate home",
-                            color = "blue",
-                            due = "",
-                            url = "url",
-                            progress = 0.2f,
-                            status = Status.Focus
-                        ),
-                        Project(
-                            id = UUID.randomUUID().toString(),
-                            text = "AOC '23 Day 09 Test Long one",
-                            color = "blue",
-                            due = "",
-                            url = "url",
-                            progress = 1.0f,
-                            status = Status.Focus
-                        )
+                    middle = emptyList(),
+                    bottom = HomeStateBottom(
+                        selection = emptyList(),
+                        list = emptyList()
                     ),
-                    areas = emptyList(),
-                    refresh = {}
+                    refresh = {},
+                    bottomSelection = {}
                 )
             }
         }

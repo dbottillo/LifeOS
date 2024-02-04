@@ -83,7 +83,8 @@ class FilterCheckboxRequest(
 
 @JsonClass(generateAdapter = true)
 class SortRequest(
-    val property: String,
+    val property: String? = null,
+    val timestamp: String? = null,
     val direction: String
 )
 
