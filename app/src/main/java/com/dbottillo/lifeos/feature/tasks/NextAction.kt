@@ -5,5 +5,6 @@ data class NextAction(
     val text: String,
     val url: String,
     val color: String,
-    val due: String
+    val due: String,
+    val link: String?
 )

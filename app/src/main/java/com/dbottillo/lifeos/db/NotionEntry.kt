@@ -17,4 +17,5 @@ data class NotionEntry(
     @ColumnInfo(name = "time_zone") val timeZone: String?,
     @ColumnInfo(name = "status", defaultValue = "") val status: String,
     @ColumnInfo(name = "progress") val progress: Float? = null,
+    @ColumnInfo(name = "link") val link: String?,
 )

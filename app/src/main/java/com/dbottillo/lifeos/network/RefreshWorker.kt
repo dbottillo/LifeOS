@@ -25,6 +25,7 @@ class RefreshWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
             tasksRepository.loadNextActions()
+            tasksRepository.loadProjectsAreaResourcesAndIdeas()
             articleRepository.fetchArticles()
             return@withContext Result.success()
         } catch (error: Throwable) {

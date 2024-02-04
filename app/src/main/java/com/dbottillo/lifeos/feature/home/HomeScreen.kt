@@ -121,11 +121,11 @@ fun HomeScreenContent(
                             style = if (!selection.selected) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleSmall,
                             color = if (selection.selected) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary,
                             modifier = if (selection.selected) {
-                                Modifier.padding(end = 16.dp)
-                            } else {
-                                Modifier.padding(end = 16.dp).clickable {
-                                bottomSelection.invoke(selection.type)
-                            }
+                                    Modifier.padding(end = 16.dp)
+                                } else {
+                                    Modifier.padding(end = 16.dp).clickable {
+                                    bottomSelection.invoke(selection.type)
+                                }
                             }
                         )
                     }
@@ -170,6 +170,15 @@ private fun Entry(
                     modifier = Modifier.padding(top = 2.dp)
                 )
             }
+            if (content.link?.isNotEmpty() == true) {
+                Text(
+                    text = content.link,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 2.dp).clickable {
+                        context.openLink(content.link)
+                    }
+                )
+            }
         }
     }
 }
@@ -187,7 +196,7 @@ fun HomeScreenPreview() {
                         EntryContent(
                             id = UUID.randomUUID().toString(),
                             title = "Decide tooling",
-                            url = "url"
+                            url = "url",
                         ),
                         EntryContent(
                             id = UUID.randomUUID().toString(),

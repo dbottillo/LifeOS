@@ -19,6 +19,7 @@ class TasksMapper @Inject constructor() {
                 id = entry.uid,
                 text = entry.toTitle(),
                 url = entry.url,
+                link = entry.link
             )
         }
     }
@@ -30,7 +31,8 @@ class TasksMapper @Inject constructor() {
                 text = entry.toTitle(),
                 url = entry.url,
                 color = entry.color ?: "",
-                due = entry.toDate()
+                due = entry.toDate(),
+                link = entry.link
             )
         }
     }
@@ -44,7 +46,8 @@ class TasksMapper @Inject constructor() {
                 color = entry.color ?: "",
                 due = entry.toDate(),
                 progress = entry.progress,
-                status = entry.status.toStatus()
+                status = entry.status.toStatus(),
+                link = entry.link
             )
         }
     }
@@ -55,6 +58,7 @@ class TasksMapper @Inject constructor() {
                 id = entry.uid,
                 text = entry.toTitle(),
                 url = entry.url,
+                link = entry.link
             )
         }
     }
@@ -65,6 +69,7 @@ class TasksMapper @Inject constructor() {
                 id = entry.uid,
                 text = entry.toTitle(),
                 url = entry.url,
+                link = entry.link
             )
         }
     }

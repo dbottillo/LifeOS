@@ -7,5 +7,6 @@ data class Project(
     val color: String,
     val due: String,
     val progress: Float?,
-    val status: Status
+    val status: Status,
+    val link: String?
 )

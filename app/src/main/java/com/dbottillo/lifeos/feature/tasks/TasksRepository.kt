@@ -102,7 +102,8 @@ class TasksRepository @Inject constructor(
                             endDate = page.properties["Due"]?.date?.end,
                             timeZone = page.properties["Due"]?.date?.timeZone,
                             status = page.properties["Status"]!!.status!!.name,
-                            progress = page.properties["Progress"]?.rollup?.number
+                            progress = page.properties["Progress"]?.rollup?.number,
+                            link = page.properties["URL"]?.url
                         )
                     }
                     dao.deleteAndInsertAllProjects(nextActions)
@@ -144,7 +145,8 @@ class TasksRepository @Inject constructor(
                 startDate = page.properties["Due"]?.date?.start,
                 endDate = page.properties["Due"]?.date?.end,
                 timeZone = page.properties["Due"]?.date?.timeZone,
-                status = page.properties["Status"]!!.status!!.name
+                status = page.properties["Status"]!!.status!!.name,
+                link = page.properties["URL"]?.url
             )
         }
         dao.deleteAndInsertAll(nextActions)
