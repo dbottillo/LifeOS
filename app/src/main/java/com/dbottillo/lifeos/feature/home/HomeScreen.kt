@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,11 +33,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.dbottillo.lifeos.db.BlockParagraph
 import com.dbottillo.lifeos.ui.AppTheme
 import com.dbottillo.lifeos.util.openLink
 import java.util.UUID
 
 const val CONTENT_TYPE_ENTRY = "entry"
+const val CONTENT_TYPE_PARAGRAPH = "paragraph"
 const val CONTENT_TYPE_TITLE = "title"
 
 @Suppress("UNUSED_PARAMETER")
@@ -48,6 +51,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
         top = state.value.top,
         middle = state.value.middle,
         bottom = state.value.bottom,
+        goals = state.value.goals,
         refresh = viewModel::reloadHome,
         bottomSelection = viewModel::bottomSelection
     )
@@ -63,6 +67,7 @@ fun LazyStaggeredGridScope.header(
     )
 }
 
+@Suppress("LongMethod")
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreenContent(
@@ -70,6 +75,7 @@ fun HomeScreenContent(
     top: List<EntryContent>,
     middle: List<EntryContent>,
     bottom: HomeStateBottom,
+    goals: List<BlockParagraph>,
     refresh: () -> Unit,
     bottomSelection: (BottomSelection) -> Unit
 ) {
@@ -112,7 +118,9 @@ fun HomeScreenContent(
             }
             header {
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
                     verticalAlignment = Alignment.Bottom
                 ) {
                     bottom.selection.forEach { selection ->
@@ -123,9 +131,11 @@ fun HomeScreenContent(
                             modifier = if (selection.selected) {
                                     Modifier.padding(end = 16.dp)
                                 } else {
-                                    Modifier.padding(end = 16.dp).clickable {
-                                    bottomSelection.invoke(selection.type)
-                                }
+                                Modifier
+                                    .padding(end = 16.dp)
+                                    .clickable {
+                                        bottomSelection.invoke(selection.type)
+                                    }
                             }
                         )
                     }
@@ -134,6 +144,19 @@ fun HomeScreenContent(
             bottom.list.forEach {
                 item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
                     Entry(content = it)
+                }
+            }
+            header {
+                Column {
+                    Text(
+                        text = "Goals",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp, bottom = 4.dp)
+                    )
+                    Goals(goals)
                 }
             }
             header {
@@ -155,9 +178,11 @@ private fun Entry(
 ) {
     val context = LocalContext.current
     Surface(
-        modifier = modifier.fillMaxSize().clickable {
-            context.openLink(content.url)
-        },
+        modifier = modifier
+            .fillMaxSize()
+            .clickable {
+                context.openLink(content.url)
+            },
         color = MaterialTheme.colorScheme.surfaceVariant,
         shape = RoundedCornerShape(8.dp)
     ) {
@@ -174,13 +199,29 @@ private fun Entry(
                 Text(
                     text = content.link,
                     style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(top = 2.dp).clickable {
-                        context.openLink(content.link)
-                    }
+                    modifier = Modifier
+                        .padding(top = 2.dp)
+                        .clickable {
+                            context.openLink(content.link)
+                        }
                 )
             }
         }
     }
+}
+
+@Composable
+private fun ColumnScope.Goals(
+    goals: List<BlockParagraph>
+) {
+   goals.forEach { paragraph ->
+       val text = if (paragraph.type == "numbered_list_item") {
+           "${paragraph.index}. ${paragraph.text}"
+       } else {
+           paragraph.text
+       }
+       Text(text = text, modifier = Modifier.padding(top = 2.dp))
+   }
 }
 
 @Suppress("StringLiteralDuplication")
@@ -209,6 +250,7 @@ fun HomeScreenPreview() {
                         selection = emptyList(),
                         list = emptyList()
                     ),
+                    goals = emptyList(),
                     refresh = {},
                     bottomSelection = {}
                 )

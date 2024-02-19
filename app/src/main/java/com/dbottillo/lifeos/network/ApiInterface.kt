@@ -31,4 +31,9 @@ interface ApiInterface {
 
     @PATCH("v1/pages/{id}")
     suspend fun updatePage(@Path(value = "id") pageId: String, @Body body: UpdateBodyRequest): Response<NotionPage>
+
+    @GET("v1/blocks/{id}/children")
+    suspend fun queryBlock(
+        @Path(value = "id") blockId: String
+    ): Response<NotionDatabaseBlockResult>
 }

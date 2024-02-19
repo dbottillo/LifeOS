@@ -4,9 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import com.dbottillo.lifeos.db.Article
+import com.dbottillo.lifeos.db.BlockParagraph
 import com.dbottillo.lifeos.db.Log
 import com.dbottillo.lifeos.feature.articles.ArticleManager
 import com.dbottillo.lifeos.feature.articles.ArticleRepository
+import com.dbottillo.lifeos.feature.blocks.BlockRepository
 import com.dbottillo.lifeos.feature.logs.LogsRepository
 import com.dbottillo.lifeos.feature.tasks.Area
 import com.dbottillo.lifeos.feature.tasks.Idea
@@ -35,6 +37,7 @@ class HomeViewModel @Inject constructor(
     private val refreshProvider: RefreshProvider,
     private val articleManager: ArticleManager,
     private val logsRepository: LogsRepository,
+    private val blockRepository: BlockRepository
 ) : ViewModel() {
 
     private val homeStateBottomSelection = MutableStateFlow(
@@ -49,7 +52,8 @@ class HomeViewModel @Inject constructor(
             bottom = HomeStateBottom(
                 selection = listOf(),
                 list = emptyList()
-            )
+            ),
+            goals = emptyList()
         )
     )
 
@@ -87,8 +91,9 @@ class HomeViewModel @Inject constructor(
             tasksRepository.areasFlow,
             tasksRepository.ideasFlow,
             tasksRepository.resourcesFlow,
-            homeStateBottomSelection
-        ) { actions, projects, areas, ideas, resources, bottomSelection ->
+            homeStateBottomSelection,
+            blockRepository.goalsBlock()
+        ) { actions, projects, areas, ideas, resources, bottomSelection, goalsParagraphs ->
             val bottom = HomeStateBottom(
                 selection = listOf(
                     HomeBottomSelection(
@@ -116,13 +121,14 @@ class HomeViewModel @Inject constructor(
             Triple(
                 actions.mapActions(),
                 projects.filter { it.status is Status.Focus }.mapProjects(),
-                bottom
+                bottom to goalsParagraphs
             )
         }.collectLatest { (top, middle, bottom) ->
             homeState.value = homeState.first().copy(
                 top = top,
                 middle = middle,
-                bottom = bottom
+                bottom = bottom.first,
+                goals = bottom.second
             )
         }
     }
@@ -189,6 +195,7 @@ class HomeViewModel @Inject constructor(
             )
             tasksRepository.loadProjectsAreaResourcesAndIdeas() // projects need to have priority first
             tasksRepository.loadNextActions()
+            blockRepository.loadGoals()
             homeState.value = homeState.first().copy(
                 refreshing = false
             )
@@ -204,7 +211,8 @@ data class HomeState(
     val refreshing: Boolean,
     val top: List<EntryContent>,
     val middle: List<EntryContent>,
-    val bottom: HomeStateBottom
+    val bottom: HomeStateBottom,
+    val goals: List<BlockParagraph>
 )
 
 data class HomeStateBottom(
