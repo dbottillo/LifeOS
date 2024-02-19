@@ -91,7 +91,7 @@ class TasksRepository @Inject constructor(
                 else -> {
                     val results = (projectsAreasAndResources as ApiResult.Success).data.results +
                             (ideas as ApiResult.Success).data.results
-                    dao.deleteAndInsertAllProjects(results.map { it.toEntry() })
+                    dao.deleteAndSaveAllProjectsAreaResourcesAndIdeas(results.map { it.toEntry() })
                 }
             }
         }

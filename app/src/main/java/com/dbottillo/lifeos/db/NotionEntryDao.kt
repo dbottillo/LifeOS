@@ -36,7 +36,7 @@ interface NotionEntryDao {
 
     @Suppress("SpreadOperator")
     @Transaction
-    suspend fun deleteAndInsertAllProjects(projects: List<NotionEntry>) {
+    suspend fun deleteAndSaveAllProjectsAreaResourcesAndIdeas(projects: List<NotionEntry>) {
         deleteNonAlerts()
         insertAll(*projects.toTypedArray())
     }
