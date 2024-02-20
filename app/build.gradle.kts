@@ -16,10 +16,10 @@ android {
 
     defaultConfig {
         applicationId = "com.dbottillo.lifeos"
-        minSdk = 26
+        minSdk = 28
         targetSdk = 34
-        versionCode = 4
-        versionName = "0.0.4"
+        versionCode = 5
+        versionName = "0.0.5"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -101,6 +101,7 @@ dependencies {
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     kapt(libs.room.compiler)
+    implementation(libs.bundles.androidx.glance)
 }
 
 kapt {

@@ -1,5 +1,5 @@
 [versions]
-androidGradlePlugin = "8.2.1"
+androidGradlePlugin = "8.2.2"
 moshi="1.15.0"
 kotlin = "1.9.10"
 coroutines = "1.7.1"
@@ -7,12 +7,12 @@ androidDesugarJdkLibs = "2.0.4"
 androidXCore = "1.12.0"
 androidXCompat = "1.6.1"
 androidxComposeCompiler = "1.4.5"
-androidxComposeBom = "2023.10.01"
+androidxComposeBom = "2024.02.00"
 androidxActivity = "1.8.2"
 constraintlayout = "2.1.4"
 constraintlayoutCompose="1.0.1"
 accompanist = "0.30.1"
-composeNavigation = "2.7.6"
+composeNavigation = "2.7.7"
 composeLifecycle = "2.7.0"
 dagger="2.48.1"
 hilt="1.1.0"
@@ -31,13 +31,14 @@ versionsPlugin = "0.49.0"
 leakCanary = "2.12"
 lint = "31.0.0"
 material = "1.11.0"
-navigation = "2.7.6"
+navigation = "2.7.7"
 workManager = "2.9.0"
 datastore = "1.0.0"
-googleServicesPlugin="4.4.0"
-firebaseBom="32.7.1"
+googleServicesPlugin="4.4.1"
+firebaseBom="32.7.2"
 crashlyticsPlugin="2.9.9"
 room = "2.6.1"
+androidXglance = "1.0.0"
 
 [libraries]
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
@@ -101,6 +102,8 @@ firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashly
 room-compiler = { group ="androidx.room", name = "room-compiler", version.ref = "room" }
 room-runtime = { group ="androidx.room", name = "room-runtime", version.ref = "room" }
 room-ktx = { group ="androidx.room", name = "room-ktx", version.ref = "room" }
+androidx-glance-appwidget = { group ="androidx.glance", name = "glance-appwidget", version.ref = "androidXglance" }
+androidx-glance-material3 = { group ="androidx.glance", name = "glance-material3", version.ref = "androidXglance" }
 
 [bundles]
 ui = ["androidx-core", "androidx-core-ktx", "android-compat", "androidx-constraintlayout"]
@@ -113,6 +116,7 @@ work-manager = ["work-manager-runtime"]
 hilt = ["dagger-hilt-android", "hilt-common", "hilt-work"]
 datastore = ["datastore", "datastore-preferences", "datastore-core"]
 firebase = ["firebase-crashlytics"]
+androidx-glance = ["androidx-glance-appwidget", "androidx-glance-material3"]
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
