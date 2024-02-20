@@ -207,6 +207,7 @@ private fun NotionPage.toEntry(typeOverride: String? = null) = NotionEntry(
     startDate = properties["Due"]?.date?.start,
     endDate = properties["Due"]?.date?.end,
     timeZone = properties["Due"]?.date?.timeZone,
+    progress = properties["Progress"]?.rollup?.number,
     status = properties["Status"]!!.status!!.name,
     link = properties["URL"]?.url
 )
