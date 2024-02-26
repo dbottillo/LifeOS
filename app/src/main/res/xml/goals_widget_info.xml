@@ -3,5 +3,6 @@
     android:targetCellWidth="3"
     android:targetCellHeight="2"
     android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="900000"
     android:widgetFeatures="reconfigurable|configuration_optional"
     android:description="@string/goals_widget_description" />

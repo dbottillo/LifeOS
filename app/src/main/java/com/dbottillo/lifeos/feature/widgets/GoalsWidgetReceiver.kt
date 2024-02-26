@@ -1,6 +1,7 @@
 package com.dbottillo.lifeos.feature.widgets
 
 import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -12,11 +13,13 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
-import androidx.glance.action.actionStartActivity
+import androidx.glance.action.ActionParameters
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
@@ -73,9 +76,10 @@ class GoalsAppWidget : GlanceAppWidget() {
     }
 
     @Composable
-    @OptIn(ExperimentalMaterial3Api::class)
     fun GoalsAppWidgetContent(goals: List<BlockParagraph>) {
-        LazyColumn {
+        LazyColumn(
+            modifier = GlanceModifier
+        ) {
             item {
                 Text(
                     modifier = GlanceModifier.fillMaxWidth(),
@@ -97,9 +101,9 @@ class GoalsAppWidget : GlanceAppWidget() {
                         modifier = GlanceModifier
                             .fillMaxWidth()
                             .padding(top = 2.dp)
-                            .clickable {
-                                actionStartActivity<HomeActivity>()
-                            },
+                            .clickable(
+                                onClick = actionRunCallback<OpenAppClickAction>()
+                            ),
                         text = text,
                         style = TextStyle(
                             color = GlanceTheme.colors.onBackground,
@@ -112,8 +116,20 @@ class GoalsAppWidget : GlanceAppWidget() {
     }
 }
 
-object LifeOSAppWidgetGlanceColorScheme {
+class OpenAppClickAction : ActionCallback {
+    @OptIn(ExperimentalMaterial3Api::class)
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        val intent = Intent(context, HomeActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
+    }
+}
 
+object LifeOSAppWidgetGlanceColorScheme {
     val colors = ColorProviders(
         light = LightColors,
         dark = DarkColors
