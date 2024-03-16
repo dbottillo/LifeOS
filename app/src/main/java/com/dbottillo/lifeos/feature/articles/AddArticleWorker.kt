@@ -9,11 +9,11 @@ import com.dbottillo.lifeos.feature.logs.LogLevel
 import com.dbottillo.lifeos.feature.logs.LogTags
 import com.dbottillo.lifeos.feature.logs.LogsRepository
 import com.dbottillo.lifeos.feature.tasks.TasksRepository
+import com.dbottillo.lifeos.network.ApiResult
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import org.json.JSONObject
 
 @HiltWorker
 class AddArticleWorker @AssistedInject constructor(
@@ -34,8 +34,8 @@ class AddArticleWorker @AssistedInject constructor(
                 level = LogLevel.INFO,
                 message = "Adding [$title] for url: $url"
             )
-            val response = tasksRepository.addTask(AppConstant.ARTICLES_DATABASE_ID, title, url)
-            if (response.isSuccessful) {
+            val result = tasksRepository.addTask(AppConstant.ARTICLES_DATABASE_ID, title, url)
+            if (result is ApiResult.Success) {
                 logsRepository.addEntry(
                     tag = LogTags.ADD_ARTICLE_WORKER,
                     level = LogLevel.INFO,
@@ -46,7 +46,7 @@ class AddArticleWorker @AssistedInject constructor(
             logsRepository.addEntry(
                 tag = LogTags.ADD_ARTICLE_WORKER,
                 level = LogLevel.ERROR,
-                message = "Failed with ${JSONObject(response.errorBody()?.string() ?: "")}"
+                message = "Failed with ${(result as ApiResult.Error).exception}"
             )
             return@withContext if (this@AddArticleWorker.runAttemptCount >= MAX_RUN_ATTEMPTS) {
                 Result.success()

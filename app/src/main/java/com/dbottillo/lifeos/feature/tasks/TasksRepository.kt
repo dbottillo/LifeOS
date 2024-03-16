@@ -20,7 +20,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import retrofit2.Response
 import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneId
@@ -165,9 +164,9 @@ class TasksRepository @Inject constructor(
         }
     }
 
-    suspend fun addTask(databaseId: String, title: String?, url: String): Response<Any> {
-        return api.addPage(
-            body = AddPageNotionBodyRequest(
+    suspend fun addTask(databaseId: String, title: String?, url: String): ApiResult<Unit> {
+        return try {
+            val request = AddPageNotionBodyRequest(
                 parent = AddPageNotionBodyRequestParent(
                     type = "database_id",
                     databaseId = databaseId
@@ -185,7 +184,17 @@ class TasksRepository @Inject constructor(
                     )
                 )
             )
-        )
+            val response = api.addPage(body = request)
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body != null) {
+                    return ApiResult.Success(Unit)
+                }
+            }
+            ApiResult.Error(Throwable("${response.code()} ${response.message()}"))
+        } catch (e: Exception) {
+            ApiResult.Error(Throwable(e.message ?: e.toString()))
+        }
     }
 }
 

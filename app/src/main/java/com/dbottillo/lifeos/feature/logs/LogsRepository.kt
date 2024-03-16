@@ -31,7 +31,8 @@ class LogsRepository @Inject constructor(val db: AppDatabase) {
 enum class LogTags(val key: String) {
     ADD_ARTICLE_WORKER("add_article_worker"),
     DELETE_ARTICLE_WORKER("delete_article_worker"),
-    UPDATE_ARTICLE_WORKER("update_article_worker")
+    UPDATE_ARTICLE_WORKER("update_article_worker"),
+    SHARE("share")
 }
 
 enum class LogLevel(val key: String) {
