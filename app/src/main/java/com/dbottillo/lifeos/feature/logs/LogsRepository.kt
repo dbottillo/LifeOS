@@ -32,7 +32,7 @@ enum class LogTags(val key: String) {
     ADD_ARTICLE_WORKER("add_article_worker"),
     DELETE_ARTICLE_WORKER("delete_article_worker"),
     UPDATE_ARTICLE_WORKER("update_article_worker"),
-    SHARE("share")
+    ADD_TASK_WORKER("add_task_worker")
 }
 
 enum class LogLevel(val key: String) {
