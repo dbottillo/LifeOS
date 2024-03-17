@@ -2,6 +2,7 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
+    <ID>LongMethod:AddTaskWorker.kt$AddTaskWorker$@Suppress("SwallowedException", "TooGenericExceptionCaught") override suspend fun doWork(): Result</ID>
     <ID>LongMethod:NextActionsRequest.kt$NextActionsRequest$fun get(): NotionBodyRequest</ID>
     <ID>MagicNumber:HomeViewModel.kt$100</ID>
     <ID>MagicNumber:build.gradle.kts$28</ID>

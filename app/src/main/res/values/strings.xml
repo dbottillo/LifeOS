@@ -13,8 +13,8 @@
     <string name="articles_widget_description">Articles unread count</string>
     <string name="widget_empty_view_text">Loading…</string>
     <string name="app_name">Life OS</string>
-    <string name="channel_main_name">Main</string>
-    <string name="channel_main_description">Life OS - Main</string>
+    <string name="channel_info_main">Info</string>
+    <string name="channel_info_description">Life OS - Info</string>
     <string name="channel_next_name">Next actions</string>
     <string name="channel_next_description">Life OS - Next actions</string>
     <string name="status">Status</string>

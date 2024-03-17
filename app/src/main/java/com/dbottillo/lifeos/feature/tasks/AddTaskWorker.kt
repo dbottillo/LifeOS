@@ -10,6 +10,7 @@ import com.dbottillo.lifeos.feature.logs.LogLevel
 import com.dbottillo.lifeos.feature.logs.LogTags
 import com.dbottillo.lifeos.feature.logs.LogsRepository
 import com.dbottillo.lifeos.network.ApiResult
+import com.dbottillo.lifeos.notification.NotificationManager
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +21,8 @@ class AddTaskWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val tasksRepository: TasksRepository,
-    private val logsRepository: LogsRepository
+    private val logsRepository: LogsRepository,
+    private val notificationManager: NotificationManager
 ) : CoroutineWorker(appContext, workerParams) {
 
     @Suppress("SwallowedException", "TooGenericExceptionCaught")
@@ -29,6 +31,12 @@ class AddTaskWorker @AssistedInject constructor(
             val title = inputData.getString(ADD_PAGE_TITLE) ?: ""
             val url =
                 inputData.getString(ADD_PAGE_URL) ?: return@withContext Result.failure()
+            val id = inputData.getInt(ADD_PAGE_ID, -1)
+            notificationManager.sendOrUpdateInfoNotification(
+                id = id,
+                title = "[Uploading] Task with title: $title",
+                text = url
+            )
             logsRepository.addEntry(
                 tag = LogTags.ADD_TASK_WORKER,
                 level = LogLevel.INFO,
@@ -41,6 +49,11 @@ class AddTaskWorker @AssistedInject constructor(
                     level = LogLevel.INFO,
                     message = "Article [$url] added successfully"
                 )
+                notificationManager.sendOrUpdateInfoNotification(
+                    id = id,
+                    title = "[Created] Task with title: $title",
+                    text = url
+                )
                 return@withContext Result.success()
             }
             logsRepository.addEntry(
@@ -49,8 +62,18 @@ class AddTaskWorker @AssistedInject constructor(
                 message = "Failed with ${(result as ApiResult.Error).exception}"
             )
             return@withContext if (this@AddTaskWorker.runAttemptCount >= MAX_RUN_ATTEMPTS) {
+                notificationManager.sendOrUpdateInfoNotification(
+                    id = id,
+                    title = "[Failed] Task with title: $title",
+                    text = url
+                )
                 Result.success()
             } else {
+                notificationManager.sendOrUpdateInfoNotification(
+                    id = id,
+                    title = "[Retrying] Task with title: $title",
+                    text = url
+                )
                 Result.retry()
             }
         } catch (error: Throwable) {

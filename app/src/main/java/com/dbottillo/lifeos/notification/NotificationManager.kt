@@ -23,7 +23,7 @@ class NotificationManager @Inject constructor(
     @ApplicationContext val context: Context
 ) : NotificationProvider {
 
-    private fun updateMainPage(text: String) {
+    fun sendOrUpdateInfoNotification(id: Int, title: String, text: String) {
         with(NotificationManagerCompat.from(context)) {
             if (ActivityCompat.checkSelfPermission(
                     context,
@@ -33,12 +33,10 @@ class NotificationManager @Inject constructor(
                 return
             }
             notify(
-                MAIN_NOTIFICATION_ID,
-                getNotificationBuilder(
-                    "Main Page",
-                    text,
-                    NotificationCompat.PRIORITY_LOW,
-                    CHANNEL_MAIN_ID
+                id,
+                getInfoNotificationBuilder(
+                    title,
+                    text
                 ).build()
             )
         }
@@ -55,7 +53,7 @@ class NotificationManager @Inject constructor(
             }
             notify(
                 MAIN_DATABASE_ID,
-                getNotificationBuilder(
+                getMainNotificationBuilder(
                     "Next actions",
                     text,
                     NotificationCompat.PRIORITY_DEFAULT,
@@ -76,14 +74,13 @@ class NotificationManager @Inject constructor(
 
     override fun clear() {
         with(NotificationManagerCompat.from(context)) {
-            cancel(MAIN_NOTIFICATION_ID)
             cancel(MAIN_DATABASE_ID)
         }
     }
 
     override fun createNotificationChannel() {
-        // createMainChannel()
         createNextActionsChannel()
+        createInfoChannel()
     }
 
     private fun createNextActionsChannel() {
@@ -98,11 +95,11 @@ class NotificationManager @Inject constructor(
         notificationManager.createNotificationChannel(channel)
     }
 
-    private fun createMainChannel() {
-        val name = context.getString(R.string.channel_main_name)
-        val descriptionText = context.getString(R.string.channel_main_description)
+    private fun createInfoChannel() {
+        val name = context.getString(R.string.channel_info_main)
+        val descriptionText = context.getString(R.string.channel_info_description)
         val importance = NotificationManager.IMPORTANCE_LOW
-        val channel = NotificationChannel(CHANNEL_MAIN_ID, name, importance).apply {
+        val channel = NotificationChannel(CHANNEL_INFO_ID, name, importance).apply {
             description = descriptionText
         }
         val notificationManager: NotificationManager =
@@ -110,7 +107,7 @@ class NotificationManager @Inject constructor(
         notificationManager.createNotificationChannel(channel)
     }
 
-    private fun getNotificationBuilder(
+    private fun getMainNotificationBuilder(
         title: String,
         text: String,
         priority: Int,
@@ -120,13 +117,23 @@ class NotificationManager @Inject constructor(
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(text.replace("\n", " · "))
-            .setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText(text)
-            )
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
             .setOngoing(true)
             .setPriority(priority)
             .setContentIntent(PendingIntent.getActivity(context, 0, urlIntent, FLAG_IMMUTABLE))
+    }
+
+    private fun getInfoNotificationBuilder(
+        title: String,
+        text: String,
+    ): NotificationCompat.Builder {
+        return NotificationCompat.Builder(context, CHANNEL_INFO_ID)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setOngoing(false)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
     }
 
     private val urlIntent = Intent(

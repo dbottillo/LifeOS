@@ -10,6 +10,7 @@ import androidx.work.workDataOf
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import kotlin.random.Random
 
 @Suppress("MagicNumber")
 class TaskManager @Inject constructor(
@@ -25,7 +26,8 @@ class TaskManager @Inject constructor(
             .setInputData(
                 workDataOf(
                     ADD_PAGE_TITLE to title,
-                    ADD_PAGE_URL to url
+                    ADD_PAGE_URL to url,
+                    ADD_PAGE_ID to Random.nextInt()
                 )
             )
             .setBackoffCriteria(
@@ -41,3 +43,4 @@ class TaskManager @Inject constructor(
 private const val TASK_WORKER_TAG = "task"
 internal const val ADD_PAGE_TITLE = "title"
 internal const val ADD_PAGE_URL = "url"
+internal const val ADD_PAGE_ID = "uuid"
