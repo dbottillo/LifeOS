@@ -94,28 +94,31 @@ class HomeViewModel @Inject constructor(
             homeStateBottomSelection,
             blockRepository.goalsBlock()
         ) { actions, projects, areas, ideas, resources, bottomSelection, goalsParagraphs ->
+            val uiAreas = areas.mapAreas()
+            val uiResources = resources.mapResources()
+            val uiIdeas = ideas.mapIdeas()
             val bottom = HomeStateBottom(
                 selection = listOf(
                     HomeBottomSelection(
-                        title = "Ideas",
+                        title = "Ideas (${uiIdeas.size})",
                         selected = bottomSelection == BottomSelection.IDEAS,
                         type = BottomSelection.IDEAS
                     ),
                     HomeBottomSelection(
-                        title = "Areas",
+                        title = "Areas (${uiAreas.size})",
                         selected = bottomSelection == BottomSelection.AREAS,
                         type = BottomSelection.AREAS
                     ),
                     HomeBottomSelection(
-                        title = "Resources",
+                        title = "Resources (${uiResources.size})",
                         selected = bottomSelection == BottomSelection.RESOURCES,
                         type = BottomSelection.RESOURCES
                     )
                 ),
                 list = when (bottomSelection) {
-                    BottomSelection.AREAS -> areas.mapAreas()
-                    BottomSelection.RESOURCES -> resources.mapResources()
-                    BottomSelection.IDEAS -> ideas.mapIdeas()
+                    BottomSelection.AREAS -> uiAreas
+                    BottomSelection.RESOURCES -> uiResources
+                    BottomSelection.IDEAS -> uiIdeas
                 }
             )
             Triple(
