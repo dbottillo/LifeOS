@@ -12,8 +12,8 @@ class IdeasRequest {
             filter = FilterRequest(
                 or = listOf(
                     FilterRequest(
-                        property = "Status",
-                        status = FilterEqualsRequest(
+                        property = "Type",
+                        select = FilterEqualsRequest(
                             equals = "Idea"
                         )
                     )

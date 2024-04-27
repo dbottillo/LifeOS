@@ -18,7 +18,7 @@ interface NotionEntryDao {
     @Query("SELECT * FROM notionEntry WHERE type = 'Area'")
     fun getAreas(): Flow<List<NotionEntry>>
 
-    @Query("SELECT * FROM notionEntry WHERE status = 'Idea'")
+    @Query("SELECT * FROM notionEntry WHERE type = 'Idea'")
     fun getIdeas(): Flow<List<NotionEntry>>
 
     @Query("SELECT * FROM notionEntry WHERE type = 'Resource'")
