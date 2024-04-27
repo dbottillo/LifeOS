@@ -12,19 +12,19 @@ class ProjectsAreasAndResourcesRequest {
             filter = FilterRequest(
                 or = listOf(
                     FilterRequest(
-                        property = "Category",
+                        property = "Type",
                         select = FilterEqualsRequest(
                             equals = "Area"
                         )
                     ),
                     FilterRequest(
-                        property = "Category",
+                        property = "Type",
                         select = FilterEqualsRequest(
                             equals = "Project"
                         )
                     ),
                     FilterRequest(
-                        property = "Category",
+                        property = "Type",
                         select = FilterEqualsRequest(
                             equals = "Resource"
                         )

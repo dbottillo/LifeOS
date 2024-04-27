@@ -20,7 +20,7 @@ class NextActionsRequest(private val date: String) {
                                 date = FilterBeforeRequest(onOrBefore = date)
                             ),
                             FilterRequest(
-                                property = "Category",
+                                property = "Type",
                                 select = FilterEqualsRequest(
                                     equals = "Task"
                                 )
@@ -36,7 +36,7 @@ class NextActionsRequest(private val date: String) {
                                 )
                             ),
                             FilterRequest(
-                                property = "Category",
+                                property = "Type",
                                 select = FilterEqualsRequest(
                                     equals = "Task"
                                 )

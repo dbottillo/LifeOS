@@ -212,7 +212,7 @@ private fun NotionPage.toEntry(typeOverride: String? = null) = NotionEntry(
     title = properties["Name"]?.title?.getOrNull(0)?.plainText,
     url = url,
     emoji = icon?.emoji,
-    type = typeOverride ?: properties["Category"]?.select?.name ?: "",
+    type = typeOverride ?: properties["Type"]?.select?.name ?: "",
     startDate = properties["Due"]?.date?.start,
     endDate = properties["Due"]?.date?.end,
     timeZone = properties["Due"]?.date?.timeZone,
