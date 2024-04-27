@@ -208,7 +208,7 @@ sealed class TasksState {
 
 private fun NotionPage.toEntry(typeOverride: String? = null) = NotionEntry(
     uid = id,
-    color = properties["Type"]?.multiSelect?.joinToString(",") { it.color },
+    color = properties["Tag"]?.multiSelect?.joinToString(",") { it.color },
     title = properties["Name"]?.title?.getOrNull(0)?.plainText,
     url = url,
     emoji = icon?.emoji,
