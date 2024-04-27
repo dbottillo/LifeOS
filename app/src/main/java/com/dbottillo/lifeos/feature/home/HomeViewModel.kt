@@ -41,7 +41,7 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val homeStateBottomSelection = MutableStateFlow(
-        BottomSelection.AREAS
+        BottomSelection.IDEAS
     )
 
     val homeState = MutableStateFlow(
@@ -97,14 +97,14 @@ class HomeViewModel @Inject constructor(
             val bottom = HomeStateBottom(
                 selection = listOf(
                     HomeBottomSelection(
-                        title = "Areas",
-                        selected = bottomSelection == BottomSelection.AREAS,
-                        type = BottomSelection.AREAS
-                    ),
-                    HomeBottomSelection(
                         title = "Ideas",
                         selected = bottomSelection == BottomSelection.IDEAS,
                         type = BottomSelection.IDEAS
+                    ),
+                    HomeBottomSelection(
+                        title = "Areas",
+                        selected = bottomSelection == BottomSelection.AREAS,
+                        type = BottomSelection.AREAS
                     ),
                     HomeBottomSelection(
                         title = "Resources",
