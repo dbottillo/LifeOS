@@ -67,11 +67,11 @@ class NextActionsRequest(private val date: String) {
                     direction = "descending"
                 ),
                 SortRequest(
-                    property = "Status",
+                    property = "Due",
                     direction = "ascending"
                 ),
                 SortRequest(
-                    property = "Due",
+                    property = "Parent item",
                     direction = "ascending"
                 )
             )

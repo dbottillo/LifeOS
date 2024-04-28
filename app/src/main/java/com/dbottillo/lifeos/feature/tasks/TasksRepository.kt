@@ -87,14 +87,12 @@ class TasksRepository @Inject constructor(
                         storage.timestamp.first()
                     )
                 )
-
                 ideas is ApiResult.Error -> state.emit(
                     TasksState.Error(
                         ideas.exception.localizedMessage ?: "",
                         storage.timestamp.first()
                     )
                 )
-
                 else -> {
                     val results = (projectsAreasAndResources as ApiResult.Success).data +
                             (ideas as ApiResult.Success).data
