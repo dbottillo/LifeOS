@@ -36,9 +36,9 @@ interface NotionEntryDao {
 
     @Suppress("SpreadOperator")
     @Transaction
-    suspend fun deleteAndSaveAllProjectsAreaResourcesAndIdeas(projects: List<NotionEntry>) {
+    suspend fun deleteAndSaveAllProjectsAreaResourcesAndIdeas(entries: List<NotionEntry>) {
         deleteNonAlerts()
-        insertAll(*projects.toTypedArray())
+        insertAll(*entries.toTypedArray())
     }
 
     @Query("DELETE FROM notionEntry WHERE type = 'alert'")

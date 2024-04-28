@@ -49,9 +49,11 @@ data class NotionStatus(
 )
 
 @JsonClass(generateAdapter = true)
-class NotionBodyRequest(
+data class NotionBodyRequest(
     val filter: FilterRequest,
-    val sorts: List<SortRequest>
+    val sorts: List<SortRequest>,
+    @Json(name = "start_cursor")
+    val startCursor: String? = null
 )
 
 @JsonClass(generateAdapter = true)
@@ -90,7 +92,9 @@ class SortRequest(
 
 @JsonClass(generateAdapter = true)
 class NotionDatabaseQueryResult(
-    val results: List<NotionPage>
+    val results: List<NotionPage>,
+    @Json(name = "next_cursor")
+    val nextCursor: String?
 )
 
 @JsonClass(generateAdapter = true)

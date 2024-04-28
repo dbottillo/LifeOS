@@ -11,6 +11,7 @@ import com.dbottillo.lifeos.network.AddPageNotionPropertyText
 import com.dbottillo.lifeos.network.AddPageNotionPropertyTitle
 import com.dbottillo.lifeos.network.ApiInterface
 import com.dbottillo.lifeos.network.ApiResult
+import com.dbottillo.lifeos.network.NotionBodyRequest
 import com.dbottillo.lifeos.network.NotionDatabaseQueryResult
 import com.dbottillo.lifeos.network.NotionPage
 import com.dbottillo.lifeos.notification.NotificationProvider
@@ -59,6 +60,7 @@ class TasksRepository @Inject constructor(
             is ApiResult.Success -> {
                 storeAndNotify(nextActions.data)
             }
+
             is ApiResult.Error -> state.emit(
                 TasksState.Error(
                     nextActions.exception.localizedMessage ?: "",
@@ -70,8 +72,12 @@ class TasksRepository @Inject constructor(
 
     suspend fun loadProjectsAreaResourcesAndIdeas() {
         coroutineScope {
-            val projectsAreasAndResourcesRequest = async { fetchProjectsAreaAndResources() }
-            val ideasRequest = async { fetchIdeas() }
+            val projectsAreasAndResourcesRequest = async {
+                fetchNotionPages(ProjectsAreasAndResourcesRequest().get())
+            }
+            val ideasRequest = async {
+                fetchNotionPages(IdeasRequest().get())
+            }
             val projectsAreasAndResources = projectsAreasAndResourcesRequest.await()
             val ideas = ideasRequest.await()
             when {
@@ -81,46 +87,36 @@ class TasksRepository @Inject constructor(
                         storage.timestamp.first()
                     )
                 )
+
                 ideas is ApiResult.Error -> state.emit(
                     TasksState.Error(
                         ideas.exception.localizedMessage ?: "",
                         storage.timestamp.first()
                     )
                 )
+
                 else -> {
-                    val results = (projectsAreasAndResources as ApiResult.Success).data.results +
-                            (ideas as ApiResult.Success).data.results
+                    val results = (projectsAreasAndResources as ApiResult.Success).data +
+                            (ideas as ApiResult.Success).data
                     dao.deleteAndSaveAllProjectsAreaResourcesAndIdeas(results.map { it.toEntry() })
                 }
             }
         }
     }
 
-    @Suppress("TooGenericExceptionCaught", "LongMethod", "StringLiteralDuplication")
-    private suspend fun fetchNextActions(): ApiResult<NotionDatabaseQueryResult> {
-        return try {
-            val now = Instant.now()
-            val dtm = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
-            val request = NextActionsRequest(dtm.format(now))
-            val response = api.queryDatabase(AppConstant.GTD_ONE_DATABASE_ID, request.get())
-            if (response.isSuccessful) {
-                val body = response.body()
-                if (body != null) {
-                    return ApiResult.Success(body)
-                }
-            }
-            ApiResult.Error(Throwable("${response.code()} ${response.message()}"))
-        } catch (e: Exception) {
-            ApiResult.Error(Throwable(e.message ?: e.toString()))
-        }
+    private suspend fun fetchNextActions(): ApiResult<List<NotionPage>> {
+        val now = Instant.now()
+        val dtm = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
+        val request = NextActionsRequest(dtm.format(now))
+        return fetchNotionPages(request.get())
     }
 
     private suspend fun storeAndNotify(
-        result: NotionDatabaseQueryResult
+        result: List<NotionPage>
     ) {
-        dao.deleteAndInsertAll(result.results.map { it.toEntry(typeOverride = "alert") })
+        dao.deleteAndInsertAll(result.map { it.toEntry(typeOverride = "alert") })
         val titles =
-            result.results.map { page ->
+            result.map { page ->
                 val name = page.properties["Name"]?.title?.getOrNull(0)?.plainText ?: "No title"
                 val emoji = page.icon?.emoji ?: ""
                 emoji + name
@@ -130,28 +126,31 @@ class TasksRepository @Inject constructor(
         state.emit(TasksState.Loaded(storage.timestamp.first()))
     }
 
-    @Suppress("TooGenericExceptionCaught", "LongMethod", "StringLiteralDuplication")
-    private suspend fun fetchProjectsAreaAndResources(): ApiResult<NotionDatabaseQueryResult> {
-        return try {
-            val request = ProjectsAreasAndResourcesRequest()
-            val response = api.queryDatabase(AppConstant.GTD_ONE_DATABASE_ID, request.get())
-            if (response.isSuccessful) {
-                val body = response.body()
-                if (body != null) {
-                    return ApiResult.Success(body)
+    private suspend fun fetchNotionPages(request: NotionBodyRequest): ApiResult<List<NotionPage>> {
+        val result = mutableListOf<NotionPage>()
+        var nextRequest: NotionBodyRequest? = request
+        while (nextRequest != null) {
+            nextRequest = when (val queryResult = networkRequest(nextRequest)) {
+                is ApiResult.Error -> return queryResult
+                is ApiResult.Success -> {
+                    result.addAll(queryResult.data.results)
+                    if (queryResult.data.nextCursor != null) {
+                        request.copy(
+                            startCursor = queryResult.data.nextCursor,
+                        )
+                    } else {
+                        null
+                    }
                 }
             }
-            ApiResult.Error(Throwable("${response.code()} ${response.message()}"))
-        } catch (e: Exception) {
-            ApiResult.Error(Throwable(e.message ?: e.toString()))
         }
+        return ApiResult.Success(result)
     }
 
     @Suppress("TooGenericExceptionCaught", "LongMethod", "StringLiteralDuplication")
-    private suspend fun fetchIdeas(): ApiResult<NotionDatabaseQueryResult> {
+    private suspend fun networkRequest(request: NotionBodyRequest): ApiResult<NotionDatabaseQueryResult> {
         return try {
-            val request = IdeasRequest()
-            val response = api.queryDatabase(AppConstant.GTD_ONE_DATABASE_ID, request.get())
+            val response = api.queryDatabase(AppConstant.GTD_ONE_DATABASE_ID, request)
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body != null) {
