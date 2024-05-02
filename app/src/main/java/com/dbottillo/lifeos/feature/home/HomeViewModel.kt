@@ -47,6 +47,7 @@ class HomeViewModel @Inject constructor(
     val homeState = MutableStateFlow(
         HomeState(
             refreshing = false,
+            inbox = emptyList(),
             focus = emptyList(),
             projects = emptyList(),
             others = HomeStateBottom(
@@ -121,14 +122,17 @@ class HomeViewModel @Inject constructor(
                     BottomSelection.IDEAS -> uiIdeas
                 }
             )
+            val (inbox, others) = actions.partition { it.isInbox }
+            val (withDue, withoutDue) = others.partition { it.due.isNotEmpty() }
             Triple(
-                actions.mapActions(),
+                (inbox + withDue).mapActions() to (withoutDue).mapActions(),
                 projects.filter { it.status is Status.Focus }.mapProjects(),
                 bottom to goalsParagraphs
             )
         }.collectLatest { (top, middle, bottom) ->
             homeState.value = homeState.first().copy(
-                focus = top,
+                inbox = top.first,
+                focus = top.second,
                 projects = middle,
                 others = bottom.first,
                 goals = bottom.second
@@ -212,6 +216,7 @@ class HomeViewModel @Inject constructor(
 
 data class HomeState(
     val refreshing: Boolean,
+    val inbox: List<EntryContent>,
     val focus: List<EntryContent>,
     val projects: List<EntryContent>,
     val others: HomeStateBottom,

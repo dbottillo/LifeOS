@@ -48,6 +48,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
     val state = viewModel.homeState.collectAsStateWithLifecycle()
     HomeScreenContent(
         refreshing = state.value.refreshing,
+        inbox = state.value.inbox,
         top = state.value.focus,
         middle = state.value.projects,
         bottom = state.value.others,
@@ -72,6 +73,7 @@ fun LazyStaggeredGridScope.header(
 @Composable
 fun HomeScreenContent(
     refreshing: Boolean,
+    inbox: List<EntryContent>,
     top: List<EntryContent>,
     middle: List<EntryContent>,
     bottom: HomeStateBottom,
@@ -88,12 +90,28 @@ fun HomeScreenContent(
             verticalItemSpacing = 8.dp,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            if (inbox.isNotEmpty()) {
+                header {
+                    Text(
+                        text = "Inbox",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                inbox.forEach {
+                    item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
+                        Entry(content = it)
+                    }
+                }
+            }
             header {
                 Text(
                     text = "Focus",
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier.fillMaxWidth()
+                        .padding(top = if (inbox.isEmpty()) 0.dp else 16.dp)
                 )
             }
             top.forEach {
@@ -233,6 +251,13 @@ fun HomeScreenPreview() {
             Box(modifier = Modifier.padding(it)) {
                 HomeScreenContent(
                     refreshing = false,
+                    inbox = listOf(
+                        EntryContent(
+                            id = UUID.randomUUID().toString(),
+                            title = "Do grocery",
+                            url = "url",
+                        )
+                    ),
                     top = listOf(
                         EntryContent(
                             id = UUID.randomUUID().toString(),

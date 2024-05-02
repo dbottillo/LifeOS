@@ -7,10 +7,8 @@
     <ID>MagicNumber:HomeViewModel.kt$100</ID>
     <ID>MagicNumber:build.gradle.kts$28</ID>
     <ID>MagicNumber:build.gradle.kts$34</ID>
-    <ID>MagicNumber:build.gradle.kts$6</ID>
+    <ID>MagicNumber:build.gradle.kts$7</ID>
     <ID>StringLiteralDuplication:ArticleRepository.kt$ArticleRepository$"Status"</ID>
-    <ID>StringLiteralDuplication:NextActionsRequest.kt$NextActionsRequest$"Status"</ID>
-    <ID>StringLiteralDuplication:ProjectsAreasAndResourcesRequest.kt$ProjectsAreasAndResourcesRequest$"Category"</ID>
     <ID>StringLiteralDuplication:build.gradle.kts$"engBuild"</ID>
     <ID>StringLiteralDuplication:build.gradle.kts$"release"</ID>
     <ID>ThrowingExceptionsWithoutMessageOrCause:GoalsWidgetReceiver.kt$GoalsAppWidget$IllegalStateException()</ID>
