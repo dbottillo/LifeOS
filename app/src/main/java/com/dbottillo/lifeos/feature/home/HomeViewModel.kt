@@ -40,16 +40,16 @@ class HomeViewModel @Inject constructor(
     private val blockRepository: BlockRepository
 ) : ViewModel() {
 
-    private val homeStateBottomSelection = MutableStateFlow(
+    private val otherStateBottomSelection = MutableStateFlow(
         BottomSelection.IDEAS
     )
 
     val homeState = MutableStateFlow(
         HomeState(
             refreshing = false,
-            top = emptyList(),
-            middle = emptyList(),
-            bottom = HomeStateBottom(
+            focus = emptyList(),
+            projects = emptyList(),
+            others = HomeStateBottom(
                 selection = listOf(),
                 list = emptyList()
             ),
@@ -91,7 +91,7 @@ class HomeViewModel @Inject constructor(
             tasksRepository.areasFlow,
             tasksRepository.ideasFlow,
             tasksRepository.resourcesFlow,
-            homeStateBottomSelection,
+            otherStateBottomSelection,
             blockRepository.goalsBlock()
         ) { actions, projects, areas, ideas, resources, bottomSelection, goalsParagraphs ->
             val uiAreas = areas.mapAreas()
@@ -128,9 +128,9 @@ class HomeViewModel @Inject constructor(
             )
         }.collectLatest { (top, middle, bottom) ->
             homeState.value = homeState.first().copy(
-                top = top,
-                middle = middle,
-                bottom = bottom.first,
+                focus = top,
+                projects = middle,
+                others = bottom.first,
                 goals = bottom.second
             )
         }
@@ -206,15 +206,15 @@ class HomeViewModel @Inject constructor(
     }
 
     fun bottomSelection(type: BottomSelection) {
-        homeStateBottomSelection.value = type
+        otherStateBottomSelection.value = type
     }
 }
 
 data class HomeState(
     val refreshing: Boolean,
-    val top: List<EntryContent>,
-    val middle: List<EntryContent>,
-    val bottom: HomeStateBottom,
+    val focus: List<EntryContent>,
+    val projects: List<EntryContent>,
+    val others: HomeStateBottom,
     val goals: List<BlockParagraph>
 )
 

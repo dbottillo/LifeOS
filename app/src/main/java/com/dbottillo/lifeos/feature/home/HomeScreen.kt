@@ -48,9 +48,9 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
     val state = viewModel.homeState.collectAsStateWithLifecycle()
     HomeScreenContent(
         refreshing = state.value.refreshing,
-        top = state.value.top,
-        middle = state.value.middle,
-        bottom = state.value.bottom,
+        top = state.value.focus,
+        middle = state.value.projects,
+        bottom = state.value.others,
         goals = state.value.goals,
         refresh = viewModel::reloadHome,
         bottomSelection = viewModel::bottomSelection
