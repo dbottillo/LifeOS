@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import com.dbottillo.lifeos.R
+import com.dbottillo.lifeos.feature.tasks.Idea
 import com.dbottillo.lifeos.feature.tasks.NextAction
 import com.dbottillo.lifeos.feature.tasks.TasksRepository
 import kotlinx.coroutines.flow.first
@@ -57,6 +58,12 @@ class NextActionsRemoteViewsFactory(
                 context.packageName,
                 R.layout.notion_widget_focus
             )
+
+            WidgetEntry.Ideas -> RemoteViews(
+                context.packageName,
+                R.layout.notion_widget_ideas
+            )
+
             WidgetEntry.Footer -> {
                 val buttonView = RemoteViews(
                     context.packageName,
@@ -68,9 +75,13 @@ class NextActionsRemoteViewsFactory(
                         putExtras(extras)
                     }
                 }
-                buttonView.setOnClickFillInIntent(R.id.notion_widget_add_image_button, refreshIntent)
+                buttonView.setOnClickFillInIntent(
+                    R.id.notion_widget_add_image_button,
+                    refreshIntent
+                )
                 buttonView
             }
+
             is WidgetEntry.Entry -> {
                 val view = RemoteViews(
                     context.packageName,
@@ -103,7 +114,7 @@ class NextActionsRemoteViewsFactory(
         return null
     }
 
-    override fun getViewTypeCount() = 3
+    override fun getViewTypeCount() = 4
 
     override fun getItemId(position: Int): Long {
         return position.toLong()
@@ -114,25 +125,32 @@ class NextActionsRemoteViewsFactory(
     private fun initData() {
         data.clear()
         runBlocking {
-            tasksRepository.nextActionsFlow.first().run {
-                val (inbox, others) = this.partition { it.isInbox }
-                val (withDue, withoutDue) = others.partition { it.due.isNotEmpty() }
-                var index = 0
-                inbox.forEach { action ->
-                    data[index] = action.toWidgetEntry()
-                    index++
-                }
-                withDue.forEach { action ->
-                    data[index] = action.toWidgetEntry()
-                    index++
-                }
-                data[index] = WidgetEntry.Focus
+            val nextActions = tasksRepository.nextActionsFlow.first()
+            val ideas = tasksRepository.ideasFlow.first()
+            val (inbox, others) = nextActions.partition { it.isInbox }
+            val (withDue, withoutDue) = others.partition { it.due.isNotEmpty() }
+            var index = 0
+            inbox.forEach { action ->
+                data[index] = action.toWidgetEntry()
                 index++
-                withoutDue.forEach { action ->
-                    data[index] = action.toWidgetEntry()
-                    index++
-                }
-                data[index] = WidgetEntry.Footer
+            }
+            withDue.forEach { action ->
+                data[index] = action.toWidgetEntry()
+                index++
+            }
+            data[index] = WidgetEntry.Focus
+            index++
+            withoutDue.forEach { action ->
+                data[index] = action.toWidgetEntry()
+                index++
+            }
+            data[index] = WidgetEntry.Footer
+            index++
+            data[index] = WidgetEntry.Ideas
+            index++
+            ideas.forEach { idea ->
+                data[index] = idea.toWidgetEntry()
+                index++
             }
         }
     }
@@ -147,10 +165,21 @@ private fun NextAction.toWidgetEntry(): WidgetEntry {
     )
 }
 
+private fun Idea.toWidgetEntry(): WidgetEntry {
+    return WidgetEntry.Entry(
+        text = text,
+        url = url,
+        due = null,
+        color = "orange".toDrawable()
+    )
+}
+
 sealed class WidgetEntry {
     data object Focus : WidgetEntry()
     data object Footer : WidgetEntry()
-    data class Entry(val text: String, val color: Int, val url: String, val due: String?) : WidgetEntry()
+    data object Ideas : WidgetEntry()
+    data class Entry(val text: String, val color: Int, val url: String, val due: String?) :
+        WidgetEntry()
 }
 
 private fun String.toDrawable(): Int {
