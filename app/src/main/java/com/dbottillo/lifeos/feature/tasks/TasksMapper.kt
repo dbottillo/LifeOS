@@ -32,7 +32,8 @@ class TasksMapper @Inject constructor() {
                 url = entry.url,
                 color = entry.color ?: "",
                 due = entry.toDate(),
-                link = entry.link
+                link = entry.link,
+                isInbox = entry.status == "Inbox"
             )
         }
     }

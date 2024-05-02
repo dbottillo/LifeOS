@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import com.dbottillo.lifeos.R
+import com.dbottillo.lifeos.feature.tasks.NextAction
 import com.dbottillo.lifeos.feature.tasks.TasksRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -114,32 +115,36 @@ class NextActionsRemoteViewsFactory(
         data.clear()
         runBlocking {
             tasksRepository.nextActionsFlow.first().run {
-                val (withDue, withoutDue) = this.partition { it.due.isNotEmpty() }
+                val (inbox, others) = this.partition { it.isInbox }
+                val (withDue, withoutDue) = others.partition { it.due.isNotEmpty() }
                 var index = 0
+                inbox.forEach { action ->
+                    data[index] = action.toWidgetEntry()
+                    index++
+                }
                 withDue.forEach { action ->
-                    data[index] = WidgetEntry.Entry(
-                        text = action.text,
-                        url = action.url,
-                        due = action.due,
-                        color = action.color.split(",").first().toDrawable()
-                    )
+                    data[index] = action.toWidgetEntry()
                     index++
                 }
                 data[index] = WidgetEntry.Focus
                 index++
                 withoutDue.forEach { action ->
-                    data[index] = WidgetEntry.Entry(
-                        text = action.text,
-                        url = action.url,
-                        due = action.due,
-                        color = action.color.split(",").first().toDrawable()
-                    )
+                    data[index] = action.toWidgetEntry()
                     index++
                 }
                 data[index] = WidgetEntry.Footer
             }
         }
     }
+}
+
+private fun NextAction.toWidgetEntry(): WidgetEntry {
+    return WidgetEntry.Entry(
+        text = text,
+        url = url,
+        due = due,
+        color = color.split(",").first().toDrawable()
+    )
 }
 
 sealed class WidgetEntry {

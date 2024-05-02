@@ -6,5 +6,6 @@ data class NextAction(
     val url: String,
     val color: String,
     val due: String,
-    val link: String?
+    val link: String?,
+    val isInbox: Boolean
 )

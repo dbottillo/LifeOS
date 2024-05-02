@@ -46,12 +46,7 @@ class TasksRepository @Inject constructor(
     val resourcesFlow: Flow<List<Resource>> = dao.getResources().map(mapper::mapResources)
 
     suspend fun init() {
-        val titles = dao.getNextActions().first().joinToString("\n") {
-            val name = it.title ?: "No title"
-            val emoji = it.emoji ?: ""
-            emoji + name
-        }
-        notificationProvider.updateNextActions(titles)
+        updateFocusNotification()
         storage.timestamp.first().let { state.emit(TasksState.Restored(it)) }
     }
 
@@ -113,14 +108,7 @@ class TasksRepository @Inject constructor(
         result: List<NotionPage>
     ) {
         dao.deleteAndInsertAll(result.map { it.toEntry(typeOverride = "alert") })
-        val titles =
-            result.map { page ->
-                val name = page.properties["Name"]?.title?.getOrNull(0)?.plainText ?: "No title"
-                val emoji = page.icon?.emoji ?: ""
-                emoji + name
-            }
-        val notificationData = titles.joinToString("\n")
-        notificationProvider.updateNextActions(notificationData)
+        updateFocusNotification()
         state.emit(TasksState.Loaded(storage.timestamp.first()))
     }
 
@@ -192,6 +180,18 @@ class TasksRepository @Inject constructor(
         } catch (e: Exception) {
             ApiResult.Error(Throwable(e.message ?: e.toString()))
         }
+    }
+
+    private suspend fun updateFocusNotification() {
+        val actions = dao.getNextActions().first()
+        val (inbox, others) = actions.partition { it.status == "Inbox" }
+        val (withDue, withoutDue) = others.partition { it.startDate?.isNotEmpty() == true }
+        val titles = (inbox + withDue + withoutDue).joinToString("\n") {
+            val name = it.title ?: "No title"
+            val emoji = it.emoji ?: ""
+            emoji + name
+        }
+        notificationProvider.updateNextActions(titles)
     }
 }
 
