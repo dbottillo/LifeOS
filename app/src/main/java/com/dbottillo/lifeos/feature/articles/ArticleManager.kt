@@ -2,6 +2,8 @@ package com.dbottillo.lifeos.feature.articles
 
 import android.content.Context
 import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.Operation
 import androidx.work.OutOfQuotaPolicy
@@ -21,6 +23,10 @@ class ArticleManager @Inject constructor(
 
     private val workManager by lazy { WorkManager.getInstance(context) }
 
+    private val constraints = Constraints.Builder()
+        .setRequiredNetworkType(NetworkType.CONNECTED)
+        .build()
+
     fun addArticle(title: String?, url: String): Operation {
         val request = OneTimeWorkRequestBuilder<AddArticleWorker>()
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
@@ -36,6 +42,7 @@ class ArticleManager @Inject constructor(
                 10,
                 TimeUnit.SECONDS
             )
+            .setConstraints(constraints)
             .build()
         return workManager.enqueue(request)
     }
@@ -54,6 +61,7 @@ class ArticleManager @Inject constructor(
                 10,
                 TimeUnit.SECONDS
             )
+            .setConstraints(constraints)
             .build()
         return workManager.enqueue(request)
     }
@@ -73,6 +81,7 @@ class ArticleManager @Inject constructor(
                 10,
                 TimeUnit.SECONDS
             )
+            .setConstraints(constraints)
             .build()
         return workManager.enqueue(request)
     }

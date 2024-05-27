@@ -2,6 +2,8 @@ package com.dbottillo.lifeos.feature.tasks
 
 import android.content.Context
 import androidx.work.BackoffPolicy
+import androidx.work.Constraints
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.Operation
 import androidx.work.OutOfQuotaPolicy
@@ -19,6 +21,10 @@ class TaskManager @Inject constructor(
 
     private val workManager by lazy { WorkManager.getInstance(context) }
 
+    private val constraints = Constraints.Builder()
+        .setRequiredNetworkType(NetworkType.CONNECTED)
+        .build()
+
     fun addTask(title: String?, url: String): Operation {
         val request = OneTimeWorkRequestBuilder<AddTaskWorker>()
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
@@ -35,6 +41,7 @@ class TaskManager @Inject constructor(
                 10,
                 TimeUnit.SECONDS
             )
+            .setConstraints(constraints)
             .build()
         return workManager.enqueue(request)
     }
