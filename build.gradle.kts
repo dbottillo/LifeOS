@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.google.services) apply false
     alias(libs.plugins.crashlytics) apply false
     alias(libs.plugins.room) apply false
+    alias(libs.plugins.compose.compiler) apply false
 }
 
 allprojects {
@@ -38,8 +39,8 @@ tasks {
     }
 
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "1.8"
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
         }
     }
 

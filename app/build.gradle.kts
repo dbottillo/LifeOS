@@ -8,6 +8,8 @@ plugins {
     alias(libs.plugins.room)
     alias(libs.plugins.google.services)
     alias(libs.plugins.crashlytics)
+    alias(libs.plugins.versions)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -31,7 +33,6 @@ android {
         resValues = false
         shaders = false
         viewBinding = false
-        compose = true
     }
 
     signingConfigs {
@@ -39,14 +40,14 @@ android {
             // You need to specify either an absolute path or include the
             // keystore file in the same directory as the build.gradle file.
             storeFile = file("../lifeoskeystore.jks")
-            storePassword = gradleLocalProperties(rootDir).getProperty("store_password")
-            keyAlias = gradleLocalProperties(rootDir).getProperty("key_alias")
-            keyPassword = gradleLocalProperties(rootDir).getProperty("key_password")
+            storePassword = gradleLocalProperties(rootDir, providers).getProperty("store_password")
+            keyAlias = gradleLocalProperties(rootDir, providers).getProperty("key_alias")
+            keyPassword = gradleLocalProperties(rootDir, providers).getProperty("key_password")
         }
     }
 
     buildTypes {
-        val notionKey = gradleLocalProperties(rootDir).getProperty("notion_key")
+        val notionKey = gradleLocalProperties(rootDir, providers).getProperty("notion_key")
         getByName("debug") {
             buildConfigField("String", "NOTION_KEY", notionKey)
         }
@@ -74,10 +75,6 @@ android {
     }
 
     namespace = "com.dbottillo.lifeos"
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.10"
-    }
 }
 
 room {

@@ -1,19 +1,19 @@
 [versions]
-androidGradlePlugin = "8.2.2"
-moshi="1.15.0"
-kotlin = "1.9.22"
-coroutines = "1.7.1"
+androidGradlePlugin = "8.4.1"
+moshi="1.15.1"
+kotlin = "2.0.0"
+coroutines = "1.7.3"
 androidDesugarJdkLibs = "2.0.4"
-androidXCore = "1.13.0"
+androidXCore = "1.13.1"
 androidXCompat = "1.6.1"
-androidxComposeBom = "2024.04.01"
+androidxComposeBom = "2024.05.00"
 androidxActivity = "1.9.0"
 constraintlayout = "2.1.4"
 constraintlayoutCompose="1.0.1"
-accompanist = "0.30.1"
+accompanist = "0.34.0"
 composeNavigation = "2.7.7"
 composeLifecycle = "2.7.0"
-dagger="2.49"
+dagger="2.51.1"
 hilt="1.2.0"
 androidxHiltNavigationCompose="1.2.0"
 junit = "5.9.3" # https://junit.org/junit5/docs/5.8.0/release-notes/
@@ -23,19 +23,19 @@ mockito_inline = "5.2.0"
 mockito_kotlin = "5.0.0" # https://github.com/mockito/mockito-kotlin/releases
 truth = "1.1.5" # https://github.com/google/truth/releases
 turbine = "0.13.0" # https://github.com/cashapp/turbine/
-retrofit = "2.9.0"
+retrofit = "2.11.0"
 okhttp = "4.12.0"
-detekt = "1.23.4"
+detekt = "1.23.6"
 versionsPlugin = "0.51.0"
 leakCanary = "2.12"
 lint = "31.0.0"
-material = "1.11.0"
+material = "1.12.0"
 navigation = "2.7.7"
 workManager = "2.9.0"
-datastore = "1.1.0"
+datastore = "1.1.1"
 googleServicesPlugin="4.4.1"
-firebaseBom="32.8.1"
-crashlyticsPlugin="2.9.9"
+firebaseBom="33.0.0"
+crashlyticsPlugin="3.0.1"
 room = "2.6.1"
 androidXglance = "1.0.0"
 
@@ -126,3 +126,6 @@ hilt = { id = "com.google.dagger.hilt.android", version.ref = "dagger" }
 google-services = { id = "com.google.gms.google-services", version.ref = "googleServicesPlugin"}
 crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlyticsPlugin"}
 room = { id = "androidx.room", version.ref = "room" }
+org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+
