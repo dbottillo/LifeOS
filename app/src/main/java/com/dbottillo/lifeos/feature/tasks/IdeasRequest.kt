@@ -21,10 +21,6 @@ class IdeasRequest {
             ),
             sorts = listOf(
                 SortRequest(
-                    property = "Favourite",
-                    direction = "descending"
-                ),
-                SortRequest(
                     timestamp = "created_time",
                     direction = "descending"
                 )

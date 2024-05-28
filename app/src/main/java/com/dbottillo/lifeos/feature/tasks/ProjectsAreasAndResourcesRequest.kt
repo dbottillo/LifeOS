@@ -33,10 +33,6 @@ class ProjectsAreasAndResourcesRequest {
             ),
             sorts = listOf(
                 SortRequest(
-                    property = "Favourite",
-                    direction = "descending"
-                ),
-                SortRequest(
                     timestamp = "last_edited_time",
                     direction = "descending"
                 )

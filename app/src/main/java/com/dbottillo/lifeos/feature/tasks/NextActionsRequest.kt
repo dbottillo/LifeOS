@@ -1,7 +1,6 @@
 package com.dbottillo.lifeos.feature.tasks
 
 import com.dbottillo.lifeos.network.FilterBeforeRequest
-import com.dbottillo.lifeos.network.FilterCheckboxRequest
 import com.dbottillo.lifeos.network.FilterEqualsRequest
 import com.dbottillo.lifeos.network.FilterRequest
 import com.dbottillo.lifeos.network.NotionBodyRequest
@@ -50,22 +49,12 @@ class NextActionsRequest(private val date: String) {
                                 status = FilterEqualsRequest(
                                     equals = "Inbox"
                                 )
-                            ),
-                            FilterRequest(
-                                property = "Favourite",
-                                checkbox = FilterCheckboxRequest(
-                                    equals = false
-                                )
                             )
                         )
                     )
                 )
             ),
             sorts = listOf(
-                SortRequest(
-                    property = "Favourite",
-                    direction = "descending"
-                ),
                 SortRequest(
                     property = "Due",
                     direction = "ascending"
