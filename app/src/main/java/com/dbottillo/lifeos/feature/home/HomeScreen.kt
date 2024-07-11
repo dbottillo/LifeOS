@@ -224,6 +224,14 @@ private fun Entry(
                         }
                 )
             }
+            if (content.parent?.isNotEmpty() == true) {
+                Text(
+                    text = content.parent,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .padding(top = 2.dp)
+                )
+            }
         }
     }
 }

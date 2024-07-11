@@ -257,7 +257,8 @@ data class EntryContent(
     val title: String,
     val url: String,
     val subtitle: String? = null,
-    val link: String? = null
+    val link: String? = null,
+    val parent: String? = null
 )
 
 fun List<NextAction>.mapActions(): List<EntryContent> {
@@ -267,7 +268,8 @@ fun List<NextAction>.mapActions(): List<EntryContent> {
             title = it.text,
             url = it.url,
             subtitle = it.due,
-            link = it.link
+            link = it.link,
+            parent = it.parent?.title
         )
     }
 }
@@ -280,7 +282,8 @@ fun List<Project>.mapProjects(): List<EntryContent> {
             title = it.text,
             subtitle = subtitle,
             url = it.url,
-            link = it.link
+            link = it.link,
+            parent = it.parent?.title
         )
     }
 }
@@ -302,7 +305,8 @@ fun List<Idea>.mapIdeas(): List<EntryContent> {
             id = it.id,
             title = it.text,
             url = it.url,
-            link = it.link
+            link = it.link,
+            parent = it.parent?.title
         )
     }
 }
@@ -313,7 +317,8 @@ fun List<Resource>.mapResources(): List<EntryContent> {
             id = it.id,
             title = it.text,
             url = it.url,
-            link = it.link
+            link = it.link,
+            parent = it.parent?.title
         )
     }
 }

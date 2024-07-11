@@ -20,7 +20,8 @@ class TasksMapper @Inject constructor() {
                 id = entry.notionEntry.uid,
                 text = entry.notionEntry.toTitle(),
                 url = entry.notionEntry.url,
-                link = entry.notionEntry.link
+                link = entry.notionEntry.link,
+                parent = entry.parent.toParent()
             )
         }
     }
@@ -34,7 +35,8 @@ class TasksMapper @Inject constructor() {
                 color = entry.notionEntry.color ?: "",
                 due = entry.notionEntry.toDate(),
                 link = entry.notionEntry.link,
-                isInbox = entry.notionEntry.status == "Inbox"
+                isInbox = entry.notionEntry.status == "Inbox",
+                parent = entry.parent.toParent()
             )
         }
     }
@@ -49,7 +51,8 @@ class TasksMapper @Inject constructor() {
                 due = entry.notionEntry.toDate(),
                 progress = entry.notionEntry.progress,
                 status = entry.notionEntry.status.toStatus(),
-                link = entry.notionEntry.link
+                link = entry.notionEntry.link,
+                parent = entry.parent.toParent()
             )
         }
     }
@@ -71,7 +74,8 @@ class TasksMapper @Inject constructor() {
                 id = entry.notionEntry.uid,
                 text = entry.notionEntry.toTitle(),
                 url = entry.notionEntry.url,
-                link = entry.notionEntry.link
+                link = entry.notionEntry.link,
+                parent = entry.parent.toParent()
             )
         }
     }
@@ -88,6 +92,14 @@ class TasksMapper @Inject constructor() {
         }
         return date ?: ""
     }
+}
+
+private fun List<NotionEntry>.toParent(): Parent? {
+    val first = this.firstOrNull() ?: return null
+    return Parent(
+        id = first.uid,
+        title = first.toTitle()
+    )
 }
 
 private fun NotionEntry.toTitle(): String {

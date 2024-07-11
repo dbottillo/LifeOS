@@ -3,6 +3,8 @@
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>LongMethod:AddTaskWorker.kt$AddTaskWorker$@Suppress("SwallowedException", "TooGenericExceptionCaught") override suspend fun doWork(): Result</ID>
+    <ID>MagicNumber:AppDatabase.kt$&lt;no name provided&gt;$6</ID>
+    <ID>MagicNumber:AppDatabase.kt$&lt;no name provided&gt;$7</ID>
     <ID>MagicNumber:HomeViewModel.kt$100</ID>
     <ID>MagicNumber:build.gradle.kts$28</ID>
     <ID>MagicNumber:build.gradle.kts$34</ID>

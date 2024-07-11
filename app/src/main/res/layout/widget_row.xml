@@ -27,4 +27,14 @@
         android:textColor="@color/color_on_primary"
         android:gravity="center_vertical"
         tools:text="22/01 11:40"/>
+    <TextView
+        android:id="@+id/widget_row_parent_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:textColor="@color/color_on_primary"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:ellipsize="end"
+        tools:text="Dev hub"/>
 </LinearLayout>

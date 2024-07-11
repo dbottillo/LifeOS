@@ -89,9 +89,14 @@ class NextActionsRemoteViewsFactory(
                 )
                 view.setTextViewText(R.id.widget_row_title_id, entry.text)
                 view.setTextViewText(R.id.widget_row_due_id, entry.due ?: "")
+                view.setTextViewText(R.id.widget_row_parent_id, entry.parent ?: "")
                 view.setViewVisibility(
                     R.id.widget_row_due_id,
                     if (entry.due?.isNotEmpty() == true) View.VISIBLE else View.GONE
+                )
+                view.setViewVisibility(
+                    R.id.widget_row_parent_id,
+                    if (entry.parent?.isNotEmpty() == true) View.VISIBLE else View.GONE
                 )
                 view.setInt(R.id.widget_row_id, "setBackgroundResource", entry.color)
                 val fillInIntent = Intent().apply {
@@ -161,7 +166,8 @@ private fun NextAction.toWidgetEntry(): WidgetEntry {
         text = text,
         url = url,
         due = due,
-        color = color.split(",").first().toDrawable()
+        color = color.split(",").first().toDrawable(),
+        parent = parent?.title
     )
 }
 
@@ -170,7 +176,8 @@ private fun Idea.toWidgetEntry(): WidgetEntry {
         text = text,
         url = url,
         due = null,
-        color = "orange".toDrawable()
+        color = "orange".toDrawable(),
+        parent = parent?.title
     )
 }
 
@@ -178,8 +185,13 @@ sealed class WidgetEntry {
     data object Focus : WidgetEntry()
     data object Footer : WidgetEntry()
     data object Ideas : WidgetEntry()
-    data class Entry(val text: String, val color: Int, val url: String, val due: String?) :
-        WidgetEntry()
+    data class Entry(
+        val text: String,
+        val color: Int,
+        val url: String,
+        val due: String?,
+        val parent: String?
+    ) : WidgetEntry()
 }
 
 private fun String.toDrawable(): Int {
