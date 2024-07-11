@@ -1,6 +1,7 @@
 package com.dbottillo.lifeos.feature.tasks
 
 import com.dbottillo.lifeos.db.NotionEntry
+import com.dbottillo.lifeos.db.NotionEntryWithParent
 import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -13,64 +14,64 @@ class TasksMapper @Inject constructor() {
     private val outputDateAndTimeFormatter = SimpleDateFormat("dd/MM HH:mm", Locale.getDefault())
     private val outputDateFormatter = SimpleDateFormat("dd/MM", Locale.getDefault())
 
-    fun mapIdeas(input: List<NotionEntry>): List<Idea> {
+    fun mapIdeas(input: List<NotionEntryWithParent>): List<Idea> {
         return input.map { entry ->
             Idea(
-                id = entry.uid,
-                text = entry.toTitle(),
-                url = entry.url,
-                link = entry.link
+                id = entry.notionEntry.uid,
+                text = entry.notionEntry.toTitle(),
+                url = entry.notionEntry.url,
+                link = entry.notionEntry.link
             )
         }
     }
 
-    fun mapNextActions(input: List<NotionEntry>): List<NextAction> {
+    fun mapNextActions(input: List<NotionEntryWithParent>): List<NextAction> {
         return input.map { entry ->
             NextAction(
-                id = entry.uid,
-                text = entry.toTitle(),
-                url = entry.url,
-                color = entry.color ?: "",
-                due = entry.toDate(),
-                link = entry.link,
-                isInbox = entry.status == "Inbox"
+                id = entry.notionEntry.uid,
+                text = entry.notionEntry.toTitle(),
+                url = entry.notionEntry.url,
+                color = entry.notionEntry.color ?: "",
+                due = entry.notionEntry.toDate(),
+                link = entry.notionEntry.link,
+                isInbox = entry.notionEntry.status == "Inbox"
             )
         }
     }
 
-    fun mapProjects(input: List<NotionEntry>): List<Project> {
+    fun mapProjects(input: List<NotionEntryWithParent>): List<Project> {
         return input.map { entry ->
             Project(
-                id = entry.uid,
-                text = entry.toTitle(),
-                url = entry.url,
-                color = entry.color ?: "",
-                due = entry.toDate(),
-                progress = entry.progress,
-                status = entry.status.toStatus(),
-                link = entry.link
+                id = entry.notionEntry.uid,
+                text = entry.notionEntry.toTitle(),
+                url = entry.notionEntry.url,
+                color = entry.notionEntry.color ?: "",
+                due = entry.notionEntry.toDate(),
+                progress = entry.notionEntry.progress,
+                status = entry.notionEntry.status.toStatus(),
+                link = entry.notionEntry.link
             )
         }
     }
 
-    fun mapAreas(input: List<NotionEntry>): List<Area> {
+    fun mapAreas(input: List<NotionEntryWithParent>): List<Area> {
         return input.map { entry ->
             Area(
-                id = entry.uid,
-                text = entry.toTitle(),
-                url = entry.url,
-                link = entry.link
+                id = entry.notionEntry.uid,
+                text = entry.notionEntry.toTitle(),
+                url = entry.notionEntry.url,
+                link = entry.notionEntry.link
             )
         }
     }
 
-    fun mapResources(input: List<NotionEntry>): List<Resource> {
+    fun mapResources(input: List<NotionEntryWithParent>): List<Resource> {
         return input.map { entry ->
             Resource(
-                id = entry.uid,
-                text = entry.toTitle(),
-                url = entry.url,
-                link = entry.link
+                id = entry.notionEntry.uid,
+                text = entry.notionEntry.toTitle(),
+                url = entry.notionEntry.url,
+                link = entry.notionEntry.link
             )
         }
     }

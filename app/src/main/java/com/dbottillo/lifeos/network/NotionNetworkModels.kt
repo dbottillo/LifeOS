@@ -33,7 +33,8 @@ data class NotionProperty(
     @Json(name = "status")
     val status: NotionStatus? = null,
     val date: NotionDate? = null,
-    val rollup: NotionRollup? = null
+    val rollup: NotionRollup? = null,
+    val relation: List<NotionRelation>? = null
 )
 
 @JsonClass(generateAdapter = true)
@@ -187,4 +188,9 @@ data class NotionDate(
 @JsonClass(generateAdapter = true)
 data class NotionRollup(
     val number: Float?
+)
+
+@JsonClass(generateAdapter = true)
+data class NotionRelation(
+    val id: String
 )

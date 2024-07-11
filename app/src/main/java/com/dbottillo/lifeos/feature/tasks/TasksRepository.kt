@@ -184,11 +184,11 @@ class TasksRepository @Inject constructor(
 
     private suspend fun updateFocusNotification() {
         val actions = dao.getNextActions().first()
-        val (inbox, others) = actions.partition { it.status == "Inbox" }
-        val (withDue, withoutDue) = others.partition { it.startDate?.isNotEmpty() == true }
+        val (inbox, others) = actions.partition { it.notionEntry.status == "Inbox" }
+        val (withDue, withoutDue) = others.partition { it.notionEntry.startDate?.isNotEmpty() == true }
         val titles = (inbox + withDue + withoutDue).joinToString("\n") {
-            val name = it.title ?: "No title"
-            val emoji = it.emoji ?: ""
+            val name = it.notionEntry.title ?: "No title"
+            val emoji = it.notionEntry.emoji ?: ""
             emoji + name
         }
         notificationProvider.updateNextActions(titles)
@@ -215,5 +215,6 @@ private fun NotionPage.toEntry(typeOverride: String? = null) = NotionEntry(
     timeZone = properties["Due"]?.date?.timeZone,
     progress = properties["Progress"]?.rollup?.number,
     status = properties["Status"]!!.status!!.name,
-    link = properties["URL"]?.url
+    link = properties["URL"]?.url,
+    parentId = properties["Parent item"]?.relation?.firstOrNull()?.id
 )
