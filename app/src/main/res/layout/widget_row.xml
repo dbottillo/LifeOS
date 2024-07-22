@@ -10,13 +10,13 @@
     android:paddingBottom="4dp"
     android:paddingEnd="4dp"
     android:orientation="vertical"
-    android:background="@drawable/widget_row_background">
+    android:background="@drawable/widget_row_background_blue">
     <TextView
         android:id="@+id/widget_row_title_id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="14sp"
-        android:textColor="@color/color_on_primary"
+        android:textColor="@color/color_on_surface"
         android:gravity="center_vertical"
         tools:text="Widget action"/>
     <TextView
@@ -24,7 +24,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="12sp"
-        android:textColor="@color/color_on_primary"
+        android:textColor="@color/color_on_surface"
         android:gravity="center_vertical"
         tools:text="22/01 11:40"/>
     <TextView
@@ -32,7 +32,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="12sp"
-        android:textColor="@color/color_on_primary"
+        android:textColor="@color/color_on_surface"
         android:gravity="center_vertical"
         android:maxLines="1"
         android:ellipsize="end"

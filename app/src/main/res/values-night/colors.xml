@@ -14,7 +14,7 @@
     <color name="color_on_surface">#FFFFFF</color>
     <color name="color_on_background">#FFFFFF</color>
 
-    <color name="action_gray">#B8B8B8</color>
+    <color name="action_gray">#373737</color>
     <color name="action_blue">#29456C</color>
     <color name="action_green">#2C593F</color>
     <color name="action_red">#ED8585</color>
