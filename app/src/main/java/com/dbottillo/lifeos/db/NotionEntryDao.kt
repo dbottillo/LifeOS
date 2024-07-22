@@ -2,6 +2,7 @@ package com.dbottillo.lifeos.db
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +26,7 @@ interface NotionEntryDao {
     @Query("SELECT * FROM notionEntry WHERE type = 'Resource'")
     fun getResources(): Flow<List<NotionEntryWithParent>>
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(vararg entries: NotionEntry)
 
     @Suppress("SpreadOperator")

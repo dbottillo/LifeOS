@@ -1,6 +1,5 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
-  <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>LongMethod:AddTaskWorker.kt$AddTaskWorker$@Suppress("SwallowedException", "TooGenericExceptionCaught") override suspend fun doWork(): Result</ID>
     <ID>MagicNumber:AppDatabase.kt$&lt;no name provided&gt;$6</ID>
@@ -10,6 +9,7 @@
     <ID>MagicNumber:build.gradle.kts$34</ID>
     <ID>MagicNumber:build.gradle.kts$9</ID>
     <ID>StringLiteralDuplication:ArticleRepository.kt$ArticleRepository$"Status"</ID>
+    <ID>StringLiteralDuplication:NextActionsRequest.kt$NextActionsRequest$"Status"</ID>
     <ID>StringLiteralDuplication:build.gradle.kts$"engBuild"</ID>
     <ID>StringLiteralDuplication:build.gradle.kts$"release"</ID>
     <ID>ThrowingExceptionsWithoutMessageOrCause:GoalsWidgetReceiver.kt$GoalsAppWidget$IllegalStateException()</ID>

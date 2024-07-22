@@ -13,15 +13,15 @@ class NextActionsRequest(private val date: String) {
             filter = FilterRequest(
                 or = listOf(
                     FilterRequest(
-                        and = listOf(
+                        or = listOf(
                             FilterRequest(
                                 property = "Due",
                                 date = FilterBeforeRequest(onOrBefore = date)
                             ),
                             FilterRequest(
-                                property = "Type",
-                                select = FilterEqualsRequest(
-                                    equals = "Task"
+                                property = "Status",
+                                status = FilterEqualsRequest(
+                                    equals = "Inbox"
                                 )
                             )
                         )
@@ -42,27 +42,13 @@ class NextActionsRequest(private val date: String) {
                             )
                         )
                     ),
-                    FilterRequest(
-                        and = listOf(
-                            FilterRequest(
-                                property = "Status",
-                                status = FilterEqualsRequest(
-                                    equals = "Inbox"
-                                )
-                            )
-                        )
-                    )
                 )
             ),
             sorts = listOf(
                 SortRequest(
-                    property = "Due",
+                    property = "Status",
                     direction = "ascending"
                 ),
-                SortRequest(
-                    property = "Parent item",
-                    direction = "ascending"
-                )
             )
         )
     }
