@@ -29,10 +29,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import com.dbottillo.lifeos.R
 import com.dbottillo.lifeos.db.BlockParagraph
 import com.dbottillo.lifeos.ui.AppTheme
 import com.dbottillo.lifeos.util.openLink
@@ -195,28 +197,36 @@ private fun Entry(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val textColor = MaterialTheme.colorScheme.onSurface
     Surface(
         modifier = modifier
             .fillMaxSize()
             .clickable {
                 context.openLink(content.url)
             },
-        color = MaterialTheme.colorScheme.surfaceVariant,
+        // color = MaterialTheme.colorScheme.surfaceVariant,
+        color = colorResource(content.color),
         shape = RoundedCornerShape(8.dp)
     ) {
         Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)) {
-            Text(text = content.title, style = MaterialTheme.typography.bodyLarge)
+            Text(
+                text = content.title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = textColor
+            )
             if (content.subtitle?.isNotEmpty() == true) {
                 Text(
                     text = content.subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(top = 2.dp)
+                    modifier = Modifier.padding(top = 2.dp),
+                    color = textColor
                 )
             }
             if (content.link?.isNotEmpty() == true) {
                 Text(
                     text = content.link,
                     style = MaterialTheme.typography.bodySmall,
+                    color = textColor,
                     modifier = Modifier
                         .padding(top = 2.dp)
                         .clickable {
@@ -228,6 +238,7 @@ private fun Entry(
                 Text(
                     text = content.parent,
                     style = MaterialTheme.typography.bodySmall,
+                    color = textColor,
                     modifier = Modifier
                         .padding(top = 2.dp)
                 )
@@ -264,6 +275,7 @@ fun HomeScreenPreview() {
                             id = UUID.randomUUID().toString(),
                             title = "Do grocery",
                             url = "url",
+                            color = R.color.action_red
                         )
                     ),
                     top = listOf(
@@ -271,11 +283,13 @@ fun HomeScreenPreview() {
                             id = UUID.randomUUID().toString(),
                             title = "Decide tooling",
                             url = "url",
+                            color = R.color.action_blue
                         ),
                         EntryContent(
                             id = UUID.randomUUID().toString(),
                             title = "Replicate home",
-                            url = "url"
+                            url = "url",
+                            color = R.color.action_blue
                         )
                     ),
                     middle = emptyList(),

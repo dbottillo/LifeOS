@@ -3,6 +3,7 @@ package com.dbottillo.lifeos.feature.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
+import com.dbottillo.lifeos.R
 import com.dbottillo.lifeos.db.Article
 import com.dbottillo.lifeos.db.BlockParagraph
 import com.dbottillo.lifeos.db.Log
@@ -258,7 +259,8 @@ data class EntryContent(
     val url: String,
     val subtitle: String? = null,
     val link: String? = null,
-    val parent: String? = null
+    val parent: String? = null,
+    val color: Int
 )
 
 fun List<NextAction>.mapActions(): List<EntryContent> {
@@ -269,7 +271,8 @@ fun List<NextAction>.mapActions(): List<EntryContent> {
             url = it.url,
             subtitle = it.due,
             link = it.link,
-            parent = it.parent?.title
+            parent = it.parent?.title,
+            color = it.color.toColor()
         )
     }
 }
@@ -283,7 +286,8 @@ fun List<Project>.mapProjects(): List<EntryContent> {
             subtitle = subtitle,
             url = it.url,
             link = it.link,
-            parent = it.parent?.title
+            parent = it.parent?.title,
+            color = R.color.action_green,
         )
     }
 }
@@ -294,7 +298,8 @@ fun List<Area>.mapAreas(): List<EntryContent> {
             id = it.id,
             title = it.text,
             url = it.url,
-            link = it.link
+            link = it.link,
+            color = R.color.action_yellow,
         )
     }
 }
@@ -306,7 +311,8 @@ fun List<Idea>.mapIdeas(): List<EntryContent> {
             title = it.text,
             url = it.url,
             link = it.link,
-            parent = it.parent?.title
+            parent = it.parent?.title,
+            color = R.color.action_orange,
         )
     }
 }
@@ -318,7 +324,22 @@ fun List<Resource>.mapResources(): List<EntryContent> {
             title = it.text,
             url = it.url,
             link = it.link,
-            parent = it.parent?.title
+            parent = it.parent?.title,
+            color = R.color.action_purple,
         )
+    }
+}
+
+fun String?.toColor(): Int {
+    return when (this) {
+        "gray" -> R.color.action_gray
+        "orange" -> R.color.action_orange
+        "green" -> R.color.action_green
+        "blue" -> R.color.action_blue
+        "red" -> R.color.action_red
+        "purple" -> R.color.action_purple
+        "pink" -> R.color.action_pink
+        "yellow" -> R.color.action_yellow
+        else -> R.color.action_gray
     }
 }

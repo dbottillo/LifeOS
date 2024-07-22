@@ -205,7 +205,7 @@ sealed class TasksState {
 
 private fun NotionPage.toEntry(typeOverride: String? = null) = NotionEntry(
     uid = id,
-    color = properties["Tag"]?.multiSelect?.joinToString(",") { it.color },
+    color = (properties["Type"]?.select?.name ?: "").mapColor(),
     title = properties["Name"]?.title?.getOrNull(0)?.plainText,
     url = url,
     emoji = icon?.emoji,
@@ -218,3 +218,15 @@ private fun NotionPage.toEntry(typeOverride: String? = null) = NotionEntry(
     link = properties["URL"]?.url,
     parentId = properties["Parent item"]?.relation?.firstOrNull()?.id
 )
+
+fun String.mapColor(): String {
+    return when (this) {
+        "Idea" -> "orange"
+        "Task" -> "blue"
+        "Resource" -> "purple"
+        "Project" -> "green"
+        "Area" -> "yellow"
+        "Bookmark" -> "pink"
+        else -> "gray"
+    }
+}
