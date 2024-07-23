@@ -24,7 +24,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="12sp"
-        android:textColor="@color/color_on_surface"
+        android:textColor="@color/widget_color_subtitle"
         android:gravity="center_vertical"
         tools:text="22/01 11:40"/>
     <TextView
@@ -32,7 +32,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="12sp"
-        android:textColor="@color/color_on_surface"
+        android:textColor="@color/widget_color_subtitle"
         android:gravity="center_vertical"
         android:maxLines="1"
         android:ellipsize="end"

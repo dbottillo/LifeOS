@@ -131,7 +131,7 @@ class NextActionsRemoteViewsFactory(
         data.clear()
         runBlocking {
             val nextActions = tasksRepository.nextActionsFlow.first()
-            val ideas = tasksRepository.ideasFlow.first()
+            val ideas = tasksRepository.ideasFlow.first().take(10)
             val (inbox, others) = nextActions.partition { it.isInbox }
             val (withDue, withoutDue) = others.partition { it.due.isNotEmpty() }
             var index = 0

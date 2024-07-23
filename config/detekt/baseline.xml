@@ -1,10 +1,20 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>LongMethod:AddTaskWorker.kt$AddTaskWorker$@Suppress("SwallowedException", "TooGenericExceptionCaught") override suspend fun doWork(): Result</ID>
     <ID>MagicNumber:AppDatabase.kt$&lt;no name provided&gt;$6</ID>
     <ID>MagicNumber:AppDatabase.kt$&lt;no name provided&gt;$7</ID>
     <ID>MagicNumber:HomeViewModel.kt$100</ID>
+    <ID>MagicNumber:HomeViewModel.kt$ColorType.Blue$0xFF29456C</ID>
+    <ID>MagicNumber:HomeViewModel.kt$ColorType.Gray$0xFF9CCC65</ID>
+    <ID>MagicNumber:HomeViewModel.kt$ColorType.Green$0xFF2C593F</ID>
+    <ID>MagicNumber:HomeViewModel.kt$ColorType.Orange$0xFF854C1D</ID>
+    <ID>MagicNumber:HomeViewModel.kt$ColorType.Pink$0xFFFFBFF3</ID>
+    <ID>MagicNumber:HomeViewModel.kt$ColorType.Purple$0xFF492F64</ID>
+    <ID>MagicNumber:HomeViewModel.kt$ColorType.Red$0xFFED8585</ID>
+    <ID>MagicNumber:HomeViewModel.kt$ColorType.Yellow$0xFF89632A</ID>
+    <ID>MagicNumber:NextActionsRemoteViewsFactory.kt$NextActionsRemoteViewsFactory$10</ID>
     <ID>MagicNumber:build.gradle.kts$28</ID>
     <ID>MagicNumber:build.gradle.kts$34</ID>
     <ID>MagicNumber:build.gradle.kts$9</ID>

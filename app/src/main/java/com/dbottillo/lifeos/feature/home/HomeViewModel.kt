@@ -1,9 +1,9 @@
 package com.dbottillo.lifeos.feature.home
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
-import com.dbottillo.lifeos.R
 import com.dbottillo.lifeos.db.Article
 import com.dbottillo.lifeos.db.BlockParagraph
 import com.dbottillo.lifeos.db.Log
@@ -260,7 +260,7 @@ data class EntryContent(
     val subtitle: String? = null,
     val link: String? = null,
     val parent: String? = null,
-    val color: Int
+    val color: Color
 )
 
 fun List<NextAction>.mapActions(): List<EntryContent> {
@@ -287,7 +287,7 @@ fun List<Project>.mapProjects(): List<EntryContent> {
             url = it.url,
             link = it.link,
             parent = it.parent?.title,
-            color = R.color.action_green,
+            color = ColorType.Green.color
         )
     }
 }
@@ -299,7 +299,7 @@ fun List<Area>.mapAreas(): List<EntryContent> {
             title = it.text,
             url = it.url,
             link = it.link,
-            color = R.color.action_yellow,
+            color = ColorType.Yellow.color
         )
     }
 }
@@ -312,7 +312,7 @@ fun List<Idea>.mapIdeas(): List<EntryContent> {
             url = it.url,
             link = it.link,
             parent = it.parent?.title,
-            color = R.color.action_orange,
+            color = ColorType.Orange.color
         )
     }
 }
@@ -325,21 +325,32 @@ fun List<Resource>.mapResources(): List<EntryContent> {
             url = it.url,
             link = it.link,
             parent = it.parent?.title,
-            color = R.color.action_purple,
+            color = ColorType.Purple.color
         )
     }
 }
 
-fun String?.toColor(): Int {
+fun String?.toColor(): Color {
     return when (this) {
-        "gray" -> R.color.action_gray
-        "orange" -> R.color.action_orange
-        "green" -> R.color.action_green
-        "blue" -> R.color.action_blue
-        "red" -> R.color.action_red
-        "purple" -> R.color.action_purple
-        "pink" -> R.color.action_pink
-        "yellow" -> R.color.action_yellow
-        else -> R.color.action_gray
+        "gray" -> ColorType.Gray.color
+        "orange" -> ColorType.Orange.color
+        "green" -> ColorType.Green.color
+        "blue" -> ColorType.Blue.color
+        "red" -> ColorType.Red.color
+        "purple" -> ColorType.Purple.color
+        "pink" -> ColorType.Pink.color
+        "yellow" -> ColorType.Yellow.color
+        else -> ColorType.Gray.color
     }
+}
+
+enum class ColorType(val color: Color) {
+    Gray(Color(0xFF9CCC65)),
+    Orange(Color(0xFF854C1D)),
+    Green(Color(0xFF2C593F)),
+    Blue(Color(0xFF29456C)),
+    Red(Color(0xFFED8585)),
+    Purple(Color(0xFF492F64)),
+    Pink(Color(0xFFFFBFF3)),
+    Yellow(Color(0xFF89632A))
 }

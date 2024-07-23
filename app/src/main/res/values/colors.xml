@@ -12,6 +12,7 @@
 
     <color name="surface_color">#FFFFFF</color>
     <color name="color_on_surface">#000000</color>
+    <color name="widget_color_subtitle">#242424</color>
     <color name="color_on_background">#000000</color>
 
     <color name="action_gray">#979797</color>

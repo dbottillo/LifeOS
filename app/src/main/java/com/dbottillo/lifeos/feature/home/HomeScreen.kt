@@ -29,19 +29,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
-import com.dbottillo.lifeos.R
 import com.dbottillo.lifeos.db.BlockParagraph
 import com.dbottillo.lifeos.ui.AppTheme
 import com.dbottillo.lifeos.util.openLink
 import java.util.UUID
 
 const val CONTENT_TYPE_ENTRY = "entry"
-const val CONTENT_TYPE_PARAGRAPH = "paragraph"
 const val CONTENT_TYPE_TITLE = "title"
 
 @Suppress("UNUSED_PARAMETER")
@@ -204,8 +201,7 @@ private fun Entry(
             .clickable {
                 context.openLink(content.url)
             },
-        // color = MaterialTheme.colorScheme.surfaceVariant,
-        color = colorResource(content.color),
+        color = content.color,
         shape = RoundedCornerShape(8.dp)
     ) {
         Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)) {
@@ -275,7 +271,7 @@ fun HomeScreenPreview() {
                             id = UUID.randomUUID().toString(),
                             title = "Do grocery",
                             url = "url",
-                            color = R.color.action_red
+                            color = ColorType.Red.color
                         )
                     ),
                     top = listOf(
@@ -283,13 +279,13 @@ fun HomeScreenPreview() {
                             id = UUID.randomUUID().toString(),
                             title = "Decide tooling",
                             url = "url",
-                            color = R.color.action_blue
+                            color = ColorType.Blue.color
                         ),
                         EntryContent(
                             id = UUID.randomUUID().toString(),
                             title = "Replicate home",
                             url = "url",
-                            color = R.color.action_blue
+                            color = ColorType.Blue.color
                         )
                     ),
                     middle = emptyList(),
