@@ -69,7 +69,7 @@ fun ArticlesScreenContent(
             item(key = "long read") {
                 Section("Long read (${longRead.size})")
             }
-            inbox.forEachIndexed { index, article ->
+            longRead.forEachIndexed { index, article ->
                 item(key = article.uid) {
                     Article(article, index, markAsRead, delete)
                 }
