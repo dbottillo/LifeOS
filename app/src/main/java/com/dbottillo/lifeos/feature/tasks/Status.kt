@@ -5,7 +5,6 @@ sealed class Status {
     data object Idea : Status()
     data object Focus : Status()
     data object Backlog : Status()
-    data object Blocked : Status()
     data object Recurring : Status()
     data object None : Status()
     data object Archive : Status()
@@ -19,7 +18,6 @@ fun String.toStatus(): Status {
         "Idea" -> Status.Idea
         "Focus" -> Status.Focus
         "Backlog" -> Status.Backlog
-        "Blocked" -> Status.Blocked
         "Recurring" -> Status.Recurring
         "none" -> Status.None
         "Archive" -> Status.Archive
