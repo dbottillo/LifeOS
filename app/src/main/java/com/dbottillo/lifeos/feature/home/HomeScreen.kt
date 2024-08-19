@@ -49,6 +49,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
         refreshing = state.value.refreshing,
         inbox = state.value.inbox,
         top = state.value.focus,
+        blocked = state.value.blocked,
         middle = state.value.projects,
         bottom = state.value.others,
         goals = state.value.goals,
@@ -74,6 +75,7 @@ fun HomeScreenContent(
     refreshing: Boolean,
     inbox: List<EntryContent>,
     top: List<EntryContent>,
+    blocked: List<EntryContent>,
     middle: List<EntryContent>,
     bottom: HomeStateBottom,
     goals: List<BlockParagraph>,
@@ -116,6 +118,23 @@ fun HomeScreenContent(
             top.forEach {
                 item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
                     Entry(content = it)
+                }
+            }
+            if (blocked.isNotEmpty()) {
+                header {
+                    Text(
+                        text = "Blocked",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                    )
+                }
+                blocked.forEach {
+                    item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
+                        Entry(content = it)
+                    }
                 }
             }
             header {
@@ -270,6 +289,14 @@ fun HomeScreenPreview() {
                         EntryContent(
                             id = UUID.randomUUID().toString(),
                             title = "Do grocery",
+                            url = "url",
+                            color = ColorType.Red.color
+                        )
+                    ),
+                    blocked = listOf(
+                        EntryContent(
+                            id = UUID.randomUUID().toString(),
+                            title = "Map review",
                             url = "url",
                             color = ColorType.Red.color
                         )

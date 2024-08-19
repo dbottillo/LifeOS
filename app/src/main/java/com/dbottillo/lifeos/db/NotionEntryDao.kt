@@ -13,6 +13,9 @@ interface NotionEntryDao {
     @Query("SELECT * FROM notionEntry WHERE type = 'alert'")
     fun getNextActions(): Flow<List<NotionEntryWithParent>>
 
+    @Query("SELECT * FROM notionEntry WHERE status = 'Blocked'")
+    fun getBlocked(): Flow<List<NotionEntryWithParent>>
+
     @Query("SELECT * FROM notionEntry WHERE type = 'Project'")
     fun getProjects(): Flow<List<NotionEntryWithParent>>
 

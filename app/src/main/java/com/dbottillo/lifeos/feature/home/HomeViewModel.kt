@@ -12,6 +12,7 @@ import com.dbottillo.lifeos.feature.articles.ArticleRepository
 import com.dbottillo.lifeos.feature.blocks.BlockRepository
 import com.dbottillo.lifeos.feature.logs.LogsRepository
 import com.dbottillo.lifeos.feature.tasks.Area
+import com.dbottillo.lifeos.feature.tasks.Blocked
 import com.dbottillo.lifeos.feature.tasks.Idea
 import com.dbottillo.lifeos.feature.tasks.NextAction
 import com.dbottillo.lifeos.feature.tasks.Project
@@ -50,6 +51,7 @@ class HomeViewModel @Inject constructor(
             refreshing = false,
             inbox = emptyList(),
             focus = emptyList(),
+            blocked = emptyList(),
             projects = emptyList(),
             others = HomeStateBottom(
                 selection = listOf(),
@@ -88,7 +90,9 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun initHome() {
         combine(
-            tasksRepository.nextActionsFlow,
+            combine(tasksRepository.nextActionsFlow, tasksRepository.blockedFlow) { actions, blocked ->
+                actions to blocked
+            },
             tasksRepository.projectsFlow,
             tasksRepository.areasFlow,
             tasksRepository.ideasFlow,
@@ -123,18 +127,19 @@ class HomeViewModel @Inject constructor(
                     BottomSelection.IDEAS -> uiIdeas
                 }
             )
-            val (inbox, others) = actions.partition { it.isInbox }
+            val (inbox, others) = actions.first.partition { it.isInbox }
             val (withDue, withoutDue) = others.partition { it.due.isNotEmpty() }
             Triple(
                 (inbox + withDue).mapActions() to (withoutDue).mapActions(),
-                projects.filter { it.status is Status.Focus }.mapProjects(),
+                actions.second.mapBlocked() to projects.filter { it.status is Status.Focus }.mapProjects(),
                 bottom to goalsParagraphs
             )
         }.collectLatest { (top, middle, bottom) ->
             homeState.value = homeState.first().copy(
                 inbox = top.first,
                 focus = top.second,
-                projects = middle,
+                blocked = middle.first,
+                projects = middle.second,
                 others = bottom.first,
                 goals = bottom.second
             )
@@ -218,6 +223,7 @@ class HomeViewModel @Inject constructor(
 data class HomeState(
     val refreshing: Boolean,
     val inbox: List<EntryContent>,
+    val blocked: List<EntryContent>,
     val focus: List<EntryContent>,
     val projects: List<EntryContent>,
     val others: HomeStateBottom,
@@ -292,6 +298,20 @@ fun List<Project>.mapProjects(): List<EntryContent> {
     }
 }
 
+fun List<Blocked>.mapBlocked(): List<EntryContent> {
+    return map {
+        EntryContent(
+            id = it.id,
+            title = it.text,
+            subtitle = it.due,
+            url = it.url,
+            link = it.link,
+            parent = it.parent?.title,
+            color = ColorType.Red.color
+        )
+    }
+}
+
 fun List<Area>.mapAreas(): List<EntryContent> {
     return map {
         EntryContent(
@@ -344,12 +364,13 @@ fun String?.toColor(): Color {
     }
 }
 
+@Suppress("MagicNumber")
 enum class ColorType(val color: Color) {
-    Gray(Color(0xFF9CCC65)),
+    Gray(Color(0xFF777777)),
     Orange(Color(0xFF854C1D)),
     Green(Color(0xFF2C593F)),
     Blue(Color(0xFF29456C)),
-    Red(Color(0xFFED8585)),
+    Red(Color(0xFF8F2A2A)),
     Purple(Color(0xFF492F64)),
     Pink(Color(0xFFFFBFF3)),
     Yellow(Color(0xFF89632A))

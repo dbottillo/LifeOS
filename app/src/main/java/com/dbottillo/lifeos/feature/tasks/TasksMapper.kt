@@ -41,6 +41,20 @@ class TasksMapper @Inject constructor() {
         }
     }
 
+    fun mapBlocked(input: List<NotionEntryWithParent>): List<Blocked> {
+        return input.map { entry ->
+            Blocked(
+                id = entry.notionEntry.uid,
+                text = entry.notionEntry.toTitle(),
+                url = entry.notionEntry.url,
+                color = entry.notionEntry.color ?: "",
+                due = entry.notionEntry.toDate(),
+                link = entry.notionEntry.link,
+                parent = entry.parent.toParent()
+            )
+        }
+    }
+
     fun mapProjects(input: List<NotionEntryWithParent>): List<Project> {
         return input.map { entry ->
             Project(

@@ -46,6 +46,16 @@ data class NextAction(
     val parent: Parent?
 )
 
+data class Blocked(
+    val id: String,
+    val text: String,
+    val url: String,
+    val color: String,
+    val due: String,
+    val link: String?,
+    val parent: Parent?
+)
+
 data class Parent(
     val id: String,
     val title: String
