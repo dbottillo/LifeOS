@@ -408,8 +408,8 @@ private fun Entry(
         Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)) {
             Text(
                 text = content.title,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    lineHeight = 16.sp,
+                style = MaterialTheme.typography.bodyLarge.copy(
+                    lineHeight = 20.sp,
                 ),
                 fontWeight = FontWeight.Medium,
                 color = textColor
