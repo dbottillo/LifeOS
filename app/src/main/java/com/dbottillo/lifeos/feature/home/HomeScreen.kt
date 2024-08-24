@@ -26,19 +26,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineBreak
-import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
+import androidx.window.core.layout.WindowWidthSizeClass
 import com.dbottillo.lifeos.db.BlockParagraph
 import com.dbottillo.lifeos.ui.AppTheme
 import com.dbottillo.lifeos.util.openLink
@@ -51,17 +51,33 @@ const val CONTENT_TYPE_TITLE = "title"
 @Composable
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
     val state = viewModel.homeState.collectAsStateWithLifecycle()
-    HomeScreenContent(
-        refreshing = state.value.refreshing,
-        inbox = state.value.inbox,
-        top = state.value.focus,
-        blocked = state.value.blocked,
-        middle = state.value.projects,
-        bottom = state.value.others,
-        goals = state.value.goals,
-        refresh = viewModel::reloadHome,
-        bottomSelection = viewModel::bottomSelection
-    )
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
+        HomeScreenContentExpanded(
+            refreshing = state.value.refreshing,
+            inbox = state.value.inbox,
+            top = state.value.focus,
+            blocked = state.value.blocked,
+            middle = state.value.projects,
+            bottom = state.value.others,
+            goals = state.value.goals,
+            refresh = viewModel::reloadHome,
+            bottomSelection = viewModel::bottomSelection
+        )
+    } else {
+        HomeScreenContent(
+            refreshing = state.value.refreshing,
+            inbox = state.value.inbox,
+            top = state.value.focus,
+            blocked = state.value.blocked,
+            middle = state.value.projects,
+            bottom = state.value.others,
+            goals = state.value.goals,
+            refresh = viewModel::reloadHome,
+            numberOfColumns = if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) 3 else 2,
+            bottomSelection = viewModel::bottomSelection
+        )
+    }
 }
 
 fun LazyStaggeredGridScope.header(
@@ -85,15 +101,17 @@ fun HomeScreenContent(
     middle: List<EntryContent>,
     bottom: HomeStateBottom,
     goals: List<BlockParagraph>,
+    numberOfColumns: Int,
     refresh: () -> Unit,
     bottomSelection: (BottomSelection) -> Unit
 ) {
     val pullRefreshState = rememberPullRefreshState(refreshing, refresh)
+
     Box(Modifier.pullRefresh(pullRefreshState)) {
         LazyVerticalStaggeredGrid(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            columns = StaggeredGridCells.Fixed(2),
+            columns = StaggeredGridCells.Fixed(numberOfColumns),
             verticalItemSpacing = 8.dp,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -117,7 +135,8 @@ fun HomeScreenContent(
                     text = "Focus",
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.tertiary,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
                         .padding(top = if (inbox.isEmpty()) 0.dp else 16.dp)
                 )
             }
@@ -213,6 +232,160 @@ fun HomeScreenContent(
     }
 }
 
+@Suppress("LongMethod")
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun HomeScreenContentExpanded(
+    refreshing: Boolean,
+    inbox: List<EntryContent>,
+    top: List<EntryContent>,
+    blocked: List<EntryContent>,
+    middle: List<EntryContent>,
+    bottom: HomeStateBottom,
+    goals: List<BlockParagraph>,
+    refresh: () -> Unit,
+    bottomSelection: (BottomSelection) -> Unit
+) {
+    val pullRefreshState = rememberPullRefreshState(refreshing, refresh)
+
+    Box(Modifier.pullRefresh(pullRefreshState)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            LazyVerticalStaggeredGrid(
+                modifier = Modifier.weight(0.5f),
+                contentPadding = PaddingValues(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
+                columns = StaggeredGridCells.Fixed(2),
+                verticalItemSpacing = 8.dp,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                if (inbox.isNotEmpty()) {
+                    header {
+                        Text(
+                            text = "Inbox",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                    inbox.forEach {
+                        item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
+                            Entry(content = it)
+                        }
+                    }
+                }
+                header {
+                    Text(
+                        text = "Focus",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = if (inbox.isEmpty()) 0.dp else 16.dp)
+                    )
+                }
+                top.forEach {
+                    item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
+                        Entry(content = it)
+                    }
+                }
+                if (blocked.isNotEmpty()) {
+                    header {
+                        Text(
+                            text = "Blocked",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp)
+                        )
+                    }
+                    blocked.forEach {
+                        item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
+                            Entry(content = it)
+                        }
+                    }
+                }
+                header {
+                    Text(
+                        text = "Projects",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                    )
+                }
+                middle.forEach {
+                    item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
+                        Entry(content = it)
+                    }
+                }
+            }
+            LazyVerticalStaggeredGrid(
+                modifier = Modifier.weight(0.5f),
+                contentPadding = PaddingValues(start = 8.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
+                columns = StaggeredGridCells.Fixed(2),
+                verticalItemSpacing = 8.dp,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                header {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        bottom.selection.forEach { selection ->
+                            Text(
+                                text = selection.title,
+                                style = if (!selection.selected) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleSmall,
+                                color = if (selection.selected) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary,
+                                modifier = if (selection.selected) {
+                                    Modifier.padding(end = 16.dp)
+                                } else {
+                                    Modifier
+                                        .padding(end = 16.dp)
+                                        .clickable {
+                                            bottomSelection.invoke(selection.type)
+                                        }
+                                }
+                            )
+                        }
+                    }
+                }
+                bottom.list.forEach {
+                    item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
+                        Entry(content = it)
+                    }
+                }
+                header {
+                    Column {
+                        Text(
+                            text = "Goals",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp, bottom = 4.dp)
+                        )
+                        Goals(goals)
+                    }
+                }
+                header {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(24.dp)
+                    )
+                }
+            }
+        }
+        PullRefreshIndicator(refreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))
+    }
+}
+
 @Composable
 private fun Entry(
     content: EntryContent,
@@ -291,7 +464,7 @@ private fun ColumnScope.Goals(
 }
 
 @Suppress("StringLiteralDuplication")
-@Preview(uiMode = UI_MODE_NIGHT_YES)
+@Preview(uiMode = UI_MODE_NIGHT_YES, device = "id:pixel_6_pro")
 @Composable
 fun HomeScreenPreview() {
     AppTheme {
@@ -299,100 +472,134 @@ fun HomeScreenPreview() {
             Box(modifier = Modifier.padding(it)) {
                 HomeScreenContent(
                     refreshing = false,
-                    inbox = listOf(
-                        EntryContent(
-                            id = UUID.randomUUID().toString(),
-                            title = "🔃 Change Phox filter - last: 07/07/2024",
-                            url = "https://www.phoxwater.com/pages/setup",
-                            link = "https://www.phoxwater.com/pages/setup",
-                            subtitle = "24/08",
-                            parent = "Home Owner",
-                            color = ColorType.Red.color
-                        ),
-                        EntryContent(
-                            id = UUID.randomUUID().toString(),
-                            title = "NHS app",
-                            url = "https://www.phoxwater.com/pages/setup",
-                            color = ColorType.Gray.color
-                        )
-                    ),
-                    blocked = listOf(
-                        EntryContent(
-                            id = UUID.randomUUID().toString(),
-                            title = "Map review",
-                            url = "url",
-                            color = ColorType.Pink.color
-                        )
-                    ),
-                    top = listOf(
-                        EntryContent(
-                            id = UUID.randomUUID().toString(),
-                            title = "Decide tooling",
-                            url = "url",
-                            color = ColorType.Blue.color
-                        ),
-                        EntryContent(
-                            id = UUID.randomUUID().toString(),
-                            title = "Replicate home",
-                            url = "url",
-                            color = ColorType.Blue.color
-                        )
-                    ),
-                    middle = listOf(
-                        EntryContent(
-                            id = UUID.randomUUID().toString(),
-                            title = "Life OS",
-                            subtitle = "36%",
-                            url = "",
-                            color = ColorType.Green.color
-                        )
-                    ),
-                    bottom = HomeStateBottom(
-                        selection = listOf(
-                            HomeBottomSelection(
-                                title = "Ideas (100)",
-                                selected = true,
-                                type = BottomSelection.IDEAS
-                            ),
-                            HomeBottomSelection(
-                                title = "Areas (15)",
-                                selected = false,
-                                type = BottomSelection.AREAS
-                            ),
-                            HomeBottomSelection(
-                                title = "Resources (112)",
-                                selected = false,
-                                type = BottomSelection.RESOURCES
-                            )
-                        ),
-                        list = listOf(
-                            EntryContent(
-                                id = UUID.randomUUID().toString(),
-                                title = "Nothing phone testing device",
-                                subtitle = "12%",
-                                url = "url",
-                                color = ColorType.Orange.color
-                            ),
-                            EntryContent(
-                                id = UUID.randomUUID().toString(),
-                                title = "Knowledge hub",
-                                url = "url",
-                                link = "https://drive.google.com/file/d/1PYB-TYIXX_w1LkwxQtX0TzG_eLInU9Dv/view?usp=sharing",
-                                color = ColorType.Yellow.color
-                            ),
-                            EntryContent(
-                                id = UUID.randomUUID().toString(),
-                                title = "Monitor research",
-                                url = "url",
-                                color = ColorType.Purple.color
-                            )
-                        )
-                    ),
+                    inbox = inbox,
+                    blocked = blocked,
+                    top = top,
+                    middle = middle,
+                    bottom = bottom,
                     goals = emptyList(),
                     refresh = {},
-                    bottomSelection = {}
+                    bottomSelection = {},
+                    numberOfColumns = 2
                 )
             }
         }
     }
 }
+
+@Suppress("StringLiteralDuplication")
+@Preview(uiMode = UI_MODE_NIGHT_YES, device = "id:pixel_tablet")
+@Composable
+fun HomeScreenContentExpandedPreview() {
+    AppTheme {
+        Scaffold {
+            Box(modifier = Modifier.padding(it)) {
+                HomeScreenContentExpanded(
+                    refreshing = false,
+                    inbox = inbox,
+                    blocked = blocked,
+                    top = top,
+                    middle = middle,
+                    bottom = bottom,
+                    goals = emptyList(),
+                    refresh = {},
+                    bottomSelection = {},
+                )
+            }
+        }
+    }
+}
+
+private val inbox = listOf(
+    EntryContent(
+        id = UUID.randomUUID().toString(),
+        title = "🔃 Change Phox filter - last: 07/07/2024",
+        url = "https://www.phoxwater.com/pages/setup",
+        link = "https://www.phoxwater.com/pages/setup",
+        subtitle = "24/08",
+        parent = "Home Owner",
+        color = ColorType.Red.color
+    ),
+    EntryContent(
+        id = UUID.randomUUID().toString(),
+        title = "NHS app",
+        url = "https://www.phoxwater.com/pages/setup",
+        color = ColorType.Gray.color
+    )
+)
+
+private val blocked = listOf(
+    EntryContent(
+        id = UUID.randomUUID().toString(),
+        title = "Map review",
+        url = "url",
+        color = ColorType.Pink.color
+    )
+)
+
+private val top = listOf(
+    EntryContent(
+        id = UUID.randomUUID().toString(),
+        title = "Decide tooling",
+        url = "url",
+        color = ColorType.Blue.color
+    ),
+    EntryContent(
+        id = UUID.randomUUID().toString(),
+        title = "Replicate home",
+        url = "url",
+        color = ColorType.Blue.color
+    )
+)
+
+private val middle = listOf(
+    EntryContent(
+        id = UUID.randomUUID().toString(),
+        title = "Life OS",
+        subtitle = "36%",
+        url = "",
+        color = ColorType.Green.color
+    )
+)
+
+private val bottom = HomeStateBottom(
+    selection = listOf(
+        HomeBottomSelection(
+            title = "Ideas (100)",
+            selected = true,
+            type = BottomSelection.IDEAS
+        ),
+        HomeBottomSelection(
+            title = "Areas (15)",
+            selected = false,
+            type = BottomSelection.AREAS
+        ),
+        HomeBottomSelection(
+            title = "Resources (112)",
+            selected = false,
+            type = BottomSelection.RESOURCES
+        )
+    ),
+    list = listOf(
+        EntryContent(
+            id = UUID.randomUUID().toString(),
+            title = "Nothing phone testing device",
+            subtitle = "12%",
+            url = "url",
+            color = ColorType.Orange.color
+        ),
+        EntryContent(
+            id = UUID.randomUUID().toString(),
+            title = "Knowledge hub",
+            url = "url",
+            link = "https://drive.google.com/file/d/1PYB-TYIXX_w1LkwxQtX0TzG_eLInU9Dv/view?usp=sharing",
+            color = ColorType.Yellow.color
+        ),
+        EntryContent(
+            id = UUID.randomUUID().toString(),
+            title = "Monitor research",
+            url = "url",
+            color = ColorType.Purple.color
+        )
+    )
+)
