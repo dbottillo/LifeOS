@@ -1,5 +1,6 @@
 package com.dbottillo.lifeos.feature.home
 
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,8 +30,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.dbottillo.lifeos.db.BlockParagraph
@@ -214,6 +220,9 @@ private fun Entry(
 ) {
     val context = LocalContext.current
     val textColor = MaterialTheme.colorScheme.onSurface
+    val subtitleColor = MaterialTheme.colorScheme.onSurface.copy(
+        alpha = 0.85f
+    )
     Surface(
         modifier = modifier
             .fillMaxSize()
@@ -226,7 +235,10 @@ private fun Entry(
         Column(modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)) {
             Text(
                 text = content.title,
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    lineHeight = 16.sp,
+                ),
+                fontWeight = FontWeight.Medium,
                 color = textColor
             )
             if (content.subtitle?.isNotEmpty() == true) {
@@ -234,14 +246,16 @@ private fun Entry(
                     text = content.subtitle,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(top = 2.dp),
-                    color = textColor
+                    color = subtitleColor,
                 )
             }
             if (content.link?.isNotEmpty() == true) {
                 Text(
                     text = content.link,
                     style = MaterialTheme.typography.bodySmall,
-                    color = textColor,
+                    color = subtitleColor,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                     modifier = Modifier
                         .padding(top = 2.dp)
                         .clickable {
@@ -277,7 +291,7 @@ private fun ColumnScope.Goals(
 }
 
 @Suppress("StringLiteralDuplication")
-@Preview
+@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 fun HomeScreenPreview() {
     AppTheme {
@@ -288,9 +302,18 @@ fun HomeScreenPreview() {
                     inbox = listOf(
                         EntryContent(
                             id = UUID.randomUUID().toString(),
-                            title = "Do grocery",
-                            url = "url",
+                            title = "🔃 Change Phox filter - last: 07/07/2024",
+                            url = "https://www.phoxwater.com/pages/setup",
+                            link = "https://www.phoxwater.com/pages/setup",
+                            subtitle = "24/08",
+                            parent = "Home Owner",
                             color = ColorType.Red.color
+                        ),
+                        EntryContent(
+                            id = UUID.randomUUID().toString(),
+                            title = "NHS app",
+                            url = "https://www.phoxwater.com/pages/setup",
+                            color = ColorType.Gray.color
                         )
                     ),
                     blocked = listOf(
@@ -298,7 +321,7 @@ fun HomeScreenPreview() {
                             id = UUID.randomUUID().toString(),
                             title = "Map review",
                             url = "url",
-                            color = ColorType.Red.color
+                            color = ColorType.Pink.color
                         )
                     ),
                     top = listOf(
@@ -315,10 +338,55 @@ fun HomeScreenPreview() {
                             color = ColorType.Blue.color
                         )
                     ),
-                    middle = emptyList(),
+                    middle = listOf(
+                        EntryContent(
+                            id = UUID.randomUUID().toString(),
+                            title = "Life OS",
+                            subtitle = "36%",
+                            url = "",
+                            color = ColorType.Green.color
+                        )
+                    ),
                     bottom = HomeStateBottom(
-                        selection = emptyList(),
-                        list = emptyList()
+                        selection = listOf(
+                            HomeBottomSelection(
+                                title = "Ideas (100)",
+                                selected = true,
+                                type = BottomSelection.IDEAS
+                            ),
+                            HomeBottomSelection(
+                                title = "Areas (15)",
+                                selected = false,
+                                type = BottomSelection.AREAS
+                            ),
+                            HomeBottomSelection(
+                                title = "Resources (112)",
+                                selected = false,
+                                type = BottomSelection.RESOURCES
+                            )
+                        ),
+                        list = listOf(
+                            EntryContent(
+                                id = UUID.randomUUID().toString(),
+                                title = "Nothing phone testing device",
+                                subtitle = "12%",
+                                url = "url",
+                                color = ColorType.Orange.color
+                            ),
+                            EntryContent(
+                                id = UUID.randomUUID().toString(),
+                                title = "Knowledge hub",
+                                url = "url",
+                                link = "https://drive.google.com/file/d/1PYB-TYIXX_w1LkwxQtX0TzG_eLInU9Dv/view?usp=sharing",
+                                color = ColorType.Yellow.color
+                            ),
+                            EntryContent(
+                                id = UUID.randomUUID().toString(),
+                                title = "Monitor research",
+                                url = "url",
+                                color = ColorType.Purple.color
+                            )
+                        )
                     ),
                     goals = emptyList(),
                     refresh = {},

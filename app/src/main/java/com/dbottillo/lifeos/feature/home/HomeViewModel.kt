@@ -367,11 +367,11 @@ fun String?.toColor(): Color {
 @Suppress("MagicNumber")
 enum class ColorType(val color: Color) {
     Gray(Color(0xFF777777)),
-    Orange(Color(0xFF854C1D)),
-    Green(Color(0xFF2C593F)),
-    Blue(Color(0xFF29456C)),
-    Red(Color(0xFF8F2A2A)),
-    Purple(Color(0xFF492F64)),
-    Pink(Color(0xFFFFBFF3)),
-    Yellow(Color(0xFF89632A))
+    Orange(Color(0xFF572F0E)),
+    Green(Color(0xFF2C6845)),
+    Blue(Color(0xFF183A69)),
+    Red(Color(0xFF751E1E)),
+    Purple(Color(0xFF634681)),
+    Pink(Color(0xFF8B1E77)),
+    Yellow(Color(0xFF684511))
 }
