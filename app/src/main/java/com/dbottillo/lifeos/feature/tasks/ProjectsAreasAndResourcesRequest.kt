@@ -10,24 +10,38 @@ class ProjectsAreasAndResourcesRequest {
     fun get(): NotionBodyRequest {
         return NotionBodyRequest(
             filter = FilterRequest(
-                or = listOf(
+                and = listOf(
                     FilterRequest(
-                        property = "Type",
-                        select = FilterEqualsRequest(
-                            equals = "Area"
+                        or = listOf(
+                            FilterRequest(
+                                property = "Type",
+                                select = FilterEqualsRequest(
+                                    equals = "Area"
+                                )
+                            ),
+                            FilterRequest(
+                                property = "Type",
+                                select = FilterEqualsRequest(
+                                    equals = "Project"
+                                )
+                            ),
+                            FilterRequest(
+                                property = "Type",
+                                select = FilterEqualsRequest(
+                                    equals = "Resource"
+                                )
+                            ),
+                            FilterRequest(
+                                property = "Type",
+                                select = FilterEqualsRequest(
+                                    equals = "Goal"
+                                )
+                            )
                         )
                     ),
                     FilterRequest(
-                        property = "Type",
-                        select = FilterEqualsRequest(
-                            equals = "Project"
-                        )
-                    ),
-                    FilterRequest(
-                        property = "Type",
-                        select = FilterEqualsRequest(
-                            equals = "Resource"
-                        )
+                        property = "Status",
+                        status = FilterEqualsRequest(doesNotEqual = "Archive")
                     )
                 )
             ),

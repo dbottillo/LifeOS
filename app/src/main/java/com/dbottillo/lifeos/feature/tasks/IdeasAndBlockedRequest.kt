@@ -12,10 +12,18 @@ class IdeasAndBlockedRequest {
             filter = FilterRequest(
                 or = listOf(
                     FilterRequest(
-                        property = "Type",
-                        select = FilterEqualsRequest(
-                            equals = "Idea"
-                        )
+                        and = listOf(
+                            FilterRequest(
+                                property = "Type",
+                                select = FilterEqualsRequest(
+                                    equals = "Idea"
+                                )
+                            ),
+                            FilterRequest(
+                                property = "Status",
+                                status = FilterEqualsRequest(doesNotEqual = "Archive")
+                            )
+                        ),
                     ),
                     FilterRequest(
                         property = "Status",

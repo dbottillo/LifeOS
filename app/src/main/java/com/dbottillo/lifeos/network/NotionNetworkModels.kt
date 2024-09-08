@@ -70,7 +70,8 @@ class FilterRequest(
 
 @JsonClass(generateAdapter = true)
 class FilterEqualsRequest(
-    val equals: String
+    val equals: String? = null,
+    @Json(name = "does_not_equal") val doesNotEqual: String? = null
 )
 
 @JsonClass(generateAdapter = true)
