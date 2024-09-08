@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import com.dbottillo.lifeos.R
+import com.dbottillo.lifeos.feature.tasks.Blocked
 import com.dbottillo.lifeos.feature.tasks.Idea
 import com.dbottillo.lifeos.feature.tasks.NextAction
 import com.dbottillo.lifeos.feature.tasks.TasksRepository
@@ -52,6 +53,7 @@ class NextActionsRemoteViewsFactory(
 
     override fun getCount() = data.size
 
+    @Suppress("LongMethod", "CyclomaticComplexMethod")
     override fun getViewAt(position: Int): RemoteViews {
         return when (val entry = data[position]) {
             WidgetEntry.Focus -> RemoteViews(
@@ -62,6 +64,11 @@ class NextActionsRemoteViewsFactory(
             WidgetEntry.Ideas -> RemoteViews(
                 context.packageName,
                 R.layout.notion_widget_ideas
+            )
+
+            WidgetEntry.Blocked -> RemoteViews(
+                context.packageName,
+                R.layout.notion_widget_blocked
             )
 
             WidgetEntry.Footer -> {
@@ -119,7 +126,7 @@ class NextActionsRemoteViewsFactory(
         return null
     }
 
-    override fun getViewTypeCount() = 4
+    override fun getViewTypeCount() = 5
 
     override fun getItemId(position: Int): Long {
         return position.toLong()
@@ -131,6 +138,7 @@ class NextActionsRemoteViewsFactory(
         data.clear()
         runBlocking {
             val nextActions = tasksRepository.nextActionsFlow.first()
+            val blocked = tasksRepository.blockedFlow.first()
             val ideas = tasksRepository.ideasFlow.first().take(10)
             val (inbox, others) = nextActions.partition { it.isInbox }
             val (withDue, withoutDue) = others.partition { it.due.isNotEmpty() }
@@ -148,6 +156,14 @@ class NextActionsRemoteViewsFactory(
             withoutDue.forEach { action ->
                 data[index] = action.toWidgetEntry()
                 index++
+            }
+            if (blocked.isNotEmpty()) {
+                data[index] = WidgetEntry.Blocked
+                index++
+                blocked.forEach { entry ->
+                    data[index] = entry.toWidgetEntry()
+                    index++
+                }
             }
             data[index] = WidgetEntry.Footer
             index++
@@ -171,6 +187,16 @@ private fun NextAction.toWidgetEntry(): WidgetEntry {
     )
 }
 
+private fun Blocked.toWidgetEntry(): WidgetEntry {
+    return WidgetEntry.Entry(
+        text = text,
+        url = url,
+        due = due,
+        color = "red".toDrawable(),
+        parent = parent?.title
+    )
+}
+
 private fun Idea.toWidgetEntry(): WidgetEntry {
     return WidgetEntry.Entry(
         text = text,
@@ -185,6 +211,7 @@ sealed class WidgetEntry {
     data object Focus : WidgetEntry()
     data object Footer : WidgetEntry()
     data object Ideas : WidgetEntry()
+    data object Blocked : WidgetEntry()
     data class Entry(
         val text: String,
         val color: Int,

@@ -88,7 +88,7 @@ fun LazyStaggeredGridScope.header(
     )
 }
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "LongParameterList")
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreenContent(
