@@ -25,9 +25,11 @@ interface NotionEntryDao {
     @Query("SELECT * FROM notionEntry WHERE type = 'Idea'")
     fun getIdeas(): Flow<List<NotionEntryWithParent>>
 
-    @Transaction
     @Query("SELECT * FROM notionEntry WHERE type = 'Resource'")
     fun getResources(): Flow<List<NotionEntryWithParent>>
+
+    @Query("SELECT * FROM notionEntry WHERE type = 'Goal'")
+    fun getGoals(): Flow<List<NotionEntryWithParent>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(vararg entries: NotionEntry)

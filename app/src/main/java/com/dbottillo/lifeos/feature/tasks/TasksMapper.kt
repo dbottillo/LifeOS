@@ -108,7 +108,7 @@ class TasksMapper @Inject constructor() {
     }
 }
 
-private fun List<NotionEntry>.toParent(): Parent? {
+fun List<NotionEntry>.toParent(): Parent? {
     val first = this.firstOrNull() ?: return null
     return Parent(
         id = first.uid,
@@ -116,7 +116,7 @@ private fun List<NotionEntry>.toParent(): Parent? {
     )
 }
 
-private fun NotionEntry.toTitle(): String {
+fun NotionEntry.toTitle(): String {
     val name = title ?: "No title"
     return emoji?.let {
         "$it $name"

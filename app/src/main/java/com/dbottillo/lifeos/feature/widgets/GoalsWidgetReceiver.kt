@@ -29,9 +29,10 @@ import androidx.glance.layout.padding
 import androidx.glance.material3.ColorProviders
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import com.dbottillo.lifeos.db.BlockParagraph
 import com.dbottillo.lifeos.feature.blocks.BlockRepository
 import com.dbottillo.lifeos.feature.home.HomeActivity
+import com.dbottillo.lifeos.feature.tasks.Goal
+import com.dbottillo.lifeos.feature.tasks.Status
 import com.dbottillo.lifeos.ui.DarkColors
 import com.dbottillo.lifeos.ui.LightColors
 import dagger.hilt.EntryPoint
@@ -62,7 +63,7 @@ class GoalsAppWidget : GlanceAppWidget() {
             )
         val blockRepository = statisticsEntryPoint.blockRepository()
         provideContent {
-            val goals = blockRepository.goalsBlock().collectAsState(emptyList())
+            val goals = blockRepository.goalsFlow.collectAsState(emptyList())
             GlanceTheme(colors = LifeOSAppWidgetGlanceColorScheme.colors) {
                 Box(
                     modifier = GlanceModifier
@@ -76,7 +77,7 @@ class GoalsAppWidget : GlanceAppWidget() {
     }
 
     @Composable
-    fun GoalsAppWidgetContent(goals: List<BlockParagraph>) {
+    fun GoalsAppWidgetContent(goals: List<Goal>) {
         LazyColumn(
             modifier = GlanceModifier
         ) {
@@ -90,12 +91,7 @@ class GoalsAppWidget : GlanceAppWidget() {
                     ),
                 )
             }
-            goals.forEach { paragraph ->
-                val text = if (paragraph.type == "numbered_list_item") {
-                    "${paragraph.index}. ${paragraph.text}"
-                } else {
-                    paragraph.text
-                }
+            goals.filter { it.status is Status.Focus }.forEach { goal ->
                 item {
                     Text(
                         modifier = GlanceModifier
@@ -104,7 +100,7 @@ class GoalsAppWidget : GlanceAppWidget() {
                             .clickable(
                                 onClick = actionRunCallback<OpenAppClickAction>()
                             ),
-                        text = text,
+                        text = "\u2022\t" + goal.text,
                         style = TextStyle(
                             color = GlanceTheme.colors.onBackground,
                             fontSize = 12.sp,

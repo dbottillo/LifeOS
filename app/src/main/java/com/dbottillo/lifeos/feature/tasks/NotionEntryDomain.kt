@@ -60,3 +60,12 @@ data class Parent(
     val id: String,
     val title: String
 )
+
+data class Goal(
+    val id: String,
+    val text: String,
+    val url: String,
+    val color: String,
+    val parent: Parent?,
+    val status: Status,
+)

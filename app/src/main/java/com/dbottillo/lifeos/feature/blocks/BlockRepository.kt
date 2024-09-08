@@ -1,48 +1,36 @@
 package com.dbottillo.lifeos.feature.blocks
 
-import com.dbottillo.lifeos.data.AppConstant
 import com.dbottillo.lifeos.db.AppDatabase
-import com.dbottillo.lifeos.db.BlockParagraph
-import com.dbottillo.lifeos.network.ApiInterface
-import com.google.firebase.crashlytics.ktx.crashlytics
-import com.google.firebase.ktx.Firebase
+import com.dbottillo.lifeos.db.NotionEntryWithParent
+import com.dbottillo.lifeos.feature.tasks.Goal
+import com.dbottillo.lifeos.feature.tasks.toParent
+import com.dbottillo.lifeos.feature.tasks.toStatus
+import com.dbottillo.lifeos.feature.tasks.toTitle
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class BlockRepository @Inject constructor(
-    private val api: ApiInterface,
-    private val db: AppDatabase
+    private val db: AppDatabase,
+    private val mapper: GoalsMapper
 ) {
 
-    fun goalsBlock() = db.blockParagraphDao().getBlock(AppConstant.GOALS_BLOCK_ID)
+    private val dao by lazy { db.notionEntryDao() }
+    val goalsFlow: Flow<List<Goal>> = dao.getGoals().map(mapper::mapGoals)
+}
 
-    suspend fun loadGoals() {
-        try {
-            val response = api.queryBlock(AppConstant.GOALS_BLOCK_ID)
-            if (response.isSuccessful) {
-                val body = response.body()
-                if (body != null) {
-                    val paragraphs = body.results.mapIndexed { index, notionDatabaseBlock ->
-                        val text = when (notionDatabaseBlock.type) {
-                            "paragraph" -> notionDatabaseBlock.paragraph!!.text.first().plainText
-                            "numbered_list_item" -> notionDatabaseBlock.numberedListItem!!.text.first().plainText
-                            else -> throw UnsupportedOperationException("unrecognised block type")
-                        }
-                        BlockParagraph(
-                            uid = notionDatabaseBlock.id,
-                            blockId = AppConstant.GOALS_BLOCK_ID,
-                            index = index,
-                            type = notionDatabaseBlock.type,
-                            text = text
-                        )
-                    }
-                    db.blockParagraphDao().deleteAndInsertAll(AppConstant.GOALS_BLOCK_ID, paragraphs)
-                }
-            }
-            val throwable = Throwable("${response.code()} ${response.message()}")
-            Firebase.crashlytics.recordException(throwable)
-        } catch (e: Exception) {
-            val throwable = Throwable(e.message ?: e.toString())
-            Firebase.crashlytics.recordException(throwable)
+class GoalsMapper @Inject constructor() {
+
+    fun mapGoals(input: List<NotionEntryWithParent>): List<Goal> {
+        return input.map { entry ->
+            Goal(
+                id = entry.notionEntry.uid,
+                text = entry.notionEntry.toTitle(),
+                url = entry.notionEntry.url,
+                color = entry.notionEntry.color ?: "",
+                parent = entry.parent.toParent(),
+                status = entry.notionEntry.status.toStatus(),
+            )
         }
     }
 }

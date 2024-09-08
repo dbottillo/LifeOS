@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkInfo
 import com.dbottillo.lifeos.db.Article
-import com.dbottillo.lifeos.db.BlockParagraph
 import com.dbottillo.lifeos.db.Log
 import com.dbottillo.lifeos.feature.articles.ArticleManager
 import com.dbottillo.lifeos.feature.articles.ArticleRepository
@@ -13,6 +12,7 @@ import com.dbottillo.lifeos.feature.blocks.BlockRepository
 import com.dbottillo.lifeos.feature.logs.LogsRepository
 import com.dbottillo.lifeos.feature.tasks.Area
 import com.dbottillo.lifeos.feature.tasks.Blocked
+import com.dbottillo.lifeos.feature.tasks.Goal
 import com.dbottillo.lifeos.feature.tasks.Idea
 import com.dbottillo.lifeos.feature.tasks.NextAction
 import com.dbottillo.lifeos.feature.tasks.Project
@@ -53,11 +53,11 @@ class HomeViewModel @Inject constructor(
             focus = emptyList(),
             blocked = emptyList(),
             projects = emptyList(),
+            goals = emptyList(),
             others = HomeStateBottom(
                 selection = listOf(),
                 list = emptyList()
             ),
-            goals = emptyList()
         )
     )
 
@@ -98,8 +98,8 @@ class HomeViewModel @Inject constructor(
             tasksRepository.ideasFlow,
             tasksRepository.resourcesFlow,
             otherStateBottomSelection,
-            blockRepository.goalsBlock()
-        ) { actions, projects, areas, ideas, resources, bottomSelection, goalsParagraphs ->
+            blockRepository.goalsFlow
+        ) { actions, projects, areas, ideas, resources, bottomSelection, goals ->
             val uiAreas = areas.mapAreas()
             val uiResources = resources.mapResources()
             val uiIdeas = ideas.mapIdeas()
@@ -132,7 +132,7 @@ class HomeViewModel @Inject constructor(
             Triple(
                 (inbox + withDue).mapActions() to (withoutDue).mapActions(),
                 actions.second.mapBlocked() to projects.filter { it.status is Status.Focus }.mapProjects(),
-                bottom to goalsParagraphs
+                bottom to goals.filter { it.status is Status.Focus }.mapGoals()
             )
         }.collectLatest { (top, middle, bottom) ->
             homeState.value = homeState.first().copy(
@@ -208,7 +208,6 @@ class HomeViewModel @Inject constructor(
             )
             tasksRepository.loadProjectsAreaResourcesAndIdeas() // projects need to have priority first
             tasksRepository.loadNextActions()
-            blockRepository.loadGoals()
             homeState.value = homeState.first().copy(
                 refreshing = false
             )
@@ -226,8 +225,8 @@ data class HomeState(
     val blocked: List<EntryContent>,
     val focus: List<EntryContent>,
     val projects: List<EntryContent>,
+    val goals: List<EntryContent>,
     val others: HomeStateBottom,
-    val goals: List<BlockParagraph>
 )
 
 data class HomeStateBottom(
@@ -350,6 +349,18 @@ fun List<Resource>.mapResources(): List<EntryContent> {
     }
 }
 
+fun List<Goal>.mapGoals(): List<EntryContent> {
+    return map {
+        EntryContent(
+            id = it.id,
+            title = it.text,
+            url = it.url,
+            parent = it.parent?.title,
+            color = ColorType.Aqua.color
+        )
+    }
+}
+
 fun String?.toColor(): Color {
     return when (this) {
         "gray" -> ColorType.Gray.color
@@ -373,5 +384,6 @@ enum class ColorType(val color: Color) {
     Red(Color(0xFF751E1E)),
     Purple(Color(0xFF634681)),
     Pink(Color(0xFF8B1E77)),
-    Yellow(Color(0xFF684511))
+    Yellow(Color(0xFF684511)),
+    Aqua(Color(0xFF00535D)),
 }

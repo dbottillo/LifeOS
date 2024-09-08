@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,7 +38,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.window.core.layout.WindowWidthSizeClass
-import com.dbottillo.lifeos.db.BlockParagraph
 import com.dbottillo.lifeos.ui.AppTheme
 import com.dbottillo.lifeos.util.openLink
 import java.util.UUID
@@ -59,8 +57,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             top = state.value.focus,
             blocked = state.value.blocked,
             middle = state.value.projects,
-            bottom = state.value.others,
             goals = state.value.goals,
+            bottom = state.value.others,
             refresh = viewModel::reloadHome,
             bottomSelection = viewModel::bottomSelection
         )
@@ -71,8 +69,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             top = state.value.focus,
             blocked = state.value.blocked,
             middle = state.value.projects,
-            bottom = state.value.others,
             goals = state.value.goals,
+            bottom = state.value.others,
             refresh = viewModel::reloadHome,
             numberOfColumns = if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) 3 else 2,
             bottomSelection = viewModel::bottomSelection
@@ -99,8 +97,8 @@ fun HomeScreenContent(
     top: List<EntryContent>,
     blocked: List<EntryContent>,
     middle: List<EntryContent>,
+    goals: List<EntryContent>,
     bottom: HomeStateBottom,
-    goals: List<BlockParagraph>,
     numberOfColumns: Int,
     refresh: () -> Unit,
     bottomSelection: (BottomSelection) -> Unit
@@ -178,6 +176,21 @@ fun HomeScreenContent(
                 }
             }
             header {
+                Text(
+                    text = "Goals",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.tertiary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp)
+                )
+            }
+            goals.forEach {
+                item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
+                    Entry(content = it)
+                }
+            }
+            header {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -208,19 +221,6 @@ fun HomeScreenContent(
                 }
             }
             header {
-                Column {
-                    Text(
-                        text = "Goals",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.tertiary,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp, bottom = 4.dp)
-                    )
-                    Goals(goals)
-                }
-            }
-            header {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -241,8 +241,8 @@ fun HomeScreenContentExpanded(
     top: List<EntryContent>,
     blocked: List<EntryContent>,
     middle: List<EntryContent>,
+    goals: List<EntryContent>,
     bottom: HomeStateBottom,
-    goals: List<BlockParagraph>,
     refresh: () -> Unit,
     bottomSelection: (BottomSelection) -> Unit
 ) {
@@ -322,6 +322,21 @@ fun HomeScreenContentExpanded(
                         Entry(content = it)
                     }
                 }
+                header {
+                    Text(
+                        text = "Goals",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                    )
+                }
+                goals.forEach {
+                    item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
+                        Entry(content = it)
+                    }
+                }
             }
             LazyVerticalStaggeredGrid(
                 modifier = Modifier.weight(0.5f),
@@ -358,19 +373,6 @@ fun HomeScreenContentExpanded(
                 bottom.list.forEach {
                     item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
                         Entry(content = it)
-                    }
-                }
-                header {
-                    Column {
-                        Text(
-                            text = "Goals",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.tertiary,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 16.dp, bottom = 4.dp)
-                        )
-                        Goals(goals)
                     }
                 }
                 header {
@@ -449,20 +451,6 @@ private fun Entry(
     }
 }
 
-@Composable
-private fun ColumnScope.Goals(
-    goals: List<BlockParagraph>
-) {
-   goals.forEach { paragraph ->
-       val text = if (paragraph.type == "numbered_list_item") {
-           "${paragraph.index}. ${paragraph.text}"
-       } else {
-           paragraph.text
-       }
-       Text(text = text, modifier = Modifier.padding(top = 2.dp))
-   }
-}
-
 @Suppress("StringLiteralDuplication")
 @Preview(uiMode = UI_MODE_NIGHT_YES, device = "id:pixel_6_pro")
 @Composable
@@ -477,7 +465,7 @@ fun HomeScreenPreview() {
                     top = top,
                     middle = middle,
                     bottom = bottom,
-                    goals = emptyList(),
+                    goals = goals,
                     refresh = {},
                     bottomSelection = {},
                     numberOfColumns = 2
@@ -501,7 +489,7 @@ fun HomeScreenContentExpandedPreview() {
                     top = top,
                     middle = middle,
                     bottom = bottom,
-                    goals = emptyList(),
+                    goals = goals,
                     refresh = {},
                     bottomSelection = {},
                 )
@@ -559,6 +547,21 @@ private val middle = listOf(
         subtitle = "36%",
         url = "",
         color = ColorType.Green.color
+    )
+)
+
+private val goals = listOf(
+    EntryContent(
+        id = UUID.randomUUID().toString(),
+        title = "Fat 18kg",
+        url = "",
+        color = ColorType.Aqua.color
+    ),
+    EntryContent(
+        id = UUID.randomUUID().toString(),
+        title = "Deep on coroutines",
+        url = "",
+        color = ColorType.Aqua.color
     )
 )
 
