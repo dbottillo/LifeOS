@@ -157,6 +157,8 @@ class NextActionsRemoteViewsFactory(
                 data[index] = action.toWidgetEntry()
                 index++
             }
+            data[index] = WidgetEntry.Footer
+            index++
             if (ongoing.isNotEmpty()) {
                 data[index] = WidgetEntry.Ongoing
                 index++
@@ -165,8 +167,6 @@ class NextActionsRemoteViewsFactory(
                     index++
                 }
             }
-            data[index] = WidgetEntry.Footer
-            index++
             data[index] = WidgetEntry.Ideas
             index++
             ideas.forEach { idea ->
