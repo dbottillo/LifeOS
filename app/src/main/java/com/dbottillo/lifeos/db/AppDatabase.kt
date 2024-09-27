@@ -8,7 +8,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [Article::class, Log::class, NotionEntry::class, BlockParagraph::class],
-    version = 7,
+    version = 8,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
@@ -30,5 +30,11 @@ abstract class AppDatabase : RoomDatabase() {
 val MIGRATION_6_7 = object : Migration(6, 7) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("ALTER TABLE NotionEntry ADD COLUMN parentId VARCHAR")
+    }
+}
+
+val MIGRATION_7_8 = object : Migration(7, 8) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("UPDATE NotionEntry SET status = 'Ongoing' WHERE status = 'Blocked';")
     }
 }

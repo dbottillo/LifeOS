@@ -40,7 +40,7 @@ class TasksRepository @Inject constructor(
     private val dao by lazy { db.notionEntryDao() }
 
     val nextActionsFlow: Flow<List<NextAction>> = dao.getNextActions().map(mapper::mapNextActions)
-    val blockedFlow: Flow<List<Blocked>> = dao.getBlocked().map(mapper::mapBlocked)
+    val ongoingFlow: Flow<List<Ongoing>> = dao.getOngoing().map(mapper::mapOngoing)
     val projectsFlow: Flow<List<Project>> = dao.getProjects().map(mapper::mapProjects)
     val areasFlow: Flow<List<Area>> = dao.getAreas().map(mapper::mapAreas)
     val ideasFlow: Flow<List<Idea>> = dao.getIdeas().map(mapper::mapIdeas)
@@ -71,11 +71,11 @@ class TasksRepository @Inject constructor(
             val projectsAreasAndResourcesRequest = async {
                 fetchNotionPages(ProjectsAreasAndResourcesRequest().get())
             }
-            val ideasAndBlockedRequest = async {
-                fetchNotionPages(IdeasAndBlockedRequest().get())
+            val ideasAndOngoingRequest = async {
+                fetchNotionPages(IdeasAndOngoingRequest().get())
             }
             val projectsAreasAndResources = projectsAreasAndResourcesRequest.await()
-            val ideasAndBlocked = ideasAndBlockedRequest.await()
+            val ideasAndOngoing = ideasAndOngoingRequest.await()
             when {
                 projectsAreasAndResources is ApiResult.Error -> state.emit(
                     TasksState.Error(
@@ -83,15 +83,15 @@ class TasksRepository @Inject constructor(
                         storage.timestamp.first()
                     )
                 )
-                ideasAndBlocked is ApiResult.Error -> state.emit(
+                ideasAndOngoing is ApiResult.Error -> state.emit(
                     TasksState.Error(
-                        ideasAndBlocked.exception.localizedMessage ?: "",
+                        ideasAndOngoing.exception.localizedMessage ?: "",
                         storage.timestamp.first()
                     )
                 )
                 else -> {
                     val results = (projectsAreasAndResources as ApiResult.Success).data +
-                            (ideasAndBlocked as ApiResult.Success).data
+                            (ideasAndOngoing as ApiResult.Success).data
                     dao.deleteAndSaveAllProjectsAreaResourcesAndIdeas(results.map { it.toEntry() })
                 }
             }

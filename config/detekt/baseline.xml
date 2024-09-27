@@ -3,9 +3,9 @@
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>LongMethod:AddTaskWorker.kt$AddTaskWorker$@Suppress("SwallowedException", "TooGenericExceptionCaught") override suspend fun doWork(): Result</ID>
-    <ID>LongParameterList:HomeScreen.kt$( refreshing: Boolean, inbox: List&lt;EntryContent&gt;, top: List&lt;EntryContent&gt;, blocked: List&lt;EntryContent&gt;, middle: List&lt;EntryContent&gt;, bottom: HomeStateBottom, goals: List&lt;BlockParagraph&gt;, numberOfColumns: Int, refresh: () -&gt; Unit, bottomSelection: (BottomSelection) -&gt; Unit )</ID>
     <ID>MagicNumber:AppDatabase.kt$&lt;no name provided&gt;$6</ID>
     <ID>MagicNumber:AppDatabase.kt$&lt;no name provided&gt;$7</ID>
+    <ID>MagicNumber:AppDatabase.kt$&lt;no name provided&gt;$8</ID>
     <ID>MagicNumber:HomeScreen.kt$0.5f</ID>
     <ID>MagicNumber:HomeViewModel.kt$100</ID>
     <ID>MagicNumber:NextActionsRemoteViewsFactory.kt$NextActionsRemoteViewsFactory$10</ID>
@@ -20,7 +20,6 @@
     <ID>StringLiteralDuplication:build.gradle.kts$"engBuild"</ID>
     <ID>StringLiteralDuplication:build.gradle.kts$"release"</ID>
     <ID>ThrowingExceptionsWithoutMessageOrCause:GoalsWidgetReceiver.kt$GoalsAppWidget$IllegalStateException()</ID>
-    <ID>TooGenericExceptionCaught:BlockRepository.kt$BlockRepository$e: Exception</ID>
     <ID>TooGenericExceptionCaught:TasksRepository.kt$TasksRepository$e: Exception</ID>
   </CurrentIssues>
 </SmellBaseline>

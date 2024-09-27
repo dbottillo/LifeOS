@@ -99,6 +99,8 @@ dependencies {
     implementation(libs.room.ktx)
     kapt(libs.room.compiler)
     implementation(libs.bundles.androidx.glance)
+    debugImplementation(libs.chucker)
+    releaseImplementation(libs.chucker.noop)
 }
 
 kapt {

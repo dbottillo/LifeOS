@@ -41,9 +41,9 @@ class TasksMapper @Inject constructor() {
         }
     }
 
-    fun mapBlocked(input: List<NotionEntryWithParent>): List<Blocked> {
+    fun mapOngoing(input: List<NotionEntryWithParent>): List<Ongoing> {
         return input.map { entry ->
-            Blocked(
+            Ongoing(
                 id = entry.notionEntry.uid,
                 text = entry.notionEntry.toTitle(),
                 url = entry.notionEntry.url,

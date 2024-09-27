@@ -2,10 +2,12 @@ package com.dbottillo.lifeos.di
 
 import android.content.Context
 import androidx.room.Room
+import com.chuckerteam.chucker.api.ChuckerInterceptor
 import com.dbottillo.lifeos.network.ApiInterface
 import com.dbottillo.lifeos.BuildConfig
 import com.dbottillo.lifeos.db.AppDatabase
 import com.dbottillo.lifeos.db.MIGRATION_6_7
+import com.dbottillo.lifeos.db.MIGRATION_7_8
 import com.dbottillo.lifeos.notification.NotificationManager
 import com.dbottillo.lifeos.notification.NotificationProvider
 import com.dbottillo.lifeos.network.RefreshManager
@@ -45,10 +47,12 @@ class AppModule {
     @Singleton
     @Provides
     fun provideOkHttpClient(
+        @ApplicationContext context: Context,
         headerInterceptor: HeaderInterceptor
     ): OkHttpClient {
         val builder = OkHttpClient.Builder()
             .addInterceptor(headerInterceptor)
+            .addInterceptor(ChuckerInterceptor(context))
         if (BuildConfig.DEBUG) {
             val interceptor = HttpLoggingInterceptor()
             interceptor.level = HttpLoggingInterceptor.Level.BODY
@@ -90,7 +94,7 @@ class AppModule {
             appContext,
             AppDatabase::class.java,
             "notion-alert-articles"
-        ).addMigrations(MIGRATION_6_7)
+        ).addMigrations(MIGRATION_6_7, MIGRATION_7_8)
             .build()
     }
 }

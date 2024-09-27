@@ -7,7 +7,7 @@ import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import com.dbottillo.lifeos.R
-import com.dbottillo.lifeos.feature.tasks.Blocked
+import com.dbottillo.lifeos.feature.tasks.Ongoing
 import com.dbottillo.lifeos.feature.tasks.Idea
 import com.dbottillo.lifeos.feature.tasks.NextAction
 import com.dbottillo.lifeos.feature.tasks.TasksRepository
@@ -66,9 +66,9 @@ class NextActionsRemoteViewsFactory(
                 R.layout.notion_widget_ideas
             )
 
-            WidgetEntry.Blocked -> RemoteViews(
+            WidgetEntry.Ongoing -> RemoteViews(
                 context.packageName,
-                R.layout.notion_widget_blocked
+                R.layout.notion_widget_ongoing
             )
 
             WidgetEntry.Footer -> {
@@ -138,7 +138,7 @@ class NextActionsRemoteViewsFactory(
         data.clear()
         runBlocking {
             val nextActions = tasksRepository.nextActionsFlow.first()
-            val blocked = tasksRepository.blockedFlow.first()
+            val ongoing = tasksRepository.ongoingFlow.first()
             val ideas = tasksRepository.ideasFlow.first().take(10)
             val (inbox, others) = nextActions.partition { it.isInbox }
             val (withDue, withoutDue) = others.partition { it.due.isNotEmpty() }
@@ -157,10 +157,10 @@ class NextActionsRemoteViewsFactory(
                 data[index] = action.toWidgetEntry()
                 index++
             }
-            if (blocked.isNotEmpty()) {
-                data[index] = WidgetEntry.Blocked
+            if (ongoing.isNotEmpty()) {
+                data[index] = WidgetEntry.Ongoing
                 index++
-                blocked.forEach { entry ->
+                ongoing.forEach { entry ->
                     data[index] = entry.toWidgetEntry()
                     index++
                 }
@@ -187,7 +187,7 @@ private fun NextAction.toWidgetEntry(): WidgetEntry {
     )
 }
 
-private fun Blocked.toWidgetEntry(): WidgetEntry {
+private fun Ongoing.toWidgetEntry(): WidgetEntry {
     return WidgetEntry.Entry(
         text = text,
         url = url,
@@ -211,7 +211,7 @@ sealed class WidgetEntry {
     data object Focus : WidgetEntry()
     data object Footer : WidgetEntry()
     data object Ideas : WidgetEntry()
-    data object Blocked : WidgetEntry()
+    data object Ongoing : WidgetEntry()
     data class Entry(
         val text: String,
         val color: Int,

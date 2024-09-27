@@ -40,6 +40,7 @@ firebaseBom="33.2.0"
 crashlyticsPlugin="3.0.2"
 room = "2.6.1"
 androidXglance = "1.1.0"
+chucker="4.0.0"
 
 [libraries]
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
@@ -113,6 +114,8 @@ room-runtime = { group ="androidx.room", name = "room-runtime", version.ref = "r
 room-ktx = { group ="androidx.room", name = "room-ktx", version.ref = "room" }
 androidx-glance-appwidget = { group ="androidx.glance", name = "glance-appwidget", version.ref = "androidXglance" }
 androidx-glance-material3 = { group ="androidx.glance", name = "glance-material3", version.ref = "androidXglance" }
+chucker = { group ="com.github.chuckerteam.chucker", name = "library", version.ref = "chucker" }
+chucker-noop = { group ="com.github.chuckerteam.chucker", name = "library-no-op", version.ref = "chucker" }
 
 [bundles]
 ui = ["androidx-core", "androidx-core-ktx", "android-compat", "androidx-constraintlayout"]

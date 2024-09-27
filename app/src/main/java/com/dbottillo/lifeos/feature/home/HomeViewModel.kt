@@ -11,7 +11,7 @@ import com.dbottillo.lifeos.feature.articles.ArticleRepository
 import com.dbottillo.lifeos.feature.blocks.BlockRepository
 import com.dbottillo.lifeos.feature.logs.LogsRepository
 import com.dbottillo.lifeos.feature.tasks.Area
-import com.dbottillo.lifeos.feature.tasks.Blocked
+import com.dbottillo.lifeos.feature.tasks.Ongoing
 import com.dbottillo.lifeos.feature.tasks.Goal
 import com.dbottillo.lifeos.feature.tasks.Idea
 import com.dbottillo.lifeos.feature.tasks.NextAction
@@ -51,7 +51,7 @@ class HomeViewModel @Inject constructor(
             refreshing = false,
             inbox = emptyList(),
             focus = emptyList(),
-            blocked = emptyList(),
+            ongoing = emptyList(),
             projects = emptyList(),
             goals = emptyList(),
             others = HomeStateBottom(
@@ -90,8 +90,8 @@ class HomeViewModel @Inject constructor(
 
     private suspend fun initHome() {
         combine(
-            combine(tasksRepository.nextActionsFlow, tasksRepository.blockedFlow) { actions, blocked ->
-                actions to blocked
+            combine(tasksRepository.nextActionsFlow, tasksRepository.ongoingFlow) { actions, ongoings ->
+                actions to ongoings
             },
             tasksRepository.projectsFlow,
             tasksRepository.areasFlow,
@@ -131,14 +131,14 @@ class HomeViewModel @Inject constructor(
             val (withDue, withoutDue) = others.partition { it.due.isNotEmpty() }
             Triple(
                 (inbox + withDue).mapActions() to (withoutDue).mapActions(),
-                actions.second.mapBlocked() to projects.filter { it.status is Status.Focus }.mapProjects(),
+                actions.second.mapOngoing() to projects.filter { it.status is Status.Focus }.mapProjects(),
                 bottom to goals.filter { it.status is Status.Focus }.mapGoals()
             )
         }.collectLatest { (top, middle, bottom) ->
             homeState.value = homeState.first().copy(
                 inbox = top.first,
                 focus = top.second,
-                blocked = middle.first,
+                ongoing = middle.first,
                 projects = middle.second,
                 others = bottom.first,
                 goals = bottom.second
@@ -222,7 +222,7 @@ class HomeViewModel @Inject constructor(
 data class HomeState(
     val refreshing: Boolean,
     val inbox: List<EntryContent>,
-    val blocked: List<EntryContent>,
+    val ongoing: List<EntryContent>,
     val focus: List<EntryContent>,
     val projects: List<EntryContent>,
     val goals: List<EntryContent>,
@@ -297,7 +297,7 @@ fun List<Project>.mapProjects(): List<EntryContent> {
     }
 }
 
-fun List<Blocked>.mapBlocked(): List<EntryContent> {
+fun List<Ongoing>.mapOngoing(): List<EntryContent> {
     return map {
         EntryContent(
             id = it.id,
