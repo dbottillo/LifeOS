@@ -14,6 +14,8 @@ import com.dbottillo.lifeos.feature.tasks.TasksRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import java.lang.UnsupportedOperationException
+import java.time.LocalDate
+import java.time.ZoneId
 
 @Suppress("UNUSED_PARAMETER")
 class NextActionsRemoteViewsFactory(
@@ -138,13 +140,25 @@ class NextActionsRemoteViewsFactory(
         data.clear()
         runBlocking {
             val nextActions = tasksRepository.nextActionsFlow.first()
-            val ongoing = tasksRepository.ongoingFlow.first()
+            val today = LocalDate.now()
+            val (ongoingInbox, ongoing) = tasksRepository.ongoingFlow.first().partition { ongoing ->
+                if (ongoing.due != null) {
+                    val date = ongoing.due.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+                    date == today || date.isBefore(today)
+                } else {
+                    false
+                }
+            }
             val ideas = tasksRepository.ideasFlow.first().take(10)
             val (inbox, others) = nextActions.partition { it.isInbox }
-            val (withDue, withoutDue) = others.partition { it.due.isNotEmpty() }
+            val (withDue, withoutDue) = others.partition { it.due != null }
             var index = 0
             inbox.forEach { action ->
                 data[index] = action.toWidgetEntry()
+                index++
+            }
+            ongoingInbox.forEach { entry ->
+                data[index] = entry.toWidgetEntry()
                 index++
             }
             withDue.forEach { action ->
@@ -181,7 +195,7 @@ private fun NextAction.toWidgetEntry(): WidgetEntry {
     return WidgetEntry.Entry(
         text = text,
         url = url,
-        due = due,
+        due = dueFormatted,
         color = color.split(",").first().toDrawable(),
         parent = parent?.title
     )
@@ -191,7 +205,7 @@ private fun Ongoing.toWidgetEntry(): WidgetEntry {
     return WidgetEntry.Entry(
         text = text,
         url = url,
-        due = due,
+        due = dueFormatted,
         color = "red".toDrawable(),
         parent = parent?.title
     )

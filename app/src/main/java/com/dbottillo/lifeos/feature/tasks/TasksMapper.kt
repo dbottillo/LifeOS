@@ -2,10 +2,11 @@ package com.dbottillo.lifeos.feature.tasks
 
 import com.dbottillo.lifeos.db.NotionEntry
 import com.dbottillo.lifeos.db.NotionEntryWithParent
-import java.lang.Exception
 import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.Exception
 
 class TasksMapper @Inject constructor() {
 
@@ -28,12 +29,14 @@ class TasksMapper @Inject constructor() {
 
     fun mapNextActions(input: List<NotionEntryWithParent>): List<NextAction> {
         return input.map { entry ->
+            val dates = entry.notionEntry.toDate()
             NextAction(
                 id = entry.notionEntry.uid,
                 text = entry.notionEntry.toTitle(),
                 url = entry.notionEntry.url,
                 color = entry.notionEntry.color ?: "",
-                due = entry.notionEntry.toDate(),
+                due = dates?.first,
+                dueFormatted = dates?.second,
                 link = entry.notionEntry.link,
                 isInbox = entry.notionEntry.status == "Inbox",
                 parent = entry.parent.toParent()
@@ -43,12 +46,14 @@ class TasksMapper @Inject constructor() {
 
     fun mapOngoing(input: List<NotionEntryWithParent>): List<Ongoing> {
         return input.map { entry ->
+            val dates = entry.notionEntry.toDate()
             Ongoing(
                 id = entry.notionEntry.uid,
                 text = entry.notionEntry.toTitle(),
                 url = entry.notionEntry.url,
                 color = entry.notionEntry.color ?: "",
-                due = entry.notionEntry.toDate(),
+                due = dates?.first,
+                dueFormatted = dates?.second,
                 link = entry.notionEntry.link,
                 parent = entry.parent.toParent()
             )
@@ -57,12 +62,14 @@ class TasksMapper @Inject constructor() {
 
     fun mapProjects(input: List<NotionEntryWithParent>): List<Project> {
         return input.map { entry ->
+            val dates = entry.notionEntry.toDate()
             Project(
                 id = entry.notionEntry.uid,
                 text = entry.notionEntry.toTitle(),
                 url = entry.notionEntry.url,
                 color = entry.notionEntry.color ?: "",
-                due = entry.notionEntry.toDate(),
+                due = dates?.first,
+                dueFormatted = dates?.second,
                 progress = entry.notionEntry.progress,
                 status = entry.notionEntry.status.toStatus(),
                 link = entry.notionEntry.link,
@@ -94,17 +101,18 @@ class TasksMapper @Inject constructor() {
         }
     }
 
-    private fun NotionEntry.toDate(): String {
-        val date: String? = try {
-            startDate?.let { inputDateAndTimeFormatter.parse(it) }?.let {
-                outputDateAndTimeFormatter.format(it)
-            }
-        } catch (_: Exception) {
-            startDate?.let { inputDateFormatter.parse(it) }?.let {
-                outputDateFormatter.format(it)
+    private fun NotionEntry.toDate(): Pair<Date, String>? {
+        return startDate?.let { sD ->
+            try {
+                inputDateAndTimeFormatter.parse(sD)?.let {
+                    it to outputDateAndTimeFormatter.format(it)
+                }
+            } catch (_: Exception) {
+                inputDateFormatter.parse(sD)?.let {
+                    it to outputDateFormatter.format(it)
+                }
             }
         }
-        return date ?: ""
     }
 }
 

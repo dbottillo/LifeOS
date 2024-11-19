@@ -1,5 +1,7 @@
 package com.dbottillo.lifeos.feature.tasks
 
+import java.util.Date
+
 data class Area(
     val id: String,
     val text: String,
@@ -28,7 +30,8 @@ data class Project(
     val text: String,
     val url: String,
     val color: String,
-    val due: String,
+    val due: Date?,
+    val dueFormatted: String?,
     val progress: Float?,
     val status: Status,
     val link: String?,
@@ -40,7 +43,8 @@ data class NextAction(
     val text: String,
     val url: String,
     val color: String,
-    val due: String,
+    val due: Date?,
+    val dueFormatted: String?,
     val link: String?,
     val isInbox: Boolean,
     val parent: Parent?
@@ -51,7 +55,8 @@ data class Ongoing(
     val text: String,
     val url: String,
     val color: String,
-    val due: String,
+    val due: Date?,
+    val dueFormatted: String?,
     val link: String?,
     val parent: Parent?
 )

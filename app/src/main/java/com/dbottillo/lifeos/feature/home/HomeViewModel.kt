@@ -30,6 +30,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.dbottillo.lifeos.util.combine
+import java.time.LocalDate
+import java.time.ZoneId
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -88,6 +90,7 @@ class HomeViewModel @Inject constructor(
         refreshProvider.start()
     }
 
+    @Suppress("LongMethod")
     private suspend fun initHome() {
         combine(
             combine(tasksRepository.nextActionsFlow, tasksRepository.ongoingFlow) { actions, ongoings ->
@@ -99,7 +102,7 @@ class HomeViewModel @Inject constructor(
             tasksRepository.resourcesFlow,
             otherStateBottomSelection,
             blockRepository.goalsFlow
-        ) { actions, projects, areas, ideas, resources, bottomSelection, goals ->
+        ) { actionsAndOngoing, projects, areas, ideas, resources, bottomSelection, goals ->
             val uiAreas = areas.mapAreas()
             val uiResources = resources.mapResources()
             val uiIdeas = ideas.mapIdeas()
@@ -127,11 +130,21 @@ class HomeViewModel @Inject constructor(
                     BottomSelection.IDEAS -> uiIdeas
                 }
             )
-            val (inbox, others) = actions.first.partition { it.isInbox }
-            val (withDue, withoutDue) = others.partition { it.due.isNotEmpty() }
+            val actions = actionsAndOngoing.first
+            val today = LocalDate.now()
+            val (ongoingInbox, ongoing) = actionsAndOngoing.second.partition { ongoing ->
+                if (ongoing.due != null) {
+                    val date = ongoing.due.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+                    date == today || date.isBefore(today)
+                } else {
+                    false
+                }
+            }
+            val (inbox, others) = actions.partition { it.isInbox }
+            val (withDue, withoutDue) = others.partition { it.due != null }
             Triple(
-                (inbox + withDue).mapActions() to (withoutDue).mapActions(),
-                actions.second.mapOngoing() to projects.filter { it.status is Status.Focus }.mapProjects(),
+                ((inbox + withDue).mapActions() + ongoingInbox.mapOngoing()) to (withoutDue).mapActions(),
+                ongoing.mapOngoing() to projects.filter { it.status is Status.Focus }.mapProjects(),
                 bottom to goals.filter { it.status is Status.Focus }.mapGoals()
             )
         }.collectLatest { (top, middle, bottom) ->
@@ -274,7 +287,7 @@ fun List<NextAction>.mapActions(): List<EntryContent> {
             id = it.id,
             title = it.text,
             url = it.url,
-            subtitle = it.due,
+            subtitle = it.dueFormatted,
             link = it.link,
             parent = it.parent?.title,
             color = it.color.toColor()
@@ -302,7 +315,7 @@ fun List<Ongoing>.mapOngoing(): List<EntryContent> {
         EntryContent(
             id = it.id,
             title = it.text,
-            subtitle = it.due,
+            subtitle = it.dueFormatted,
             url = it.url,
             link = it.link,
             parent = it.parent?.title,
