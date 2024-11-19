@@ -20,6 +20,7 @@ import com.dbottillo.lifeos.feature.tasks.Resource
 import com.dbottillo.lifeos.feature.tasks.Status
 import com.dbottillo.lifeos.feature.tasks.TasksRepository
 import com.dbottillo.lifeos.feature.tasks.TasksState
+import com.dbottillo.lifeos.feature.widgets.WidgetsRefresher
 import com.dbottillo.lifeos.notification.NotificationProvider
 import com.dbottillo.lifeos.network.RefreshProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,7 +42,8 @@ class HomeViewModel @Inject constructor(
     private val refreshProvider: RefreshProvider,
     private val articleManager: ArticleManager,
     private val logsRepository: LogsRepository,
-    private val blockRepository: BlockRepository
+    private val blockRepository: BlockRepository,
+    private val widgetsRefresher: WidgetsRefresher
 ) : ViewModel() {
 
     private val otherStateBottomSelection = MutableStateFlow(
@@ -221,6 +223,7 @@ class HomeViewModel @Inject constructor(
             )
             tasksRepository.loadProjectsAreaResourcesAndIdeas() // projects need to have priority first
             tasksRepository.loadNextActions()
+            widgetsRefresher.refreshAll()
             homeState.value = homeState.first().copy(
                 refreshing = false
             )

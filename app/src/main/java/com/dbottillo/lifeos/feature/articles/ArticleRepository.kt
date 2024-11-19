@@ -41,7 +41,7 @@ class ArticleRepository @Inject constructor(
     }
 
     @Suppress("TooGenericExceptionCaught")
-    suspend fun fetchArticles() = coroutineScope {
+    suspend fun fetchArticles(): ApiResult<Unit> = coroutineScope {
         try {
             val request = NotionBodyRequest(
                 filter = FilterRequest(
@@ -77,10 +77,12 @@ class ArticleRepository @Inject constructor(
                     }
                     db.articleDao().deleteAndInsertAll(articles)
                 }
+                ApiResult.Success(Unit)
+            } else {
+                val throwable = Throwable("${response.code()} ${response.message()}")
+                Firebase.crashlytics.recordException(throwable)
+                ApiResult.Error(throwable)
             }
-            val throwable = Throwable("${response.code()} ${response.message()}")
-            Firebase.crashlytics.recordException(throwable)
-            ApiResult.Error(throwable)
         } catch (e: Exception) {
             val throwable = Throwable(e.message ?: e.toString())
             Firebase.crashlytics.recordException(throwable)
