@@ -11,7 +11,7 @@ import com.dbottillo.lifeos.feature.articles.ArticleRepository
 import com.dbottillo.lifeos.feature.blocks.BlockRepository
 import com.dbottillo.lifeos.feature.logs.LogsRepository
 import com.dbottillo.lifeos.feature.tasks.Area
-import com.dbottillo.lifeos.feature.tasks.Ongoing
+import com.dbottillo.lifeos.feature.tasks.Blocked
 import com.dbottillo.lifeos.feature.tasks.Goal
 import com.dbottillo.lifeos.feature.tasks.Idea
 import com.dbottillo.lifeos.feature.tasks.NextAction
@@ -55,7 +55,7 @@ class HomeViewModel @Inject constructor(
             refreshing = false,
             inbox = emptyList(),
             focus = emptyList(),
-            ongoing = emptyList(),
+            blocked = emptyList(),
             projects = emptyList(),
             goals = emptyList(),
             others = HomeStateBottom(
@@ -95,8 +95,8 @@ class HomeViewModel @Inject constructor(
     @Suppress("LongMethod")
     private suspend fun initHome() {
         combine(
-            combine(tasksRepository.nextActionsFlow, tasksRepository.ongoingFlow) { actions, ongoings ->
-                actions to ongoings
+            combine(tasksRepository.nextActionsFlow, tasksRepository.blockedFlow) { actions, blocked ->
+                actions to blocked
             },
             tasksRepository.projectsFlow,
             tasksRepository.areasFlow,
@@ -104,7 +104,7 @@ class HomeViewModel @Inject constructor(
             tasksRepository.resourcesFlow,
             otherStateBottomSelection,
             blockRepository.goalsFlow
-        ) { actionsAndOngoing, projects, areas, ideas, resources, bottomSelection, goals ->
+        ) { actionsAndBlocked, projects, areas, ideas, resources, bottomSelection, goals ->
             val uiAreas = areas.mapAreas()
             val uiResources = resources.mapResources()
             val uiIdeas = ideas.mapIdeas()
@@ -132,11 +132,11 @@ class HomeViewModel @Inject constructor(
                     BottomSelection.IDEAS -> uiIdeas
                 }
             )
-            val actions = actionsAndOngoing.first
+            val actions = actionsAndBlocked.first
             val today = LocalDate.now()
-            val (ongoingInbox, ongoing) = actionsAndOngoing.second.partition { ongoing ->
-                if (ongoing.due != null) {
-                    val date = ongoing.due.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+            val (blockedInbox, blocked) = actionsAndBlocked.second.partition { blocked ->
+                if (blocked.due != null) {
+                    val date = blocked.due.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
                     date == today || date.isBefore(today)
                 } else {
                     false
@@ -145,15 +145,15 @@ class HomeViewModel @Inject constructor(
             val (inbox, others) = actions.partition { it.isInbox }
             val (withDue, withoutDue) = others.partition { it.due != null }
             Triple(
-                ((inbox + withDue).mapActions() + ongoingInbox.mapOngoing()) to (withoutDue).mapActions(),
-                ongoing.mapOngoing() to projects.filter { it.status is Status.Focus }.mapProjects(),
+                ((inbox + withDue).mapActions() + blockedInbox.mapBlocked()) to (withoutDue).mapActions(),
+                blocked.mapBlocked() to projects.filter { it.status is Status.Focus }.mapProjects(),
                 bottom to goals.filter { it.status is Status.Focus }.mapGoals()
             )
         }.collectLatest { (top, middle, bottom) ->
             homeState.value = homeState.first().copy(
                 inbox = top.first,
                 focus = top.second,
-                ongoing = middle.first,
+                blocked = middle.first,
                 projects = middle.second,
                 others = bottom.first,
                 goals = bottom.second
@@ -238,7 +238,7 @@ class HomeViewModel @Inject constructor(
 data class HomeState(
     val refreshing: Boolean,
     val inbox: List<EntryContent>,
-    val ongoing: List<EntryContent>,
+    val blocked: List<EntryContent>,
     val focus: List<EntryContent>,
     val projects: List<EntryContent>,
     val goals: List<EntryContent>,
@@ -313,7 +313,7 @@ fun List<Project>.mapProjects(): List<EntryContent> {
     }
 }
 
-fun List<Ongoing>.mapOngoing(): List<EntryContent> {
+fun List<Blocked>.mapBlocked(): List<EntryContent> {
     return map {
         EntryContent(
             id = it.id,

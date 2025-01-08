@@ -2,6 +2,7 @@ package com.dbottillo.lifeos.feature.tasks
 
 import com.dbottillo.lifeos.data.AppConstant
 import com.dbottillo.lifeos.db.AppDatabase
+import com.dbottillo.lifeos.db.Log
 import com.dbottillo.lifeos.db.NotionEntry
 import com.dbottillo.lifeos.feature.home.HomeStorage
 import com.dbottillo.lifeos.network.AddPageNotionBodyRequest
@@ -40,7 +41,7 @@ class TasksRepository @Inject constructor(
     private val dao by lazy { db.notionEntryDao() }
 
     val nextActionsFlow: Flow<List<NextAction>> = dao.getNextActions().map(mapper::mapNextActions)
-    val ongoingFlow: Flow<List<Ongoing>> = dao.getOngoing().map(mapper::mapOngoing)
+    val blockedFlow: Flow<List<Blocked>> = dao.getBlocked().map(mapper::mapBLocked)
     val projectsFlow: Flow<List<Project>> = dao.getProjects().map(mapper::mapProjects)
     val areasFlow: Flow<List<Area>> = dao.getAreas().map(mapper::mapAreas)
     val ideasFlow: Flow<List<Idea>> = dao.getIdeas().map(mapper::mapIdeas)
@@ -71,11 +72,11 @@ class TasksRepository @Inject constructor(
             val projectsAreasAndResourcesRequest = async {
                 fetchNotionPages(ProjectsAreasAndResourcesRequest().get())
             }
-            val ideasAndOngoingRequest = async {
-                fetchNotionPages(IdeasAndOngoingRequest().get())
+            val ideasAndBlockedRequest = async {
+                fetchNotionPages(IdeasAndBlockedRequest().get())
             }
             val projectsAreasAndResources = projectsAreasAndResourcesRequest.await()
-            val ideasAndOngoing = ideasAndOngoingRequest.await()
+            val ideasAndBlocked = ideasAndBlockedRequest.await()
             when {
                 projectsAreasAndResources is ApiResult.Error -> state.emit(
                     TasksState.Error(
@@ -83,16 +84,17 @@ class TasksRepository @Inject constructor(
                         storage.timestamp.first()
                     )
                 )
-                ideasAndOngoing is ApiResult.Error -> state.emit(
+                ideasAndBlocked is ApiResult.Error -> state.emit(
                     TasksState.Error(
-                        ideasAndOngoing.exception.localizedMessage ?: "",
+                        ideasAndBlocked.exception.localizedMessage ?: "",
                         storage.timestamp.first()
                     )
                 )
                 else -> {
                     val results = (projectsAreasAndResources as ApiResult.Success).data +
-                            (ideasAndOngoing as ApiResult.Success).data
-                    dao.deleteAndSaveAllProjectsAreaResourcesAndIdeas(results.map { it.toEntry() })
+                            (ideasAndBlocked as ApiResult.Success).data
+                    val entries = results.map { it.toEntry() }
+                    dao.deleteAndSaveAllProjectsAreaResourcesAndIdeas(entries)
                 }
             }
         }

@@ -44,10 +44,10 @@ class TasksMapper @Inject constructor() {
         }
     }
 
-    fun mapOngoing(input: List<NotionEntryWithParent>): List<Ongoing> {
+    fun mapBLocked(input: List<NotionEntryWithParent>): List<Blocked> {
         return input.map { entry ->
             val dates = entry.notionEntry.toDate()
-            Ongoing(
+            Blocked(
                 id = entry.notionEntry.uid,
                 text = entry.notionEntry.toTitle(),
                 url = entry.notionEntry.url,

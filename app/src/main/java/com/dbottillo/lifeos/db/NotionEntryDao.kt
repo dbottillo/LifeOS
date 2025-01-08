@@ -20,8 +20,8 @@ interface NotionEntryDao {
     fun getNextActions(): Flow<List<NotionEntryWithParent>>
 
     @Transaction
-    @Query("SELECT * FROM notionEntry WHERE status = 'Ongoing'")
-    fun getOngoing(): Flow<List<NotionEntryWithParent>>
+    @Query("SELECT * FROM notionEntry WHERE status = 'Blocked'")
+    fun getBlocked(): Flow<List<NotionEntryWithParent>>
 
     @Transaction
     @Query("SELECT * FROM notionEntry WHERE type = 'Project'")

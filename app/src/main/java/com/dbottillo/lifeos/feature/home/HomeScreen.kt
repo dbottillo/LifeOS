@@ -55,7 +55,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             refreshing = state.value.refreshing,
             inbox = state.value.inbox,
             top = state.value.focus,
-            ongoing = state.value.ongoing,
+            blocked = state.value.blocked,
             middle = state.value.projects,
             goals = state.value.goals,
             bottom = state.value.others,
@@ -67,7 +67,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             refreshing = state.value.refreshing,
             inbox = state.value.inbox,
             top = state.value.focus,
-            ongoing = state.value.ongoing,
+            blocked = state.value.blocked,
             middle = state.value.projects,
             goals = state.value.goals,
             bottom = state.value.others,
@@ -95,7 +95,7 @@ fun HomeScreenContent(
     refreshing: Boolean,
     inbox: List<EntryContent>,
     top: List<EntryContent>,
-    ongoing: List<EntryContent>,
+    blocked: List<EntryContent>,
     middle: List<EntryContent>,
     goals: List<EntryContent>,
     bottom: HomeStateBottom,
@@ -143,10 +143,10 @@ fun HomeScreenContent(
                     Entry(content = it)
                 }
             }
-            if (ongoing.isNotEmpty()) {
+            if (blocked.isNotEmpty()) {
                 header {
                     Text(
-                        text = "Ongoing",
+                        text = "Blocked",
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier
@@ -154,7 +154,7 @@ fun HomeScreenContent(
                             .padding(top = 16.dp)
                     )
                 }
-                ongoing.forEach {
+                blocked.forEach {
                     item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
                         Entry(content = it)
                     }
@@ -239,7 +239,7 @@ fun HomeScreenContentExpanded(
     refreshing: Boolean,
     inbox: List<EntryContent>,
     top: List<EntryContent>,
-    ongoing: List<EntryContent>,
+    blocked: List<EntryContent>,
     middle: List<EntryContent>,
     goals: List<EntryContent>,
     bottom: HomeStateBottom,
@@ -290,10 +290,10 @@ fun HomeScreenContentExpanded(
                         Entry(content = it)
                     }
                 }
-                if (ongoing.isNotEmpty()) {
+                if (blocked.isNotEmpty()) {
                     header {
                         Text(
-                            text = "Ongoing",
+                            text = "Blocked",
                             style = MaterialTheme.typography.titleSmall,
                             color = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier
@@ -301,7 +301,7 @@ fun HomeScreenContentExpanded(
                                 .padding(top = 16.dp)
                         )
                     }
-                    ongoing.forEach {
+                    blocked.forEach {
                         item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
                             Entry(content = it)
                         }
@@ -461,7 +461,7 @@ fun HomeScreenPreview() {
                 HomeScreenContent(
                     refreshing = false,
                     inbox = inbox,
-                    ongoing = ongoing,
+                    blocked = blocked,
                     top = top,
                     middle = middle,
                     bottom = bottom,
@@ -485,7 +485,7 @@ fun HomeScreenContentExpandedPreview() {
                 HomeScreenContentExpanded(
                     refreshing = false,
                     inbox = inbox,
-                    ongoing = ongoing,
+                    blocked = blocked,
                     top = top,
                     middle = middle,
                     bottom = bottom,
@@ -516,7 +516,7 @@ private val inbox = listOf(
     )
 )
 
-private val ongoing = listOf(
+private val blocked = listOf(
     EntryContent(
         id = UUID.randomUUID().toString(),
         title = "Map review",

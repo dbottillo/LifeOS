@@ -42,7 +42,6 @@ tasks {
     }
 }
 
-
 val detektAll by tasks.registering(io.gitlab.arturbosch.detekt.Detekt::class) {
     description = "Custom Detekt task for all modules"
     parallel = true

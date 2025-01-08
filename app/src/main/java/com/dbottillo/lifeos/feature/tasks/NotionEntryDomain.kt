@@ -50,7 +50,7 @@ data class NextAction(
     val parent: Parent?
 )
 
-data class Ongoing(
+data class Blocked(
     val id: String,
     val text: String,
     val url: String,

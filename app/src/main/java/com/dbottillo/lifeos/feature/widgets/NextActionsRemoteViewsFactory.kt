@@ -7,7 +7,7 @@ import android.view.View
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import com.dbottillo.lifeos.R
-import com.dbottillo.lifeos.feature.tasks.Ongoing
+import com.dbottillo.lifeos.feature.tasks.Blocked
 import com.dbottillo.lifeos.feature.tasks.Idea
 import com.dbottillo.lifeos.feature.tasks.NextAction
 import com.dbottillo.lifeos.feature.tasks.TasksRepository
@@ -68,9 +68,9 @@ class NextActionsRemoteViewsFactory(
                 R.layout.notion_widget_ideas
             )
 
-            WidgetEntry.Ongoing -> RemoteViews(
+            WidgetEntry.Blocked -> RemoteViews(
                 context.packageName,
-                R.layout.notion_widget_ongoing
+                R.layout.notion_widget_blocked
             )
 
             WidgetEntry.Footer -> {
@@ -141,9 +141,9 @@ class NextActionsRemoteViewsFactory(
         runBlocking {
             val nextActions = tasksRepository.nextActionsFlow.first()
             val today = LocalDate.now()
-            val (ongoingInbox, ongoing) = tasksRepository.ongoingFlow.first().partition { ongoing ->
-                if (ongoing.due != null) {
-                    val date = ongoing.due.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+            val (blockedInbox, blocked) = tasksRepository.blockedFlow.first().partition { blocked ->
+                if (blocked.due != null) {
+                    val date = blocked.due.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
                     date == today || date.isBefore(today)
                 } else {
                     false
@@ -157,7 +157,7 @@ class NextActionsRemoteViewsFactory(
                 data[index] = action.toWidgetEntry()
                 index++
             }
-            ongoingInbox.forEach { entry ->
+            blockedInbox.forEach { entry ->
                 data[index] = entry.toWidgetEntry()
                 index++
             }
@@ -173,10 +173,10 @@ class NextActionsRemoteViewsFactory(
             }
             data[index] = WidgetEntry.Footer
             index++
-            if (ongoing.isNotEmpty()) {
-                data[index] = WidgetEntry.Ongoing
+            if (blocked.isNotEmpty()) {
+                data[index] = WidgetEntry.Blocked
                 index++
-                ongoing.forEach { entry ->
+                blocked.forEach { entry ->
                     data[index] = entry.toWidgetEntry()
                     index++
                 }
@@ -201,7 +201,7 @@ private fun NextAction.toWidgetEntry(): WidgetEntry {
     )
 }
 
-private fun Ongoing.toWidgetEntry(): WidgetEntry {
+private fun Blocked.toWidgetEntry(): WidgetEntry {
     return WidgetEntry.Entry(
         text = text,
         url = url,
@@ -225,7 +225,7 @@ sealed class WidgetEntry {
     data object Focus : WidgetEntry()
     data object Footer : WidgetEntry()
     data object Ideas : WidgetEntry()
-    data object Ongoing : WidgetEntry()
+    data object Blocked : WidgetEntry()
     data class Entry(
         val text: String,
         val color: Int,

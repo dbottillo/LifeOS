@@ -8,6 +8,7 @@ import com.dbottillo.lifeos.BuildConfig
 import com.dbottillo.lifeos.db.AppDatabase
 import com.dbottillo.lifeos.db.MIGRATION_6_7
 import com.dbottillo.lifeos.db.MIGRATION_7_8
+import com.dbottillo.lifeos.db.MIGRATION_8_9
 import com.dbottillo.lifeos.notification.NotificationManager
 import com.dbottillo.lifeos.notification.NotificationProvider
 import com.dbottillo.lifeos.network.RefreshManager
@@ -94,7 +95,7 @@ class AppModule {
             appContext,
             AppDatabase::class.java,
             "notion-alert-articles"
-        ).addMigrations(MIGRATION_6_7, MIGRATION_7_8)
+        ).addMigrations(MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9)
             .build()
     }
 }

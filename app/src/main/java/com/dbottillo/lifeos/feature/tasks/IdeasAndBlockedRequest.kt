@@ -5,7 +5,7 @@ import com.dbottillo.lifeos.network.FilterRequest
 import com.dbottillo.lifeos.network.NotionBodyRequest
 import com.dbottillo.lifeos.network.SortRequest
 
-class IdeasAndOngoingRequest {
+class IdeasAndBlockedRequest {
 
     fun get(): NotionBodyRequest {
         return NotionBodyRequest(
@@ -28,7 +28,7 @@ class IdeasAndOngoingRequest {
                     FilterRequest(
                         property = "Status",
                         status = FilterEqualsRequest(
-                            equals = "Ongoing"
+                            equals = "Blocked"
                         )
                     )
                 )
