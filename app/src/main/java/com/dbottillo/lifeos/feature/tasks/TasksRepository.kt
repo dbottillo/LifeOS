@@ -2,7 +2,6 @@ package com.dbottillo.lifeos.feature.tasks
 
 import com.dbottillo.lifeos.data.AppConstant
 import com.dbottillo.lifeos.db.AppDatabase
-import com.dbottillo.lifeos.db.Log
 import com.dbottillo.lifeos.db.NotionEntry
 import com.dbottillo.lifeos.feature.home.HomeStorage
 import com.dbottillo.lifeos.network.AddPageNotionBodyRequest
