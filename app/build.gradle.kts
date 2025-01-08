@@ -117,6 +117,7 @@ dependencies {
     debugImplementation(libs.flipper.plugin.network)
     debugImplementation(libs.soloader)
     releaseImplementation(libs.flipper.noop)
+    releaseImplementation(libs.flipper.plugins.noop)
 }
 
 kapt {

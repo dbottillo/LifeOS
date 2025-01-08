@@ -122,6 +122,7 @@ flipper = { group ="com.facebook.flipper", name = "flipper", version.ref = "flip
 flipper-plugin-network = { group ="com.facebook.flipper", name = "flipper-network-plugin", version.ref = "flipper" }
 soloader = { group ="com.facebook.soloader", name = "soloader", version.ref = "soloader" }
 flipper-noop = { group ="com.facebook.flipper", name = "flipper-noop", version.ref = "flipper" }
+flipper-plugins-noop = { group ="com.github.theGlenn", name = "flipper-android-no-op", version = "0.11.4" }
 
 [bundles]
 ui = ["androidx-core", "androidx-core-ktx", "android-compat", "androidx-constraintlayout"]
