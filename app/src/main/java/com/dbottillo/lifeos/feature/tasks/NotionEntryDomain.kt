@@ -38,7 +38,7 @@ data class Project(
     val parent: Parent?
 )
 
-data class NextAction(
+data class Inbox(
     val id: String,
     val text: String,
     val url: String,
@@ -46,7 +46,17 @@ data class NextAction(
     val due: Date?,
     val dueFormatted: String?,
     val link: String?,
-    val isInbox: Boolean,
+    val parent: Parent?
+)
+
+data class Focus(
+    val id: String,
+    val text: String,
+    val url: String,
+    val color: String,
+    val due: Date?,
+    val dueFormatted: String?,
+    val link: String?,
     val parent: Parent?
 )
 

@@ -27,10 +27,10 @@ class TasksMapper @Inject constructor() {
         }
     }
 
-    fun mapNextActions(input: List<NotionEntryWithParent>): List<NextAction> {
+    fun mapInbox(input: List<NotionEntryWithParent>): List<Inbox> {
         return input.map { entry ->
             val dates = entry.notionEntry.toDate()
-            NextAction(
+            Inbox(
                 id = entry.notionEntry.uid,
                 text = entry.notionEntry.toTitle(),
                 url = entry.notionEntry.url,
@@ -38,13 +38,28 @@ class TasksMapper @Inject constructor() {
                 due = dates?.first,
                 dueFormatted = dates?.second,
                 link = entry.notionEntry.link,
-                isInbox = entry.notionEntry.status == "Inbox",
                 parent = entry.parent.toParent()
             )
         }
     }
 
-    fun mapBLocked(input: List<NotionEntryWithParent>): List<Blocked> {
+    fun mapFocus(input: List<NotionEntryWithParent>): List<Focus> {
+        return input.map { entry ->
+            val dates = entry.notionEntry.toDate()
+            Focus(
+                id = entry.notionEntry.uid,
+                text = entry.notionEntry.toTitle(),
+                url = entry.notionEntry.url,
+                color = entry.notionEntry.color ?: "",
+                due = dates?.first,
+                dueFormatted = dates?.second,
+                link = entry.notionEntry.link,
+                parent = entry.parent.toParent()
+            )
+        }
+    }
+
+    fun mapBlocked(input: List<NotionEntryWithParent>): List<Blocked> {
         return input.map { entry ->
             val dates = entry.notionEntry.toDate()
             Blocked(

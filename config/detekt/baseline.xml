@@ -3,6 +3,7 @@
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>LongMethod:AddTaskWorker.kt$AddTaskWorker$@Suppress("SwallowedException", "TooGenericExceptionCaught") override suspend fun doWork(): Result</ID>
+    <ID>LongParameterList:HomeScreen.kt$( refreshing: Boolean, inbox: List&lt;EntryContent&gt;, top: List&lt;EntryContent&gt;, blocked: List&lt;EntryContent&gt;, middle: List&lt;EntryContent&gt;, goals: List&lt;EntryContent&gt;, bottom: HomeStateBottom, refresh: () -&gt; Unit, bottomSelection: (BottomSelection) -&gt; Unit, bottomSelectionLongPress: (BottomSelection) -&gt; Unit )</ID>
     <ID>MagicNumber:AppDatabase.kt$&lt;no name provided&gt;$6</ID>
     <ID>MagicNumber:AppDatabase.kt$&lt;no name provided&gt;$7</ID>
     <ID>MagicNumber:AppDatabase.kt$&lt;no name provided&gt;$8</ID>
@@ -16,8 +17,8 @@
     <ID>MaxLineLength:HomeScreen.kt$style = if (!selection.selected) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleSmall</ID>
     <ID>MaximumLineLength:HomeScreen.kt$ </ID>
     <ID>StringLiteralDuplication:ArticleRepository.kt$ArticleRepository$"Status"</ID>
+    <ID>StringLiteralDuplication:FocusInboxBlockedRequest.kt$FocusInboxBlockedRequest$"Status"</ID>
     <ID>StringLiteralDuplication:HomeScreen.kt$"https://www.phoxwater.com/pages/setup"</ID>
-    <ID>StringLiteralDuplication:NextActionsRequest.kt$NextActionsRequest$"Status"</ID>
     <ID>StringLiteralDuplication:build.gradle.kts$"engBuild"</ID>
     <ID>StringLiteralDuplication:build.gradle.kts$"release"</ID>
     <ID>ThrowingExceptionsWithoutMessageOrCause:GoalsWidgetReceiver.kt$GoalsAppWidget$IllegalStateException()</ID>

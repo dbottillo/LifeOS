@@ -15,13 +15,16 @@ import com.dbottillo.lifeos.network.NotionBodyRequest
 import com.dbottillo.lifeos.network.NotionDatabaseQueryResult
 import com.dbottillo.lifeos.network.NotionPage
 import com.dbottillo.lifeos.notification.NotificationProvider
-import kotlinx.coroutines.async
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import java.time.Instant
+import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -39,8 +42,20 @@ class TasksRepository @Inject constructor(
 
     private val dao by lazy { db.notionEntryDao() }
 
-    val nextActionsFlow: Flow<List<NextAction>> = dao.getNextActions().map(mapper::mapNextActions)
-    val blockedFlow: Flow<List<Blocked>> = dao.getBlocked().map(mapper::mapBLocked)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val inboxFlow: Flow<List<Inbox>> = dao.getInbox().map(mapper::mapInbox).mapLatest {
+        it.filter { entry ->
+            if (entry.due == null) {
+                true
+            } else {
+                val today = LocalDate.now()
+                val date = entry.due.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+                date == today || date.isBefore(today)
+            }
+        }
+    }
+    val focusFlow: Flow<List<Focus>> = dao.getFocus().map(mapper::mapFocus)
+    val blockedFlow: Flow<List<Blocked>> = dao.getBlocked().map(mapper::mapBlocked)
     val projectsFlow: Flow<List<Project>> = dao.getProjects().map(mapper::mapProjects)
     val areasFlow: Flow<List<Area>> = dao.getAreas().map(mapper::mapAreas)
     val ideasFlow: Flow<List<Idea>> = dao.getIdeas().map(mapper::mapIdeas)
@@ -52,7 +67,7 @@ class TasksRepository @Inject constructor(
     }
 
     suspend fun loadNextActions() {
-        when (val nextActions = fetchNextActions()) {
+        when (val nextActions = fetchFocusInboxBlocked()) {
             is ApiResult.Success -> {
                 storeAndNotify(nextActions.data)
             }
@@ -66,50 +81,36 @@ class TasksRepository @Inject constructor(
         }
     }
 
-    suspend fun loadProjectsAreaResourcesAndIdeas() {
+    suspend fun loadStaticResources(resources: List<String>) {
         coroutineScope {
-            val projectsAreasAndResourcesRequest = async {
-                fetchNotionPages(ProjectsAreasAndResourcesRequest().get())
-            }
-            val ideasAndBlockedRequest = async {
-                fetchNotionPages(IdeasAndBlockedRequest().get())
-            }
-            val projectsAreasAndResources = projectsAreasAndResourcesRequest.await()
-            val ideasAndBlocked = ideasAndBlockedRequest.await()
-            when {
-                projectsAreasAndResources is ApiResult.Error -> state.emit(
+            val pages = fetchNotionPages(StaticResourcesRequest().get(resources = resources))
+            when (pages) {
+                is ApiResult.Error -> state.emit(
                     TasksState.Error(
-                        projectsAreasAndResources.exception.localizedMessage ?: "",
+                        pages.exception.localizedMessage ?: "",
                         storage.timestamp.first()
                     )
                 )
-                ideasAndBlocked is ApiResult.Error -> state.emit(
-                    TasksState.Error(
-                        ideasAndBlocked.exception.localizedMessage ?: "",
-                        storage.timestamp.first()
-                    )
-                )
-                else -> {
-                    val results = (projectsAreasAndResources as ApiResult.Success).data +
-                            (ideasAndBlocked as ApiResult.Success).data
+                is ApiResult.Success -> {
+                    val results = pages.data
                     val entries = results.map { it.toEntry() }
-                    dao.deleteAndSaveAllProjectsAreaResourcesAndIdeas(entries)
+                    dao.deleteAndSaveStaticResources(resources, entries)
                 }
             }
         }
     }
 
-    private suspend fun fetchNextActions(): ApiResult<List<NotionPage>> {
+    private suspend fun fetchFocusInboxBlocked(): ApiResult<List<NotionPage>> {
         val now = Instant.now()
         val dtm = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
-        val request = NextActionsRequest(dtm.format(now))
+        val request = FocusInboxBlockedRequest(dtm.format(now))
         return fetchNotionPages(request.get())
     }
 
     private suspend fun storeAndNotify(
         result: List<NotionPage>
     ) {
-        dao.deleteAndInsertAll(result.map { it.toEntry(typeOverride = "alert") })
+        dao.deleteAndSaveFocusInboxBlocked(result.map { it.toEntry() })
         updateFocusNotification()
         state.emit(TasksState.Loaded(storage.timestamp.first()))
     }
@@ -185,15 +186,15 @@ class TasksRepository @Inject constructor(
     }
 
     private suspend fun updateFocusNotification() {
-        val actions = dao.getNextActions().first()
-        val (inbox, others) = actions.partition { it.notionEntry.status == "Inbox" }
-        val (withDue, withoutDue) = others.partition { it.notionEntry.startDate?.isNotEmpty() == true }
-        val titles = (inbox + withDue + withoutDue).joinToString("\n") {
-            val name = it.notionEntry.title ?: "No title"
-            val emoji = it.notionEntry.emoji ?: ""
-            emoji + name
+        val actions = inboxFlow.first()
+        if (actions.isEmpty()) {
+            notificationProvider.clear()
+        } else {
+            val titles = actions.joinToString("\n") {
+                it.text
+            }
+            notificationProvider.updateNextActions(titles)
         }
-        notificationProvider.updateNextActions(titles)
     }
 }
 
@@ -205,13 +206,13 @@ sealed class TasksState {
     data class Restored(val timestamp: OffsetDateTime) : TasksState()
 }
 
-private fun NotionPage.toEntry(typeOverride: String? = null) = NotionEntry(
+private fun NotionPage.toEntry() = NotionEntry(
     uid = id,
     color = (properties["Type"]?.select?.name ?: "").mapColor(),
     title = properties["Name"]?.title?.getOrNull(0)?.plainText,
     url = url,
     emoji = icon?.emoji,
-    type = typeOverride ?: properties["Type"]?.select?.name ?: "",
+    type = properties["Type"]?.select?.name ?: "",
     startDate = properties["Due"]?.date?.start,
     endDate = properties["Due"]?.date?.end,
     timeZone = properties["Due"]?.date?.timeZone,

@@ -8,13 +8,14 @@ import com.dbottillo.lifeos.db.Article
 import com.dbottillo.lifeos.db.Log
 import com.dbottillo.lifeos.feature.articles.ArticleManager
 import com.dbottillo.lifeos.feature.articles.ArticleRepository
-import com.dbottillo.lifeos.feature.blocks.BlockRepository
+import com.dbottillo.lifeos.feature.blocks.GoalsRepository
 import com.dbottillo.lifeos.feature.logs.LogsRepository
 import com.dbottillo.lifeos.feature.tasks.Area
 import com.dbottillo.lifeos.feature.tasks.Blocked
+import com.dbottillo.lifeos.feature.tasks.Focus
 import com.dbottillo.lifeos.feature.tasks.Goal
 import com.dbottillo.lifeos.feature.tasks.Idea
-import com.dbottillo.lifeos.feature.tasks.NextAction
+import com.dbottillo.lifeos.feature.tasks.Inbox
 import com.dbottillo.lifeos.feature.tasks.Project
 import com.dbottillo.lifeos.feature.tasks.Resource
 import com.dbottillo.lifeos.feature.tasks.Status
@@ -31,8 +32,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.dbottillo.lifeos.util.combine
-import java.time.LocalDate
-import java.time.ZoneId
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -42,7 +43,7 @@ class HomeViewModel @Inject constructor(
     private val refreshProvider: RefreshProvider,
     private val articleManager: ArticleManager,
     private val logsRepository: LogsRepository,
-    private val blockRepository: BlockRepository,
+    private val goalsRepository: GoalsRepository,
     private val widgetsRefresher: WidgetsRefresher
 ) : ViewModel() {
 
@@ -95,16 +96,20 @@ class HomeViewModel @Inject constructor(
     @Suppress("LongMethod")
     private suspend fun initHome() {
         combine(
-            combine(tasksRepository.nextActionsFlow, tasksRepository.blockedFlow) { actions, blocked ->
-                actions to blocked
+            combine(
+                tasksRepository.focusFlow,
+                tasksRepository.inboxFlow,
+                tasksRepository.blockedFlow
+            ) { focus, inbox, blocked ->
+                Triple(focus, inbox, blocked)
             },
             tasksRepository.projectsFlow,
             tasksRepository.areasFlow,
             tasksRepository.ideasFlow,
             tasksRepository.resourcesFlow,
             otherStateBottomSelection,
-            blockRepository.goalsFlow
-        ) { actionsAndBlocked, projects, areas, ideas, resources, bottomSelection, goals ->
+            goalsRepository.goalsFlow
+        ) { focusInboxBlocked, projects, areas, ideas, resources, bottomSelection, goals ->
             val uiAreas = areas.mapAreas()
             val uiResources = resources.mapResources()
             val uiIdeas = ideas.mapIdeas()
@@ -132,21 +137,9 @@ class HomeViewModel @Inject constructor(
                     BottomSelection.IDEAS -> uiIdeas
                 }
             )
-            val actions = actionsAndBlocked.first
-            val today = LocalDate.now()
-            val (blockedInbox, blocked) = actionsAndBlocked.second.partition { blocked ->
-                if (blocked.due != null) {
-                    val date = blocked.due.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-                    date == today || date.isBefore(today)
-                } else {
-                    false
-                }
-            }
-            val (inbox, others) = actions.partition { it.isInbox }
-            val (withDue, withoutDue) = others.partition { it.due != null }
             Triple(
-                ((inbox + withDue).mapActions() + blockedInbox.mapBlocked()) to (withoutDue).mapActions(),
-                blocked.mapBlocked() to projects.filter { it.status is Status.Focus }.mapProjects(),
+                focusInboxBlocked.second.mapInbox() to focusInboxBlocked.first.mapFocus(),
+                focusInboxBlocked.third.mapBlocked() to projects.filter { it.status is Status.Focus }.mapProjects(),
                 bottom to goals.filter { it.status is Status.Focus }.mapGoals()
             )
         }.collectLatest { (top, middle, bottom) ->
@@ -221,8 +214,23 @@ class HomeViewModel @Inject constructor(
             homeState.value = homeState.first().copy(
                 refreshing = true
             )
-            tasksRepository.loadProjectsAreaResourcesAndIdeas() // projects need to have priority first
-            tasksRepository.loadNextActions()
+            awaitAll(
+                async { tasksRepository.loadNextActions() },
+                async {
+                    tasksRepository.loadStaticResources(
+                    listOf(
+                        "Area",
+                        "Project",
+                        "Goal",
+                    )
+                )
+                },
+                async {
+                    tasksRepository.loadStaticResources(
+                        listOf("Idea")
+                    )
+                }
+            )
             widgetsRefresher.refreshAll()
             homeState.value = homeState.first().copy(
                 refreshing = false
@@ -230,8 +238,22 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun refreshResources() {
+        viewModelScope.launch {
+            tasksRepository.loadStaticResources(
+                listOf("Resource",)
+            )
+        }
+    }
+
     fun bottomSelection(type: BottomSelection) {
         otherStateBottomSelection.value = type
+    }
+
+    fun bottomSelectionLongPress(type: BottomSelection) {
+        if (type == BottomSelection.RESOURCES) {
+            refreshResources()
+        }
     }
 }
 
@@ -284,7 +306,21 @@ data class EntryContent(
     val color: Color
 )
 
-fun List<NextAction>.mapActions(): List<EntryContent> {
+fun List<Inbox>.mapInbox(): List<EntryContent> {
+    return map {
+        EntryContent(
+            id = it.id,
+            title = it.text,
+            url = it.url,
+            subtitle = it.dueFormatted,
+            link = it.link,
+            parent = it.parent?.title,
+            color = it.color.toColor()
+        )
+    }
+}
+
+fun List<Focus>.mapFocus(): List<EntryContent> {
     return map {
         EntryContent(
             id = it.id,

@@ -5,14 +5,14 @@ import com.dbottillo.lifeos.network.FilterRequest
 import com.dbottillo.lifeos.network.NotionBodyRequest
 import com.dbottillo.lifeos.network.SortRequest
 
-class ProjectsAreasAndResourcesRequest {
+class StaticResourcesRequest {
 
-    fun get(): NotionBodyRequest {
+    fun get(resources: List<String>): NotionBodyRequest {
         return NotionBodyRequest(
             filter = FilterRequest(
                 and = listOf(
                     FilterRequest(
-                        or = listOf(
+                        /*or = listOf(
                             FilterRequest(
                                 property = "Type",
                                 select = FilterEqualsRequest(
@@ -36,8 +36,22 @@ class ProjectsAreasAndResourcesRequest {
                                 select = FilterEqualsRequest(
                                     equals = "Goal"
                                 )
+                            ),
+                            FilterRequest(
+                                property = "Type",
+                                select = FilterEqualsRequest(
+                                    equals = "Idea"
+                                )
                             )
-                        )
+                        )*/
+                        or = resources.map { res ->
+                            FilterRequest(
+                                property = "Type",
+                                select = FilterEqualsRequest(
+                                    equals = res
+                                )
+                            )
+                        }
                     ),
                     FilterRequest(
                         property = "Status",

@@ -29,9 +29,8 @@ class RefreshWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
             val actions = async { tasksRepository.loadNextActions() }
-            val projectsAreaResourcesAndIdeas = async { tasksRepository.loadProjectsAreaResourcesAndIdeas() }
             val articles = async { articleRepository.fetchArticles() }
-            awaitAll(actions, articles, projectsAreaResourcesAndIdeas)
+            awaitAll(actions, articles)
             widgetsRefresher.refreshAll()
             return@withContext Result.success()
         } catch (error: Throwable) {

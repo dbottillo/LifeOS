@@ -41,6 +41,8 @@ crashlyticsPlugin="3.0.2"
 room = "2.6.1"
 androidXglance = "1.1.1"
 chucker="4.1.0"
+flipper="0.273.0"
+soloader="0.10.5"
 
 [libraries]
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "androidGradlePlugin" }
@@ -116,6 +118,10 @@ androidx-glance-appwidget = { group ="androidx.glance", name = "glance-appwidget
 androidx-glance-material3 = { group ="androidx.glance", name = "glance-material3", version.ref = "androidXglance" }
 chucker = { group ="com.github.chuckerteam.chucker", name = "library", version.ref = "chucker" }
 chucker-noop = { group ="com.github.chuckerteam.chucker", name = "library-no-op", version.ref = "chucker" }
+flipper = { group ="com.facebook.flipper", name = "flipper", version.ref = "flipper" }
+flipper-plugin-network = { group ="com.facebook.flipper", name = "flipper-network-plugin", version.ref = "flipper" }
+soloader = { group ="com.facebook.soloader", name = "soloader", version.ref = "soloader" }
+flipper-noop = { group ="com.facebook.flipper", name = "flipper-noop", version.ref = "flipper" }
 
 [bundles]
 ui = ["androidx-core", "androidx-core-ktx", "android-compat", "androidx-constraintlayout"]

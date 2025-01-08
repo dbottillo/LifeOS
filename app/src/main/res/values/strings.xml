@@ -15,8 +15,8 @@
     <string name="app_name">Life OS</string>
     <string name="channel_info_main">Info</string>
     <string name="channel_info_description">Life OS - Info</string>
-    <string name="channel_next_name">Next actions</string>
-    <string name="channel_next_description">Life OS - Next actions</string>
+    <string name="channel_next_name">Inbox</string>
+    <string name="channel_next_description">Life OS - Inbox</string>
     <string name="status">Status</string>
     <string name="articles">Articles</string>
     <string name="home">Home</string>

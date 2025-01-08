@@ -16,11 +16,15 @@ interface NotionEntryDao {
     // See https://developer.android.com/reference/androidx/room/Transaction.html for details.
 
     @Transaction
-    @Query("SELECT * FROM notionEntry WHERE type = 'alert'")
-    fun getNextActions(): Flow<List<NotionEntryWithParent>>
+    @Query("SELECT * FROM notionEntry WHERE start_date NOT NULL or status ='Inbox'")
+    fun getInbox(): Flow<List<NotionEntryWithParent>>
 
     @Transaction
-    @Query("SELECT * FROM notionEntry WHERE status = 'Blocked'")
+    @Query("SELECT * FROM notionEntry WHERE status = 'Focus' and type !='Goal' and type !='Project' order by parentId")
+    fun getFocus(): Flow<List<NotionEntryWithParent>>
+
+    @Transaction
+    @Query("SELECT * FROM notionEntry WHERE status = 'Blocked' order by parentId")
     fun getBlocked(): Flow<List<NotionEntryWithParent>>
 
     @Transaction
@@ -48,21 +52,21 @@ interface NotionEntryDao {
 
     @Suppress("SpreadOperator")
     @Transaction
-    suspend fun deleteAndInsertAll(entries: List<NotionEntry>) {
-        deleteNextActions()
+    suspend fun deleteAndSaveFocusInboxBlocked(entries: List<NotionEntry>) {
+        deleteTasksAndInbox()
         insertAll(*entries.toTypedArray())
     }
 
     @Suppress("SpreadOperator")
     @Transaction
-    suspend fun deleteAndSaveAllProjectsAreaResourcesAndIdeas(entries: List<NotionEntry>) {
-        deleteNonAlerts()
+    suspend fun deleteAndSaveStaticResources(resources: List<String>, entries: List<NotionEntry>) {
+        resources.forEach { deleteStaticResources(it) }
         insertAll(*entries.toTypedArray())
     }
 
-    @Query("DELETE FROM notionEntry WHERE type = 'alert'")
-    suspend fun deleteNextActions()
+    @Query("DELETE FROM notionEntry WHERE type = 'Task' or status ='Inbox'")
+    suspend fun deleteTasksAndInbox()
 
-    @Query("DELETE FROM notionEntry WHERE type != 'alert'")
-    suspend fun deleteNonAlerts()
+    @Query("DELETE FROM notionEntry WHERE type = :type")
+    suspend fun deleteStaticResources(type: String)
 }

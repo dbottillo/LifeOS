@@ -2,8 +2,6 @@ package com.dbottillo.lifeos.feature.widgets
 
 import android.content.Context
 import android.content.Intent
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,7 +27,7 @@ import androidx.glance.layout.padding
 import androidx.glance.material3.ColorProviders
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
-import com.dbottillo.lifeos.feature.blocks.BlockRepository
+import com.dbottillo.lifeos.feature.blocks.GoalsRepository
 import com.dbottillo.lifeos.feature.home.HomeActivity
 import com.dbottillo.lifeos.feature.tasks.Goal
 import com.dbottillo.lifeos.feature.tasks.Status
@@ -49,7 +47,7 @@ class GoalsAppWidget : GlanceAppWidget() {
     @EntryPoint
     @InstallIn(SingletonComponent::class)
     interface BlockRepositoryProviderEntryPoint {
-        fun blockRepository(): BlockRepository
+        fun blockRepository(): GoalsRepository
     }
 
     override val sizeMode = SizeMode.Exact

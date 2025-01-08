@@ -54,7 +54,7 @@ class NotificationManager @Inject constructor(
             notify(
                 MAIN_DATABASE_ID,
                 getMainNotificationBuilder(
-                    "Next actions",
+                    "Inbox",
                     text,
                     NotificationCompat.PRIORITY_DEFAULT,
                     CHANNEL_NEXT_ID

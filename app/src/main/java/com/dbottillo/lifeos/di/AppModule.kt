@@ -16,6 +16,8 @@ import com.dbottillo.lifeos.network.RefreshProvider
 import com.dbottillo.lifeos.feature.home.HomeStorage
 import com.dbottillo.lifeos.feature.home.HomeStorageImpl
 import com.dbottillo.lifeos.network.HeaderInterceptor
+import com.facebook.flipper.plugins.network.FlipperOkhttpInterceptor
+import com.facebook.flipper.plugins.network.NetworkFlipperPlugin
 import dagger.Lazy
 import dagger.Module
 import dagger.Provides
@@ -47,12 +49,20 @@ class AppModule {
 
     @Singleton
     @Provides
+    fun provideFlipperNetwork(): NetworkFlipperPlugin {
+        return NetworkFlipperPlugin()
+    }
+
+    @Singleton
+    @Provides
     fun provideOkHttpClient(
         @ApplicationContext context: Context,
-        headerInterceptor: HeaderInterceptor
+        headerInterceptor: HeaderInterceptor,
+        flipperPlugin: NetworkFlipperPlugin
     ): OkHttpClient {
         val builder = OkHttpClient.Builder()
             .addInterceptor(headerInterceptor)
+            .addNetworkInterceptor(FlipperOkhttpInterceptor(flipperPlugin))
             .addInterceptor(ChuckerInterceptor(context))
         if (BuildConfig.DEBUG) {
             val interceptor = HttpLoggingInterceptor()

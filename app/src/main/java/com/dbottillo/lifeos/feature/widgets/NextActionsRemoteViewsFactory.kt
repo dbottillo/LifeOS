@@ -8,14 +8,13 @@ import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import com.dbottillo.lifeos.R
 import com.dbottillo.lifeos.feature.tasks.Blocked
+import com.dbottillo.lifeos.feature.tasks.Focus
 import com.dbottillo.lifeos.feature.tasks.Idea
-import com.dbottillo.lifeos.feature.tasks.NextAction
+import com.dbottillo.lifeos.feature.tasks.Inbox
 import com.dbottillo.lifeos.feature.tasks.TasksRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import java.lang.UnsupportedOperationException
-import java.time.LocalDate
-import java.time.ZoneId
 
 @Suppress("UNUSED_PARAMETER")
 class NextActionsRemoteViewsFactory(
@@ -139,35 +138,18 @@ class NextActionsRemoteViewsFactory(
     private fun initData() {
         data.clear()
         runBlocking {
-            val nextActions = tasksRepository.nextActionsFlow.first()
-            val today = LocalDate.now()
-            val (blockedInbox, blocked) = tasksRepository.blockedFlow.first().partition { blocked ->
-                if (blocked.due != null) {
-                    val date = blocked.due.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-                    date == today || date.isBefore(today)
-                } else {
-                    false
-                }
-            }
+            val inbox = tasksRepository.inboxFlow.first()
+            val focus = tasksRepository.focusFlow.first()
+            val blocked = tasksRepository.blockedFlow.first()
             val ideas = tasksRepository.ideasFlow.first().take(10)
-            val (inbox, others) = nextActions.partition { it.isInbox }
-            val (withDue, withoutDue) = others.partition { it.due != null }
             var index = 0
             inbox.forEach { action ->
                 data[index] = action.toWidgetEntry()
                 index++
             }
-            blockedInbox.forEach { entry ->
-                data[index] = entry.toWidgetEntry()
-                index++
-            }
-            withDue.forEach { action ->
-                data[index] = action.toWidgetEntry()
-                index++
-            }
             data[index] = WidgetEntry.Focus
             index++
-            withoutDue.forEach { action ->
+            focus.forEach { action ->
                 data[index] = action.toWidgetEntry()
                 index++
             }
@@ -191,7 +173,17 @@ class NextActionsRemoteViewsFactory(
     }
 }
 
-private fun NextAction.toWidgetEntry(): WidgetEntry {
+private fun Inbox.toWidgetEntry(): WidgetEntry {
+    return WidgetEntry.Entry(
+        text = text,
+        url = url,
+        due = dueFormatted,
+        color = color.split(",").first().toDrawable(),
+        parent = parent?.title
+    )
+}
+
+private fun Focus.toWidgetEntry(): WidgetEntry {
     return WidgetEntry.Entry(
         text = text,
         url = url,

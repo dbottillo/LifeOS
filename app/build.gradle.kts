@@ -113,6 +113,10 @@ dependencies {
     implementation(libs.bundles.androidx.glance)
     debugImplementation(libs.chucker)
     releaseImplementation(libs.chucker.noop)
+    debugImplementation(libs.flipper)
+    debugImplementation(libs.flipper.plugin.network)
+    debugImplementation(libs.soloader)
+    releaseImplementation(libs.flipper.noop)
 }
 
 kapt {

@@ -1,7 +1,9 @@
 package com.dbottillo.lifeos.feature.home
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,7 +62,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             goals = state.value.goals,
             bottom = state.value.others,
             refresh = viewModel::reloadHome,
-            bottomSelection = viewModel::bottomSelection
+            bottomSelection = viewModel::bottomSelection,
+            bottomSelectionLongPress = viewModel::bottomSelectionLongPress
         )
     } else {
         HomeScreenContent(
@@ -73,7 +76,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             bottom = state.value.others,
             refresh = viewModel::reloadHome,
             numberOfColumns = if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) 3 else 2,
-            bottomSelection = viewModel::bottomSelection
+            bottomSelection = viewModel::bottomSelection,
+            bottomSelectionLongPress = viewModel::bottomSelectionLongPress
         )
     }
 }
@@ -89,7 +93,7 @@ fun LazyStaggeredGridScope.header(
 }
 
 @Suppress("LongMethod", "LongParameterList")
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreenContent(
     refreshing: Boolean,
@@ -101,7 +105,8 @@ fun HomeScreenContent(
     bottom: HomeStateBottom,
     numberOfColumns: Int,
     refresh: () -> Unit,
-    bottomSelection: (BottomSelection) -> Unit
+    bottomSelection: (BottomSelection) -> Unit,
+    bottomSelectionLongPress: (BottomSelection) -> Unit
 ) {
     val pullRefreshState = rememberPullRefreshState(refreshing, refresh)
 
@@ -207,9 +212,12 @@ fun HomeScreenContent(
                                 } else {
                                 Modifier
                                     .padding(end = 16.dp)
-                                    .clickable {
-                                        bottomSelection.invoke(selection.type)
-                                    }
+                                    .combinedClickable(
+                                        onClick = { bottomSelection.invoke(selection.type) },
+                                        onLongClick = {
+                                            bottomSelectionLongPress.invoke(selection.type)
+                                        },
+                                    )
                             }
                         )
                     }
@@ -233,7 +241,7 @@ fun HomeScreenContent(
 }
 
 @Suppress("LongMethod")
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreenContentExpanded(
     refreshing: Boolean,
@@ -244,7 +252,8 @@ fun HomeScreenContentExpanded(
     goals: List<EntryContent>,
     bottom: HomeStateBottom,
     refresh: () -> Unit,
-    bottomSelection: (BottomSelection) -> Unit
+    bottomSelection: (BottomSelection) -> Unit,
+    bottomSelectionLongPress: (BottomSelection) -> Unit
 ) {
     val pullRefreshState = rememberPullRefreshState(refreshing, refresh)
 
@@ -362,9 +371,12 @@ fun HomeScreenContentExpanded(
                                 } else {
                                     Modifier
                                         .padding(end = 16.dp)
-                                        .clickable {
-                                            bottomSelection.invoke(selection.type)
-                                        }
+                                        .combinedClickable(
+                                            onClick = { bottomSelection.invoke(selection.type) },
+                                            onLongClick = {
+                                                bottomSelectionLongPress.invoke(selection.type)
+                                            },
+                                        )
                                 }
                             )
                         }
@@ -468,6 +480,7 @@ fun HomeScreenPreview() {
                     goals = goals,
                     refresh = {},
                     bottomSelection = {},
+                    bottomSelectionLongPress = {},
                     numberOfColumns = 2
                 )
             }
@@ -492,6 +505,7 @@ fun HomeScreenContentExpandedPreview() {
                     goals = goals,
                     refresh = {},
                     bottomSelection = {},
+                    bottomSelectionLongPress = {}
                 )
             }
         }
