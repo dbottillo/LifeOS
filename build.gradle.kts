@@ -1,5 +1,3 @@
-import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
-
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.jvm) apply false
@@ -32,12 +30,6 @@ tasks {
         delete(rootProject.buildDir)
     }
 
-    withType<DependencyUpdatesTask> {
-        rejectVersionIf {
-            candidate.version.isNonStable()
-        }
-    }
-
     withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         compilerOptions {
             jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
@@ -50,7 +42,7 @@ tasks {
     }
 }
 
-fun String.isNonStable(): Boolean = "^[0-9,.v-]+(-r)?$".toRegex().matches(this).not()
+
 val detektAll by tasks.registering(io.gitlab.arturbosch.detekt.Detekt::class) {
     description = "Custom Detekt task for all modules"
     parallel = true

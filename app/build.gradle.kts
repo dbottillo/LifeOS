@@ -1,4 +1,5 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 plugins {
     id("com.android.application")
@@ -75,6 +76,17 @@ android {
     }
 
     namespace = "com.dbottillo.lifeos"
+}
+
+tasks.withType<DependencyUpdatesTask> {
+    rejectVersionIf {
+        isNonStable(candidate.version)
+    }
+}
+
+fun isNonStable(version: String): Boolean {
+    val nonStable = listOf("ALPHA", "BETA", "RC", "DEV").any { version.uppercase().contains(it) }
+    return nonStable
 }
 
 room {
