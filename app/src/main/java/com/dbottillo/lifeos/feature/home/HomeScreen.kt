@@ -63,8 +63,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             bottom = state.value.others,
             refresh = viewModel::reloadHome,
             bottomSelection = viewModel::bottomSelection,
-            bottomSelectionLongPress = viewModel::bottomSelectionLongPress,
-            longPressProjects = viewModel::longPressProjects
+            bottomSelectionDoubleTap = viewModel::bottomSelectionDoubleTap,
+            longPressProjects = viewModel::refreshProjects
         )
     } else {
         HomeScreenContent(
@@ -78,8 +78,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             refresh = viewModel::reloadHome,
             numberOfColumns = if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) 3 else 2,
             bottomSelection = viewModel::bottomSelection,
-            bottomSelectionLongPress = viewModel::bottomSelectionLongPress,
-            longPressProjects = viewModel::longPressProjects
+            bottomSelectionDoubleTap = viewModel::bottomSelectionDoubleTap,
+            refreshProjects = viewModel::refreshProjects
         )
     }
 }
@@ -108,8 +108,8 @@ fun HomeScreenContent(
     numberOfColumns: Int,
     refresh: () -> Unit,
     bottomSelection: (BottomSelection) -> Unit,
-    bottomSelectionLongPress: (BottomSelection) -> Unit,
-    longPressProjects: () -> Unit
+    bottomSelectionDoubleTap: (BottomSelection) -> Unit,
+    refreshProjects: () -> Unit
 ) {
     val pullRefreshState = rememberPullRefreshState(refreshing, refresh)
 
@@ -178,8 +178,8 @@ fun HomeScreenContent(
                         .padding(top = 16.dp)
                         .combinedClickable(
                             onClick = { },
-                            onLongClick = {
-                                longPressProjects.invoke()
+                            onDoubleClick = {
+                                refreshProjects.invoke()
                             },
                         )
                 )
@@ -223,8 +223,8 @@ fun HomeScreenContent(
                                     .padding(end = 16.dp)
                                     .combinedClickable(
                                         onClick = { bottomSelection.invoke(selection.type) },
-                                        onLongClick = {
-                                            bottomSelectionLongPress.invoke(selection.type)
+                                        onDoubleClick = {
+                                            bottomSelectionDoubleTap.invoke(selection.type)
                                         },
                                     )
                             }
@@ -262,7 +262,7 @@ fun HomeScreenContentExpanded(
     bottom: HomeStateBottom,
     refresh: () -> Unit,
     bottomSelection: (BottomSelection) -> Unit,
-    bottomSelectionLongPress: (BottomSelection) -> Unit,
+    bottomSelectionDoubleTap: (BottomSelection) -> Unit,
     longPressProjects: () -> Unit
 ) {
     val pullRefreshState = rememberPullRefreshState(refreshing, refresh)
@@ -389,8 +389,8 @@ fun HomeScreenContentExpanded(
                                         .padding(end = 16.dp)
                                         .combinedClickable(
                                             onClick = { bottomSelection.invoke(selection.type) },
-                                            onLongClick = {
-                                                bottomSelectionLongPress.invoke(selection.type)
+                                            onDoubleClick = {
+                                                bottomSelectionDoubleTap.invoke(selection.type)
                                             },
                                         )
                                 }
@@ -496,9 +496,9 @@ fun HomeScreenPreview() {
                     goals = goals,
                     refresh = {},
                     bottomSelection = {},
-                    bottomSelectionLongPress = {},
+                    bottomSelectionDoubleTap = {},
                     numberOfColumns = 2,
-                    longPressProjects = {}
+                    refreshProjects = {}
                 )
             }
         }
@@ -522,7 +522,7 @@ fun HomeScreenContentExpandedPreview() {
                     goals = goals,
                     refresh = {},
                     bottomSelection = {},
-                    bottomSelectionLongPress = {},
+                    bottomSelectionDoubleTap = {},
                     longPressProjects = {}
                 )
             }

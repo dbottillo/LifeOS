@@ -251,13 +251,13 @@ class HomeViewModel @Inject constructor(
         otherStateBottomSelection.value = type
     }
 
-    fun bottomSelectionLongPress(type: BottomSelection) {
+    fun bottomSelectionDoubleTap(type: BottomSelection) {
         if (type == BottomSelection.RESOURCES) {
             refreshResources()
         }
     }
 
-    fun longPressProjects() {
+    fun refreshProjects() {
         viewModelScope.launch {
             tasksRepository.loadStaticResources(
                 listOf("Project")
