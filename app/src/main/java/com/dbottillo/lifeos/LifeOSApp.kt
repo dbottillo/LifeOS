@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.dbottillo.lifeos.feature.tasks.TasksRepository
+import com.dbottillo.lifeos.network.RefreshManager
 import com.dbottillo.lifeos.notification.NotificationProvider
 import com.facebook.flipper.android.AndroidFlipperClient
 import com.facebook.flipper.android.utils.FlipperUtils
@@ -34,6 +35,9 @@ class LifeOSApp : Application(), Configuration.Provider {
     @Inject
     lateinit var networkFlipperPlugin: NetworkFlipperPlugin
 
+    @Inject
+    lateinit var refreshManager: RefreshManager
+
     override fun onCreate() {
         super.onCreate()
 
@@ -51,6 +55,8 @@ class LifeOSApp : Application(), Configuration.Provider {
             client.addPlugin(networkFlipperPlugin)
             client.start()
         }
+
+        refreshManager.start()
     }
 
     override val workManagerConfiguration: Configuration

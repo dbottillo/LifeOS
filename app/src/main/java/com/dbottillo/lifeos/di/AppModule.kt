@@ -28,6 +28,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
@@ -64,6 +65,9 @@ class AppModule {
             .addInterceptor(headerInterceptor)
             .addNetworkInterceptor(FlipperOkhttpInterceptor(flipperPlugin))
             .addInterceptor(ChuckerInterceptor(context))
+        builder.connectTimeout(NETWORK_TIMEOUT, TimeUnit.SECONDS)
+        builder.readTimeout(NETWORK_TIMEOUT, TimeUnit.SECONDS)
+        builder.writeTimeout(NETWORK_TIMEOUT, TimeUnit.SECONDS)
         if (BuildConfig.DEBUG) {
             val interceptor = HttpLoggingInterceptor()
             interceptor.level = HttpLoggingInterceptor.Level.BODY
@@ -109,3 +113,5 @@ class AppModule {
             .build()
     }
 }
+
+private const val NETWORK_TIMEOUT = 25L

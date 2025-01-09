@@ -90,7 +90,6 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             initStatus()
         }
-        refreshProvider.start()
     }
 
     @Suppress("LongMethod")
@@ -218,17 +217,7 @@ class HomeViewModel @Inject constructor(
                 async { tasksRepository.loadNextActions() },
                 async {
                     tasksRepository.loadStaticResources(
-                        listOf("Project")
-                    )
-                },
-                async {
-                    tasksRepository.loadStaticResources(
-                        listOf("Area", "Goal",)
-                    )
-                },
-                async {
-                    tasksRepository.loadStaticResources(
-                        listOf("Idea")
+                        listOf("Project", "Area", "Goal", "Idea", "Resource")
                     )
                 }
             )

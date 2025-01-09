@@ -29,6 +29,7 @@ enum class LogTags(val key: String) {
     DELETE_ARTICLE_WORKER("delete_article_worker"),
     UPDATE_ARTICLE_WORKER("update_article_worker"),
     ADD_TASK_WORKER("add_task_worker"),
+    DAILY_REFRESH_WORKER("daily_refresh_worker"),
     HOME_REFRESH("home_refresh")
 }
 
