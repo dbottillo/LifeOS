@@ -218,12 +218,13 @@ class HomeViewModel @Inject constructor(
                 async { tasksRepository.loadNextActions() },
                 async {
                     tasksRepository.loadStaticResources(
-                    listOf(
-                        "Area",
-                        "Project",
-                        "Goal",
+                        listOf("Project")
                     )
-                )
+                },
+                async {
+                    tasksRepository.loadStaticResources(
+                        listOf("Area", "Goal",)
+                    )
                 },
                 async {
                     tasksRepository.loadStaticResources(
@@ -238,10 +239,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun refreshResources() {
+    private fun refreshResources() {
         viewModelScope.launch {
             tasksRepository.loadStaticResources(
-                listOf("Resource",)
+                listOf("Resource")
             )
         }
     }
@@ -253,6 +254,14 @@ class HomeViewModel @Inject constructor(
     fun bottomSelectionLongPress(type: BottomSelection) {
         if (type == BottomSelection.RESOURCES) {
             refreshResources()
+        }
+    }
+
+    fun longPressProjects() {
+        viewModelScope.launch {
+            tasksRepository.loadStaticResources(
+                listOf("Project")
+            )
         }
     }
 }

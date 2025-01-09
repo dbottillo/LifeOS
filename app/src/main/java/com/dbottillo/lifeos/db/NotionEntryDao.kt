@@ -1,11 +1,13 @@
 package com.dbottillo.lifeos.db
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 @Dao
 interface NotionEntryDao {
@@ -53,7 +55,9 @@ interface NotionEntryDao {
     @Suppress("SpreadOperator")
     @Transaction
     suspend fun deleteAndSaveFocusInboxBlocked(entries: List<NotionEntry>) {
-        deleteTasksAndInbox()
+        getInbox().first().forEach { delete(it.notionEntry) }
+        getFocus().first().forEach { delete(it.notionEntry) }
+        getBlocked().first().forEach { delete(it.notionEntry) }
         insertAll(*entries.toTypedArray())
     }
 
@@ -64,9 +68,9 @@ interface NotionEntryDao {
         insertAll(*entries.toTypedArray())
     }
 
-    @Query("DELETE FROM notionEntry WHERE type = 'Task' or status ='Inbox'")
-    suspend fun deleteTasksAndInbox()
-
     @Query("DELETE FROM notionEntry WHERE type = :type")
     suspend fun deleteStaticResources(type: String)
+
+    @Delete
+    suspend fun delete(model: NotionEntry)
 }

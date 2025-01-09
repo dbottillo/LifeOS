@@ -4,6 +4,9 @@ import com.dbottillo.lifeos.data.AppConstant
 import com.dbottillo.lifeos.db.AppDatabase
 import com.dbottillo.lifeos.db.NotionEntry
 import com.dbottillo.lifeos.feature.home.HomeStorage
+import com.dbottillo.lifeos.feature.logs.LogLevel
+import com.dbottillo.lifeos.feature.logs.LogTags
+import com.dbottillo.lifeos.feature.logs.LogsRepository
 import com.dbottillo.lifeos.network.AddPageNotionBodyRequest
 import com.dbottillo.lifeos.network.AddPageNotionBodyRequestParent
 import com.dbottillo.lifeos.network.AddPageNotionProperty
@@ -19,7 +22,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
@@ -35,7 +37,8 @@ class TasksRepository @Inject constructor(
     private val storage: HomeStorage,
     private val notificationProvider: NotificationProvider,
     private val db: AppDatabase,
-    private val mapper: TasksMapper
+    private val mapper: TasksMapper,
+    private val logsRepository: LogsRepository
 ) {
 
     val state = MutableStateFlow<TasksState>(TasksState.Idle)
@@ -67,34 +70,68 @@ class TasksRepository @Inject constructor(
     }
 
     suspend fun loadNextActions() {
+        logsRepository.addEntry(
+            LogTags.HOME_REFRESH,
+            LogLevel.INFO,
+            "load next actions"
+        )
         when (val nextActions = fetchFocusInboxBlocked()) {
             is ApiResult.Success -> {
                 storeAndNotify(nextActions.data)
+                logsRepository.addEntry(
+                    LogTags.HOME_REFRESH,
+                    LogLevel.INFO,
+                    "successfully loaded next actions"
+                )
             }
 
-            is ApiResult.Error -> state.emit(
-                TasksState.Error(
-                    nextActions.exception.localizedMessage ?: "",
-                    storage.timestamp.first()
+            is ApiResult.Error -> {
+                state.emit(
+                    TasksState.Error(
+                        nextActions.exception.localizedMessage ?: "",
+                        storage.timestamp.first()
+                    )
                 )
-            )
+                logsRepository.addEntry(
+                    LogTags.HOME_REFRESH,
+                    LogLevel.ERROR,
+                    nextActions.exception.localizedMessage ?: "no error message"
+                )
+            }
         }
     }
 
     suspend fun loadStaticResources(resources: List<String>) {
+        logsRepository.addEntry(
+            LogTags.HOME_REFRESH,
+            LogLevel.INFO,
+            "load static resources"
+        )
         coroutineScope {
             val pages = fetchNotionPages(StaticResourcesRequest().get(resources = resources))
             when (pages) {
-                is ApiResult.Error -> state.emit(
-                    TasksState.Error(
-                        pages.exception.localizedMessage ?: "",
-                        storage.timestamp.first()
+                is ApiResult.Error -> {
+                    state.emit(
+                        TasksState.Error(
+                            pages.exception.localizedMessage ?: "",
+                            storage.timestamp.first()
+                        )
                     )
-                )
+                    logsRepository.addEntry(
+                        LogTags.HOME_REFRESH,
+                        LogLevel.ERROR,
+                        "failed to load $resources -> ${pages.exception}"
+                    )
+                }
                 is ApiResult.Success -> {
                     val results = pages.data
                     val entries = results.map { it.toEntry() }
                     dao.deleteAndSaveStaticResources(resources, entries)
+                    logsRepository.addEntry(
+                        LogTags.HOME_REFRESH,
+                        LogLevel.INFO,
+                        "successfully loaded $resources"
+                    )
                 }
             }
         }

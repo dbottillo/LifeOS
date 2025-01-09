@@ -63,7 +63,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             bottom = state.value.others,
             refresh = viewModel::reloadHome,
             bottomSelection = viewModel::bottomSelection,
-            bottomSelectionLongPress = viewModel::bottomSelectionLongPress
+            bottomSelectionLongPress = viewModel::bottomSelectionLongPress,
+            longPressProjects = viewModel::longPressProjects
         )
     } else {
         HomeScreenContent(
@@ -77,7 +78,8 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             refresh = viewModel::reloadHome,
             numberOfColumns = if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) 3 else 2,
             bottomSelection = viewModel::bottomSelection,
-            bottomSelectionLongPress = viewModel::bottomSelectionLongPress
+            bottomSelectionLongPress = viewModel::bottomSelectionLongPress,
+            longPressProjects = viewModel::longPressProjects
         )
     }
 }
@@ -106,7 +108,8 @@ fun HomeScreenContent(
     numberOfColumns: Int,
     refresh: () -> Unit,
     bottomSelection: (BottomSelection) -> Unit,
-    bottomSelectionLongPress: (BottomSelection) -> Unit
+    bottomSelectionLongPress: (BottomSelection) -> Unit,
+    longPressProjects: () -> Unit
 ) {
     val pullRefreshState = rememberPullRefreshState(refreshing, refresh)
 
@@ -173,6 +176,12 @@ fun HomeScreenContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp)
+                        .combinedClickable(
+                            onClick = { },
+                            onLongClick = {
+                                longPressProjects.invoke()
+                            },
+                        )
                 )
             }
             middle.forEach {
@@ -253,7 +262,8 @@ fun HomeScreenContentExpanded(
     bottom: HomeStateBottom,
     refresh: () -> Unit,
     bottomSelection: (BottomSelection) -> Unit,
-    bottomSelectionLongPress: (BottomSelection) -> Unit
+    bottomSelectionLongPress: (BottomSelection) -> Unit,
+    longPressProjects: () -> Unit
 ) {
     val pullRefreshState = rememberPullRefreshState(refreshing, refresh)
 
@@ -324,6 +334,12 @@ fun HomeScreenContentExpanded(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = 16.dp)
+                            .combinedClickable(
+                                onClick = { },
+                                onLongClick = {
+                                    longPressProjects.invoke()
+                                },
+                            )
                     )
                 }
                 middle.forEach {
@@ -481,7 +497,8 @@ fun HomeScreenPreview() {
                     refresh = {},
                     bottomSelection = {},
                     bottomSelectionLongPress = {},
-                    numberOfColumns = 2
+                    numberOfColumns = 2,
+                    longPressProjects = {}
                 )
             }
         }
@@ -505,7 +522,8 @@ fun HomeScreenContentExpandedPreview() {
                     goals = goals,
                     refresh = {},
                     bottomSelection = {},
-                    bottomSelectionLongPress = {}
+                    bottomSelectionLongPress = {},
+                    longPressProjects = {}
                 )
             }
         }
