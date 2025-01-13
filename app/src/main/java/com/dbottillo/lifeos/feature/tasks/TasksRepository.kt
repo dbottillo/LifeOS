@@ -3,7 +3,6 @@ package com.dbottillo.lifeos.feature.tasks
 import com.dbottillo.lifeos.data.AppConstant
 import com.dbottillo.lifeos.db.AppDatabase
 import com.dbottillo.lifeos.db.NotionEntry
-import com.dbottillo.lifeos.feature.home.HomeStorage
 import com.dbottillo.lifeos.feature.logs.LogLevel
 import com.dbottillo.lifeos.feature.logs.LogTags
 import com.dbottillo.lifeos.feature.logs.LogsRepository
@@ -21,27 +20,22 @@ import com.dbottillo.lifeos.notification.NotificationProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import java.time.Instant
 import java.time.LocalDate
-import java.time.OffsetDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 class TasksRepository @Inject constructor(
     private val api: ApiInterface,
-    private val storage: HomeStorage,
     private val notificationProvider: NotificationProvider,
     private val db: AppDatabase,
     private val mapper: TasksMapper,
     private val logsRepository: LogsRepository
 ) {
-
-    val state = MutableStateFlow<TasksState>(TasksState.Idle)
 
     private val dao by lazy { db.notionEntryDao() }
 
@@ -66,16 +60,15 @@ class TasksRepository @Inject constructor(
 
     suspend fun init() {
         updateFocusNotification()
-        storage.timestamp.first().let { state.emit(TasksState.Restored(it)) }
     }
 
-    suspend fun loadNextActions() {
+    suspend fun loadNextActions(): Result<Unit> {
         logsRepository.addEntry(
             LogTags.HOME_REFRESH,
             LogLevel.INFO,
             "load next actions"
         )
-        when (val nextActions = fetchFocusInboxBlocked()) {
+        return when (val nextActions = fetchFocusInboxBlocked()) {
             is ApiResult.Success -> {
                 storeAndNotify(nextActions.data)
                 logsRepository.addEntry(
@@ -83,45 +76,36 @@ class TasksRepository @Inject constructor(
                     LogLevel.INFO,
                     "successfully loaded next actions"
                 )
+                Result.success(Unit)
             }
 
             is ApiResult.Error -> {
-                state.emit(
-                    TasksState.Error(
-                        nextActions.exception.localizedMessage ?: "",
-                        storage.timestamp.first()
-                    )
-                )
                 logsRepository.addEntry(
                     LogTags.HOME_REFRESH,
                     LogLevel.ERROR,
                     nextActions.exception.localizedMessage ?: "no error message"
                 )
+                Result.failure(nextActions.exception)
             }
         }
     }
 
-    suspend fun loadStaticResources(resources: List<String>) {
+    suspend fun loadStaticResources(resources: List<String>): Result<Unit> {
         logsRepository.addEntry(
             LogTags.HOME_REFRESH,
             LogLevel.INFO,
             "load static resources"
         )
-        coroutineScope {
+        return coroutineScope {
             val pages = fetchNotionPages(StaticResourcesRequest().get(resources = resources))
             when (pages) {
                 is ApiResult.Error -> {
-                    state.emit(
-                        TasksState.Error(
-                            pages.exception.localizedMessage ?: "",
-                            storage.timestamp.first()
-                        )
-                    )
                     logsRepository.addEntry(
                         LogTags.HOME_REFRESH,
                         LogLevel.ERROR,
                         "failed to load $resources -> ${pages.exception}"
                     )
+                    Result.failure(pages.exception)
                 }
                 is ApiResult.Success -> {
                     val results = pages.data
@@ -132,6 +116,7 @@ class TasksRepository @Inject constructor(
                         LogLevel.INFO,
                         "successfully loaded $resources"
                     )
+                    Result.success(Unit)
                 }
             }
         }
@@ -149,7 +134,6 @@ class TasksRepository @Inject constructor(
     ) {
         dao.deleteAndSaveFocusInboxBlocked(result.map { it.toEntry() })
         updateFocusNotification()
-        state.emit(TasksState.Loaded(storage.timestamp.first()))
     }
 
     private suspend fun fetchNotionPages(request: NotionBodyRequest): ApiResult<List<NotionPage>> {
@@ -159,6 +143,7 @@ class TasksRepository @Inject constructor(
             nextRequest = when (val queryResult = networkRequest(nextRequest)) {
                 is ApiResult.Error -> return queryResult
                 is ApiResult.Success -> {
+                    result.addAll(queryResult.data.results)
                     result.addAll(queryResult.data.results)
                     if (queryResult.data.nextCursor != null) {
                         request.copy(
@@ -233,14 +218,6 @@ class TasksRepository @Inject constructor(
             notificationProvider.updateNextActions(titles)
         }
     }
-}
-
-sealed class TasksState {
-    data object Idle : TasksState()
-    data object Loading : TasksState()
-    data class Loaded(val timestamp: OffsetDateTime) : TasksState()
-    data class Error(val message: String, val timestamp: OffsetDateTime) : TasksState()
-    data class Restored(val timestamp: OffsetDateTime) : TasksState()
 }
 
 private fun NotionPage.toEntry() = NotionEntry(

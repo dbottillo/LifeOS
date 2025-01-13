@@ -1,26 +1,29 @@
-@file:Suppress("IMPLICIT_CAST_TO_ANY")
-
 package com.dbottillo.lifeos.feature.status
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.work.WorkInfo
 import com.dbottillo.lifeos.db.Log
-import com.dbottillo.lifeos.feature.home.HomeViewModel
-import com.dbottillo.lifeos.feature.tasks.TasksState
 import java.text.SimpleDateFormat
 import java.util.Date
 
@@ -28,14 +31,34 @@ import java.util.Date
 @Composable
 fun StatusScreen(
     navController: NavController,
-    viewModel: HomeViewModel,
+    viewModel: StatusViewModel,
     dateFormatter: SimpleDateFormat
 ) {
-    val state = viewModel.statusState.collectAsStateWithLifecycle()
+    val state = viewModel.state.collectAsStateWithLifecycle()
+
+    state.value.nonBlockingError?.let { error ->
+        Toast.makeText(LocalContext.current, error.message, Toast.LENGTH_SHORT).show()
+        viewModel.nonBlockingErrorShown()
+    }
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        val pagerState = rememberPagerState(
+            pageCount = { pages.size }
+        )
+        HorizontalPager(
+            modifier = Modifier.weight(1f),
+            state = pagerState
+        ) { pageIndex ->
+            when (pages[pageIndex]) {
+                Page.Logs -> LogList(state.value.logs, dateFormatter)
+                Page.Daily -> WorkManagerList("Daily", state.value.daily, dateFormatter)
+                Page.Periodic -> WorkManagerList("Periodic", state.value.periodic, dateFormatter)
+                Page.Articles -> WorkManagerList("Articles", state.value.articles, dateFormatter)
+            }
+        }
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -53,62 +76,91 @@ fun StatusScreen(
                 Text(text = "Stop")
             }
             Button(
-                onClick = { viewModel.clear() }
+                onClick = { viewModel.reloadAll() }
             ) {
-                Text(text = "Clear")
+                if (state.value.allLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.width(12.dp).align(Alignment.CenterVertically),
+                        color = MaterialTheme.colorScheme.secondary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    )
+                } else {
+                    Text(text = "All")
+                }
+            }
+            Button(
+                onClick = { viewModel.refreshWidget() }
+            ) {
+                Text(text = "Widget")
             }
         }
-        LazyColumn {
+    }
+}
+
+@Composable
+private fun LogList(logs: List<Log>, dateFormatter: SimpleDateFormat) {
+    LazyColumn {
+        item {
+            Text(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                text = "Logs",
+                style = MaterialTheme.typography.headlineSmall
+            )
+        }
+        if (logs.isEmpty()) {
             item {
                 Text(
                     modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                    text = when (val appState = state.value.tasksState) {
-                        is TasksState.Idle -> "AppState - Idle"
-                        is TasksState.Loading -> "AppState - Loading"
-                        is TasksState.Loaded -> "AppState - Success, last try:\n${appState.timestamp}"
-                        is TasksState.Error -> "AppState - Error ${appState.message}, last try: ${appState.timestamp}"
-                        is TasksState.Restored -> "AppState - Restored, last try:\n${appState.timestamp}"
-                    }
+                    text = "No logs info"
                 )
             }
-            if (state.value.workInfo.isEmpty()) {
-                item {
+        } else {
+            logs.forEach { log ->
+                item(key = log.id) {
                     Text(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        text = "No work info"
+                        text = log.prettyPrint(dateFormatter),
+                        color = when (log.level) {
+                            "info" -> Color.White
+                            "debug" -> Color.Yellow
+                            "error" -> Color.Red
+                            else -> Color.Black
+                        }
                     )
-                }
-            } else {
-                state.value.workInfo.forEach { workInfo ->
-                    item(key = workInfo.id) {
-                        Text(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                            text = workInfo.prettyPrint(dateFormatter)
-                        )
-                    }
                 }
             }
-            if (state.value.logs.isEmpty()) {
-                item {
+        }
+    }
+}
+
+@Composable
+private fun WorkManagerList(
+    type: String,
+    workInfo: List<WorkInfo>,
+    dateFormatter: SimpleDateFormat
+) {
+    LazyColumn {
+        item {
+            Text(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                text = "Work Info - $type",
+                style = MaterialTheme.typography.headlineSmall
+            )
+        }
+        if (workInfo.isEmpty()) {
+            item {
+                Text(
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    text = "No work info"
+                )
+            }
+        } else {
+            workInfo.forEach { workInfo ->
+                item(key = workInfo.id) {
                     Text(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        text = "No logs info"
+                        text = workInfo.prettyPrint(dateFormatter)
                     )
-                }
-            } else {
-                state.value.logs.forEach { log ->
-                    item(key = log.id) {
-                        Text(
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                            text = log.prettyPrint(dateFormatter),
-                            color = when (log.level) {
-                                "info" -> Color.White
-                                "debug" -> Color.Yellow
-                                "error" -> Color.Red
-                                else -> Color.Black
-                            }
-                        )
-                    }
                 }
             }
         }
@@ -132,3 +184,17 @@ private fun Log.prettyPrint(dateFormatter: SimpleDateFormat): String {
             "Message: ${this.message}\n" +
             "Created at: ${dateFormatter.format(Date(this.createdAt))}"
 }
+
+sealed class Page {
+    data object Logs : Page()
+    data object Daily : Page()
+    data object Periodic : Page()
+    data object Articles : Page()
+}
+
+val pages = listOf(
+    Page.Logs,
+    Page.Periodic,
+    Page.Daily,
+    Page.Articles
+)

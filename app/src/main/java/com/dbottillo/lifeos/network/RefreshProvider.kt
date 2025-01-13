@@ -7,5 +7,6 @@ interface RefreshProvider {
     fun start()
     fun stop()
     fun immediate()
-    fun workManagerStatus(): Flow<List<WorkInfo>>
+    fun periodicStatus(): Flow<List<WorkInfo>>
+    fun dailyStatus(): Flow<List<WorkInfo>>
 }

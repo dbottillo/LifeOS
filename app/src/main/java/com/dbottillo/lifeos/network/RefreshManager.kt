@@ -11,7 +11,6 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.merge
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -74,11 +73,12 @@ class RefreshManager @Inject constructor(
         workManager.enqueue(immediateDailyRequest)
     }
 
-    override fun workManagerStatus(): Flow<List<WorkInfo>> {
-        return merge(
-            workManager.getWorkInfosForUniqueWorkFlow(REFRESH_WORKER_PERIODIC_TAG),
-            workManager.getWorkInfosForUniqueWorkFlow(REFRESH_WORKER_DAILY_TAG)
-        )
+    override fun periodicStatus(): Flow<List<WorkInfo>> {
+        return workManager.getWorkInfosForUniqueWorkFlow(REFRESH_WORKER_PERIODIC_TAG)
+    }
+
+    override fun dailyStatus(): Flow<List<WorkInfo>> {
+        return workManager.getWorkInfosForUniqueWorkFlow(REFRESH_WORKER_DAILY_TAG)
     }
 }
 

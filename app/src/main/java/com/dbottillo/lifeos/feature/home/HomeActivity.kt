@@ -36,6 +36,7 @@ import com.dbottillo.lifeos.R
 import com.dbottillo.lifeos.data.AppConstant
 import com.dbottillo.lifeos.feature.articles.ArticlesScreen
 import com.dbottillo.lifeos.feature.status.StatusScreen
+import com.dbottillo.lifeos.feature.status.StatusViewModel
 import com.dbottillo.lifeos.ui.AppTheme
 import com.dbottillo.lifeos.util.openLink
 import dagger.hilt.android.AndroidEntryPoint
@@ -48,6 +49,7 @@ import java.util.Locale
 class HomeActivity : AppCompatActivity() {
 
     private val homeViewModel: HomeViewModel by viewModels()
+    private val statusViewModel: StatusViewModel by viewModels()
 
     private val dateFormatter = SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS", Locale.getDefault())
 
@@ -149,7 +151,7 @@ class HomeActivity : AppCompatActivity() {
                         composable(Screen.Status.route) {
                             StatusScreen(
                                 navController,
-                                homeViewModel,
+                                statusViewModel,
                                 dateFormatter
                             )
                         }

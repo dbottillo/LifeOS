@@ -1,6 +1,7 @@
 package com.dbottillo.lifeos.feature.home
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
@@ -51,6 +52,12 @@ const val CONTENT_TYPE_TITLE = "title"
 @Composable
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
     val state = viewModel.homeState.collectAsStateWithLifecycle()
+
+    state.value.nonBlockingError?.let { error ->
+        Toast.makeText(LocalContext.current, error.message, Toast.LENGTH_SHORT).show()
+        viewModel.nonBlockingErrorShown()
+    }
+
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
     if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
         HomeScreenContentExpanded(

@@ -3,13 +3,9 @@ package com.dbottillo.lifeos.feature.home
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.WorkInfo
 import com.dbottillo.lifeos.db.Article
-import com.dbottillo.lifeos.db.Log
-import com.dbottillo.lifeos.feature.articles.ArticleManager
 import com.dbottillo.lifeos.feature.articles.ArticleRepository
 import com.dbottillo.lifeos.feature.blocks.GoalsRepository
-import com.dbottillo.lifeos.feature.logs.LogsRepository
 import com.dbottillo.lifeos.feature.tasks.Area
 import com.dbottillo.lifeos.feature.tasks.Blocked
 import com.dbottillo.lifeos.feature.tasks.Focus
@@ -20,10 +16,9 @@ import com.dbottillo.lifeos.feature.tasks.Project
 import com.dbottillo.lifeos.feature.tasks.Resource
 import com.dbottillo.lifeos.feature.tasks.Status
 import com.dbottillo.lifeos.feature.tasks.TasksRepository
-import com.dbottillo.lifeos.feature.tasks.TasksState
 import com.dbottillo.lifeos.feature.widgets.WidgetsRefresher
-import com.dbottillo.lifeos.notification.NotificationProvider
 import com.dbottillo.lifeos.network.RefreshProvider
+import com.dbottillo.lifeos.util.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -31,18 +26,12 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.dbottillo.lifeos.util.combine
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val tasksRepository: TasksRepository,
     private val articleRepository: ArticleRepository,
-    private val notificationProvider: NotificationProvider,
     private val refreshProvider: RefreshProvider,
-    private val articleManager: ArticleManager,
-    private val logsRepository: LogsRepository,
     private val goalsRepository: GoalsRepository,
     private val widgetsRefresher: WidgetsRefresher
 ) : ViewModel() {
@@ -72,23 +61,12 @@ class HomeViewModel @Inject constructor(
         )
     )
 
-    val statusState = MutableStateFlow(
-        StatusScreenState(
-            tasksState = TasksState.Idle,
-            workInfo = emptyList(),
-            logs = emptyList()
-        )
-    )
-
     init {
         viewModelScope.launch {
             initHome()
         }
         viewModelScope.launch {
             initArticles()
-        }
-        viewModelScope.launch {
-            initStatus()
         }
     }
 
@@ -164,41 +142,13 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun initStatus() {
-        combine(
-            tasksRepository.state,
-            refreshProvider.workManagerStatus(),
-            articleManager.status(),
-            logsRepository.entries()
-        ) { appState, workManagerStatus, articleManagerStatus, logs ->
-            Triple(appState, logs, workManagerStatus to articleManagerStatus)
-        }.collectLatest {
-            statusState.value = statusState.first().copy(
-                tasksState = it.first,
-                workInfo = it.third.first + it.third.second.filter { it.state != WorkInfo.State.SUCCEEDED },
-                logs = it.second
-            )
-        }
-    }
-
     fun load() {
         refreshProvider.immediate()
-    }
-
-    fun stop() {
-        notificationProvider.clear()
-        refreshProvider.stop()
     }
 
     fun delete(article: Article) {
         viewModelScope.launch {
             articleRepository.deleteArticle(article)
-        }
-    }
-
-    fun clear() {
-        viewModelScope.launch {
-            articleManager.clear()
         }
     }
 
@@ -213,18 +163,21 @@ class HomeViewModel @Inject constructor(
             homeState.value = homeState.first().copy(
                 refreshing = true
             )
-            awaitAll(
-                async { tasksRepository.loadNextActions() },
-                async {
-                    tasksRepository.loadStaticResources(
-                        listOf("Project", "Area", "Goal", "Idea", "Resource")
+            val result = tasksRepository.loadNextActions()
+            when {
+                result.isFailure -> {
+                    homeState.value = homeState.first().copy(
+                        refreshing = false,
+                        nonBlockingError = result.exceptionOrNull()
                     )
                 }
-            )
-            widgetsRefresher.refreshAll()
-            homeState.value = homeState.first().copy(
-                refreshing = false
-            )
+                else -> {
+                    widgetsRefresher.refreshAll()
+                    homeState.value = homeState.first().copy(
+                        refreshing = false
+                    )
+                }
+            }
         }
     }
 
@@ -253,6 +206,14 @@ class HomeViewModel @Inject constructor(
             )
         }
     }
+
+    fun nonBlockingErrorShown() {
+        viewModelScope.launch {
+            homeState.value = homeState.first().copy(
+                nonBlockingError = null
+            )
+        }
+    }
 }
 
 data class HomeState(
@@ -263,6 +224,7 @@ data class HomeState(
     val projects: List<EntryContent>,
     val goals: List<EntryContent>,
     val others: HomeStateBottom,
+    val nonBlockingError: Throwable? = null
 )
 
 data class HomeStateBottom(
@@ -284,12 +246,6 @@ enum class BottomSelection {
 
 data class ArticleScreenState(
     val articles: Articles,
-)
-
-data class StatusScreenState(
-    val tasksState: TasksState,
-    val workInfo: List<WorkInfo>,
-    val logs: List<Log>
 )
 
 data class Articles(val inbox: List<Article>, val longRead: List<Article>)
