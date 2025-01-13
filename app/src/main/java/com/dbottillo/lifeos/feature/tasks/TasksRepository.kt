@@ -24,7 +24,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import java.time.Instant
-import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
@@ -45,8 +45,8 @@ class TasksRepository @Inject constructor(
             if (entry.due == null) {
                 true
             } else {
-                val today = LocalDate.now()
-                val date = entry.due.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+                val today = LocalDateTime.now()
+                val date = entry.due.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
                 date == today || date.isBefore(today)
             }
         }

@@ -75,16 +75,16 @@ fun StatusScreen(
             ) {
                 Text(text = "Stop")
             }
-            Button(
-                onClick = { viewModel.reloadAll() }
-            ) {
-                if (state.value.allLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.width(12.dp).align(Alignment.CenterVertically),
-                        color = MaterialTheme.colorScheme.secondary,
-                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                    )
-                } else {
+            if (state.value.allLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.width(54.dp).align(Alignment.CenterVertically),
+                    color = MaterialTheme.colorScheme.secondary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                )
+            } else {
+                Button(
+                    onClick = { viewModel.reloadAll() }
+                ) {
                     Text(text = "All")
                 }
             }
