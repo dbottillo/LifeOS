@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.RemoteViews
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
@@ -21,7 +22,9 @@ class NextActionsWidgetProvider : AppWidgetProvider() {
         appWidgetManager: AppWidgetManager,
         appWidgetIds: IntArray
     ) {
+        Log.e("TAG", "on update")
         appWidgetIds.forEach {
+            Log.e("TAG", "updating -> $it")
             updateAppWidget(context, appWidgetManager, it)
         }
         super.onUpdate(context, appWidgetManager, appWidgetIds)

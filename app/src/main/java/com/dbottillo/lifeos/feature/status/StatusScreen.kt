@@ -77,7 +77,7 @@ fun StatusScreen(
             }
             if (state.value.allLoading) {
                 CircularProgressIndicator(
-                    modifier = Modifier.width(54.dp).align(Alignment.CenterVertically),
+                    modifier = Modifier.width(48.dp).align(Alignment.CenterVertically),
                     color = MaterialTheme.colorScheme.secondary,
                     trackColor = MaterialTheme.colorScheme.surfaceVariant,
                 )

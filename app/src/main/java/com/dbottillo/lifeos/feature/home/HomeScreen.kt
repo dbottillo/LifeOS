@@ -424,7 +424,7 @@ fun HomeScreenContentExpanded(
 }
 
 @Composable
-private fun Entry(
+fun Entry(
     content: EntryContent,
     modifier: Modifier = Modifier
 ) {

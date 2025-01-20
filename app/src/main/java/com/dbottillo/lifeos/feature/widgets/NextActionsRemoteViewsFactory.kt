@@ -41,6 +41,7 @@ class NextActionsRemoteViewsFactory(
      */
 
     override fun onCreate() {
+        android.util.Log.e("TAG", "onCreate")
         initData()
     }
 
@@ -136,6 +137,7 @@ class NextActionsRemoteViewsFactory(
     override fun hasStableIds() = true
 
     private fun initData() {
+        android.util.Log.e("TAG", "init data")
         data.clear()
         runBlocking {
             val inbox = tasksRepository.inboxFlow.first()

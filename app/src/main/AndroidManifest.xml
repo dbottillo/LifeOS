@@ -70,6 +70,16 @@
                 android:resource="@xml/goals_widget_info" />
         </receiver>
 
+        <receiver android:name=".feature.widgets.OverviewWidgetReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/overview_widget_info" />
+        </receiver>
+
         <service android:name=".feature.widgets.NextActionsWidgetService"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
     </application>
