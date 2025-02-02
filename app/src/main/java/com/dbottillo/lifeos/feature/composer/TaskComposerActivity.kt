@@ -2,17 +2,23 @@ package com.dbottillo.lifeos.feature.composer
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Patterns
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -55,6 +61,8 @@ class TaskComposerActivity : AppCompatActivity() {
             AppTheme {
                 TaskComposerScreen(
                     state = state.value,
+                    onTitleChange = viewModel::onTitleChange,
+                    onUrlChange = viewModel::onUrlChange,
                     saveArticle = viewModel::saveArticle,
                     saveLifeOs = viewModel::saveLifeOs
                 )
@@ -67,6 +75,8 @@ class TaskComposerActivity : AppCompatActivity() {
 @Composable
 fun TaskComposerScreen(
     state: ComposerState,
+    onTitleChange: (String) -> Unit = {},
+    onUrlChange: (String) -> Unit = {},
     saveArticle: () -> Unit,
     saveLifeOs: () -> Unit,
 ) {
@@ -77,19 +87,27 @@ fun TaskComposerScreen(
             )
         }
     ) {
-        Column(modifier = Modifier.padding(it)) {
-            Text(
-                modifier = Modifier.padding(top = 24.dp, start = 16.dp),
-                text = "Url: ${state.url}"
-            )
-            Text(
-                modifier = Modifier.padding(top = 24.dp, start = 16.dp),
-                text = "Sanitized Url: ${state.sanitizedUrl}"
-            )
-            Text(
-                modifier = Modifier.padding(top = 24.dp, start = 16.dp),
-                text = "Title: ${state.title}"
-            )
+        Column(
+            modifier = Modifier.padding(it)
+        ) {
+            Column(
+                modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = state.title,
+                    onValueChange = onTitleChange,
+                    label = { Text("Title") }
+                )
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = state.sanitizedUrl ?: "",
+                    onValueChange = onUrlChange,
+                    label = { Text("Url") }
+                )
+
+            }
             Spacer(modifier = Modifier.weight(1f))
             Row(
                 modifier = Modifier
@@ -100,7 +118,7 @@ fun TaskComposerScreen(
                 Button(
                     modifier = Modifier.padding(top = 24.dp),
                     onClick = { saveArticle() },
-                    enabled = state.sanitizedUrl != null
+                    enabled = state.validUrl
                 ) {
                     Text(text = "Article")
                 }

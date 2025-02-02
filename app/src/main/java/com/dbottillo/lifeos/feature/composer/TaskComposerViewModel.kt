@@ -1,5 +1,6 @@
 package com.dbottillo.lifeos.feature.composer
 
+import android.util.Patterns
 import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -41,8 +42,24 @@ class TaskComposerViewModel @Inject constructor(
     fun init(url: String?, title: String?) {
         viewModelScope.launch {
             state.value = state.first().copy(
-                url = url,
+                url = url ?: "",
                 title = title ?: ""
+            )
+        }
+    }
+
+    fun onTitleChange(newTitle: String) {
+        viewModelScope.launch {
+            state.value = state.first().copy(
+                title = newTitle
+            )
+        }
+    }
+
+    fun onUrlChange(newUrl: String) {
+        viewModelScope.launch {
+            state.value = state.first().copy(
+                url = newUrl
             )
         }
     }
@@ -50,9 +67,10 @@ class TaskComposerViewModel @Inject constructor(
 
 data class ComposerState(
     val title: String = "",
-    val url: String? = null
+    val url: String = ""
 ) {
-    val sanitizedUrl = url?.split("?")?.first()
+    val sanitizedUrl = url.split("?").first()
+    val validUrl = Patterns.WEB_URL.matcher(sanitizedUrl).matches()
 }
 
 
