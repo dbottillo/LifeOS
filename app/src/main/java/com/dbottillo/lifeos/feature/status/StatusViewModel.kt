@@ -97,7 +97,9 @@ class StatusViewModel @Inject constructor(
     }
 
     fun refreshWidget() {
-        widgetsRefresher.refreshAll()
+        viewModelScope.launch {
+            widgetsRefresher.refreshAll()
+        }
     }
 
     fun nonBlockingErrorShown() {

@@ -9,6 +9,7 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import androidx.work.WorkQuery
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import java.util.concurrent.TimeUnit
@@ -74,11 +75,11 @@ class RefreshManager @Inject constructor(
     }
 
     override fun periodicStatus(): Flow<List<WorkInfo>> {
-        return workManager.getWorkInfosForUniqueWorkFlow(REFRESH_WORKER_PERIODIC_TAG)
+        return workManager.getWorkInfosFlow(WorkQuery.fromUniqueWorkNames(REFRESH_WORKER_PERIODIC_TAG))
     }
 
     override fun dailyStatus(): Flow<List<WorkInfo>> {
-        return workManager.getWorkInfosForUniqueWorkFlow(REFRESH_WORKER_DAILY_TAG)
+        return workManager.getWorkInfosFlow(WorkQuery.fromUniqueWorkNames(REFRESH_WORKER_DAILY_TAG))
     }
 }
 

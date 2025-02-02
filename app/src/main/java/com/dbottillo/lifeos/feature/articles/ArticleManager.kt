@@ -9,6 +9,7 @@ import androidx.work.Operation
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import androidx.work.WorkQuery
 import androidx.work.workDataOf
 import com.dbottillo.lifeos.db.Article
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -87,7 +88,7 @@ class ArticleManager @Inject constructor(
     }
 
     fun status(): Flow<List<WorkInfo>> {
-        return workManager.getWorkInfosByTagFlow(ARTICLE_WORKER_TAG)
+        return workManager.getWorkInfosFlow(WorkQuery.fromTags(ARTICLE_WORKER_TAG))
     }
 
     fun clear() {

@@ -18,7 +18,7 @@ import kotlinx.coroutines.withContext
 
 @HiltWorker
 class RefreshWorker @AssistedInject constructor(
-    @Assisted appContext: Context,
+    @Assisted private val appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val tasksRepository: TasksRepository,
     private val articleRepository: ArticleRepository,
