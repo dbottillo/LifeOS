@@ -29,13 +29,12 @@ class AddTaskWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
             val title = inputData.getString(ADD_PAGE_TITLE) ?: ""
-            val url =
-                inputData.getString(ADD_PAGE_URL) ?: return@withContext Result.failure()
+            val url = inputData.getString(ADD_PAGE_URL)
             val id = inputData.getInt(ADD_PAGE_ID, -1)
             notificationManager.sendOrUpdateInfoNotification(
                 id = id,
                 title = "[Uploading] Task with title: $title",
-                text = url
+                text = url ?: "no url"
             )
             logsRepository.addEntry(
                 tag = LogTags.ADD_TASK_WORKER,
@@ -52,7 +51,7 @@ class AddTaskWorker @AssistedInject constructor(
                 notificationManager.sendOrUpdateInfoNotification(
                     id = id,
                     title = "[Created] Task with title: $title",
-                    text = url
+                    text = url ?: "no url"
                 )
                 return@withContext Result.success()
             }
@@ -65,14 +64,14 @@ class AddTaskWorker @AssistedInject constructor(
                 notificationManager.sendOrUpdateInfoNotification(
                     id = id,
                     title = "[Failed] Task with title: $title",
-                    text = url
+                    text = url ?: "no url"
                 )
                 Result.success()
             } else {
                 notificationManager.sendOrUpdateInfoNotification(
                     id = id,
                     title = "[Retrying] Task with title: $title",
-                    text = url
+                    text = url ?: "no url"
                 )
                 Result.retry()
             }

@@ -1,4 +1,4 @@
-package com.dbottillo.lifeos.sharing
+package com.dbottillo.lifeos.feature.composer
 
 import android.content.Intent
 import android.os.Bundle
@@ -17,10 +17,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import com.dbottillo.lifeos.ui.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,47 +30,46 @@ import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class ShareLinkActivity : AppCompatActivity() {
+class TaskComposerActivity : AppCompatActivity() {
 
-    private val viewModel: SharingViewModel by viewModels()
+    private val viewModel: TaskComposerViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         lifecycleScope.launch {
             viewModel.events.consumeEach {
-                if (it) finish()
+                when(it){
+                    ComposerEvents.Finish -> finish()
+                }
             }
         }
 
-        val url = intent.getStringExtra(Intent.EXTRA_TEXT)
-        if (intent.action.equals(Intent.ACTION_SEND) && url != null) {
-            val title = intent.getStringExtra(Intent.EXTRA_SUBJECT)
-            setContent {
-                AppTheme {
-                    ShareLinkScreen(
-                        url = url,
-                        title = title,
-                        saveArticle = viewModel::saveArticle,
-                        saveLifeOs = viewModel::saveLifeOs
-                    )
-                }
+        viewModel.init(
+            url =  intent.getStringExtra(Intent.EXTRA_TEXT),
+            title = intent.getStringExtra(Intent.EXTRA_SUBJECT)
+        )
+
+        setContent {
+            val state = viewModel.state.collectAsStateWithLifecycle()
+            AppTheme {
+                TaskComposerScreen(
+                    state = state.value,
+                    saveArticle = viewModel::saveArticle,
+                    saveLifeOs = viewModel::saveLifeOs
+                )
             }
-        } else {
-            finish()
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShareLinkScreen(
-    url: String,
-    title: String?,
-    saveArticle: (String, String?) -> Unit,
-    saveLifeOs: (String, String?) -> Unit
+fun TaskComposerScreen(
+    state: ComposerState,
+    saveArticle: () -> Unit,
+    saveLifeOs: () -> Unit,
 ) {
-    val sanitizedUrl = remember { url.split("?").first() }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -79,15 +80,15 @@ fun ShareLinkScreen(
         Column(modifier = Modifier.padding(it)) {
             Text(
                 modifier = Modifier.padding(top = 24.dp, start = 16.dp),
-                text = "Url: $url"
+                text = "Url: ${state.url}"
             )
             Text(
                 modifier = Modifier.padding(top = 24.dp, start = 16.dp),
-                text = "Sanitized Url: $sanitizedUrl"
+                text = "Sanitized Url: ${state.sanitizedUrl}"
             )
             Text(
                 modifier = Modifier.padding(top = 24.dp, start = 16.dp),
-                text = "Title: $title"
+                text = "Title: ${state.title}"
             )
             Spacer(modifier = Modifier.weight(1f))
             Row(
@@ -98,13 +99,14 @@ fun ShareLinkScreen(
             ) {
                 Button(
                     modifier = Modifier.padding(top = 24.dp),
-                    onClick = { saveArticle(sanitizedUrl, title) }
+                    onClick = { saveArticle() },
+                    enabled = state.sanitizedUrl != null
                 ) {
                     Text(text = "Article")
                 }
                 Button(
                     modifier = Modifier.padding(top = 24.dp),
-                    onClick = { saveLifeOs(sanitizedUrl, title) }
+                    onClick = { saveLifeOs() }
                 ) {
                     Text(text = "Life Os")
                 }
@@ -117,11 +119,13 @@ fun ShareLinkScreen(
 @Composable
 fun ShareScreenPreview() {
     AppTheme {
-        ShareLinkScreen(
-            url = "https://www.google.com",
-            title = "Google",
-            saveArticle = { _, _ -> },
-            saveLifeOs = { _, _ -> },
+        TaskComposerScreen(
+            state = ComposerState(
+                url = "https://www.google.com",
+                title = "Google",
+            ),
+            saveArticle = { },
+            saveLifeOs = { },
         )
     }
 }

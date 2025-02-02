@@ -40,7 +40,7 @@ class HomeViewModel @Inject constructor(
         BottomSelection.IDEAS
     )
 
-    val homeState = MutableStateFlow(
+        val homeState = MutableStateFlow(
         HomeState(
             refreshing = false,
             inbox = emptyList(),

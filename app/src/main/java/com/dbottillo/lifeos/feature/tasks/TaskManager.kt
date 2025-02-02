@@ -25,7 +25,7 @@ class TaskManager @Inject constructor(
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .build()
 
-    fun addTask(title: String?, url: String): Operation {
+    fun addTask(title: String?, url: String?): Operation {
         val request = OneTimeWorkRequestBuilder<AddTaskWorker>()
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .addTag(TASK_WORKER_TAG)
