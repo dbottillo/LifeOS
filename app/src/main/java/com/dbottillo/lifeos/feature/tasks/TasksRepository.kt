@@ -174,9 +174,9 @@ class TasksRepository @Inject constructor(
         }
     }
 
-    suspend fun addTask(databaseId: String, title: String?, url: String?): ApiResult<Unit> {
+    suspend fun addTask(databaseId: String, title: String?, url: String): ApiResult<Unit> {
         return try {
-            val properties =  mutableMapOf(
+            val properties = mutableMapOf(
                 "Name" to AddPageNotionProperty(
                     title = listOf(
                         AddPageNotionPropertyTitle(
@@ -185,28 +185,17 @@ class TasksRepository @Inject constructor(
                     )
                 )
             )
-            url?.let {
-                properties.put("URL",AddPageNotionProperty(
+            if (url.isNotEmpty()) {
+                properties["URL"] = AddPageNotionProperty(
                     url = url
-                ))
+                )
             }
             val request = AddPageNotionBodyRequest(
                 parent = AddPageNotionBodyRequestParent(
                     type = "database_id",
                     databaseId = databaseId
                 ),
-                properties = mapOf(
-                    "Name" to AddPageNotionProperty(
-                        title = listOf(
-                            AddPageNotionPropertyTitle(
-                                AddPageNotionPropertyText(content = title)
-                            )
-                        )
-                    ),
-                    "URL" to AddPageNotionProperty(
-                        url = url
-                    )
-                )
+                properties = properties
             )
             val response = api.addPage(body = request)
             if (response.isSuccessful) {

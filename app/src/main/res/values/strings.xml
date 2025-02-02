@@ -24,4 +24,7 @@
     <string name="notion_widget_focus_title">Focus</string>
     <string name="notion_widget_ideas_title">Ideas</string>
     <string name="notion_widget_blocked_title">Blocked</string>
+    <string name="open_composer_short">Add new</string>
+    <string name="open_composer_long">Add new task or article</string>
+    <string name="open_composer_disable">Can\'t add task</string>
 </resources>

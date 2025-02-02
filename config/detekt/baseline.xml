@@ -5,6 +5,7 @@
     <ID>LongMethod:AddTaskWorker.kt$AddTaskWorker$@Suppress("SwallowedException", "TooGenericExceptionCaught") override suspend fun doWork(): Result</ID>
     <ID>LongMethod:OverviewWidgetReceiver.kt$@Composable fun EntryWidget( content: EntryContent, )</ID>
     <ID>LongMethod:OverviewWidgetReceiver.kt$OverviewWidget$@Composable fun OverviewAppWidgetContent( inbox: List&lt;Inbox&gt;, focus: List&lt;Focus&gt;, blocked: List&lt;Blocked&gt; )</ID>
+    <ID>LongMethod:TaskComposerActivity.kt$@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class) @Composable fun TaskComposerScreen( state: ComposerState, onTitleChange: (String) -&gt; Unit = {}, onUrlChange: (String) -&gt; Unit = {}, saveArticle: () -&gt; Unit, saveLifeOs: () -&gt; Unit, )</ID>
     <ID>LongParameterList:HomeScreen.kt$( refreshing: Boolean, inbox: List&lt;EntryContent&gt;, top: List&lt;EntryContent&gt;, blocked: List&lt;EntryContent&gt;, middle: List&lt;EntryContent&gt;, goals: List&lt;EntryContent&gt;, bottom: HomeStateBottom, refresh: () -&gt; Unit, bottomSelection: (BottomSelection) -&gt; Unit, bottomSelectionDoubleTap: (BottomSelection) -&gt; Unit, longPressProjects: () -&gt; Unit )</ID>
     <ID>MagicNumber:AppDatabase.kt$&lt;no name provided&gt;$6</ID>
     <ID>MagicNumber:AppDatabase.kt$&lt;no name provided&gt;$7</ID>
@@ -15,7 +16,7 @@
     <ID>MagicNumber:HomeViewModel.kt$100</ID>
     <ID>MagicNumber:NextActionsRemoteViewsFactory.kt$NextActionsRemoteViewsFactory$10</ID>
     <ID>MagicNumber:RefreshManager.kt$RefreshManager$10L</ID>
-    <ID>MagicNumber:build.gradle.kts$13</ID>
+    <ID>MagicNumber:build.gradle.kts$14</ID>
     <ID>MagicNumber:build.gradle.kts$28</ID>
     <ID>MagicNumber:build.gradle.kts$35</ID>
     <ID>MaxLineLength:HomeScreen.kt$style = if (!selection.selected) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleSmall</ID>

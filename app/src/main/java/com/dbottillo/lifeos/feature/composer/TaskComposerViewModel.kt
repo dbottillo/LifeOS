@@ -1,13 +1,9 @@
 package com.dbottillo.lifeos.feature.composer
 
 import android.util.Patterns
-import androidx.compose.runtime.remember
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.dbottillo.lifeos.feature.articles.ArticleManager
-import com.dbottillo.lifeos.feature.home.EntryContent
-import com.dbottillo.lifeos.feature.home.HomeStateBottom
 import com.dbottillo.lifeos.feature.tasks.TaskManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
@@ -29,7 +25,7 @@ class TaskComposerViewModel @Inject constructor(
     )
 
     fun saveArticle() {
-        val url = state.value.sanitizedUrl ?: return
+        val url = state.value.sanitizedUrl
         articleManager.addArticle(title = state.value.title, url = url)
         events.trySend(ComposerEvents.Finish)
     }
@@ -73,7 +69,6 @@ data class ComposerState(
     val validUrl = Patterns.WEB_URL.matcher(sanitizedUrl).matches()
 }
 
-
-sealed class ComposerEvents{
-    data object Finish: ComposerEvents()
+sealed class ComposerEvents {
+    data object Finish : ComposerEvents()
 }

@@ -2,29 +2,29 @@ package com.dbottillo.lifeos.feature.composer
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Patterns
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.gestures.rememberScrollableState
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -43,16 +43,18 @@ class TaskComposerActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        enableEdgeToEdge()
+
         lifecycleScope.launch {
             viewModel.events.consumeEach {
-                when(it){
+                when (it) {
                     ComposerEvents.Finish -> finish()
                 }
             }
         }
 
         viewModel.init(
-            url =  intent.getStringExtra(Intent.EXTRA_TEXT),
+            url = intent.getStringExtra(Intent.EXTRA_TEXT),
             title = intent.getStringExtra(Intent.EXTRA_SUBJECT)
         )
 
@@ -71,7 +73,7 @@ class TaskComposerActivity : AppCompatActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun TaskComposerScreen(
     state: ComposerState,
@@ -88,10 +90,15 @@ fun TaskComposerScreen(
         }
     ) {
         Column(
-            modifier = Modifier.padding(it)
+            modifier = Modifier
+                .consumeWindowInsets(it)
+                .padding(it)
+                .safeDrawingPadding(),
         ) {
             Column(
-                modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 16.dp),
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 OutlinedTextField(
@@ -100,13 +107,21 @@ fun TaskComposerScreen(
                     onValueChange = onTitleChange,
                     label = { Text("Title") }
                 )
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = state.sanitizedUrl ?: "",
-                    onValueChange = onUrlChange,
-                    label = { Text("Url") }
-                )
-
+                Column {
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = state.sanitizedUrl,
+                        onValueChange = onUrlChange,
+                        label = { Text("Url") }
+                    )
+                    if (state.url != state.sanitizedUrl) {
+                        Text(
+                            text = "Original url: ${state.url}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.secondary,
+                        )
+                    }
+                }
             }
             Spacer(modifier = Modifier.weight(1f))
             Row(
@@ -117,16 +132,16 @@ fun TaskComposerScreen(
             ) {
                 Button(
                     modifier = Modifier.padding(top = 24.dp),
+                    onClick = { saveLifeOs() }
+                ) {
+                    Text(text = "Task")
+                }
+                Button(
+                    modifier = Modifier.padding(top = 24.dp),
                     onClick = { saveArticle() },
                     enabled = state.validUrl
                 ) {
                     Text(text = "Article")
-                }
-                Button(
-                    modifier = Modifier.padding(top = 24.dp),
-                    onClick = { saveLifeOs() }
-                ) {
-                    Text(text = "Life Os")
                 }
             }
         }
@@ -139,7 +154,7 @@ fun ShareScreenPreview() {
     AppTheme {
         TaskComposerScreen(
             state = ComposerState(
-                url = "https://www.google.com",
+                url = "https://www.google.com?abc=def",
                 title = "Google",
             ),
             saveArticle = { },
