@@ -46,17 +46,9 @@
             android:authorities="${applicationId}.androidx-startup"
             tools:node="remove"/>
 
-        <receiver android:name=".feature.widgets.NextActionsWidgetProvider"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data android:name="android.appwidget.provider"
-                android:resource="@xml/next_actions_widget" />
-        </receiver>
-
         <receiver android:name=".feature.widgets.ArticlesWidgetProvider"
-            android:exported="true">
+            android:exported="true"
+            android:label="Articles">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -65,7 +57,8 @@
         </receiver>
 
         <receiver android:name=".feature.widgets.GoalsWidgetReceiver"
-            android:exported="true">
+            android:exported="true"
+            android:label="Goals">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -75,7 +68,8 @@
         </receiver>
 
         <receiver android:name=".feature.widgets.OverviewWidgetReceiver"
-            android:exported="true">
+            android:exported="true"
+            android:label="Overview">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -84,8 +78,6 @@
                 android:resource="@xml/overview_widget_info" />
         </receiver>
 
-        <service android:name=".feature.widgets.NextActionsWidgetService"
-            android:permission="android.permission.BIND_REMOTEVIEWS" />
     </application>
 
     <queries>

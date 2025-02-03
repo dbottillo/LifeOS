@@ -14,9 +14,8 @@
     <ID>MagicNumber:DailyRefreshWorker.kt$DailyRefreshWorker$3</ID>
     <ID>MagicNumber:HomeScreen.kt$0.5f</ID>
     <ID>MagicNumber:HomeViewModel.kt$100</ID>
-    <ID>MagicNumber:NextActionsRemoteViewsFactory.kt$NextActionsRemoteViewsFactory$10</ID>
     <ID>MagicNumber:RefreshManager.kt$RefreshManager$10L</ID>
-    <ID>MagicNumber:build.gradle.kts$15</ID>
+    <ID>MagicNumber:build.gradle.kts$16</ID>
     <ID>MagicNumber:build.gradle.kts$28</ID>
     <ID>MagicNumber:build.gradle.kts$35</ID>
     <ID>MaxLineLength:HomeScreen.kt$style = if (!selection.selected) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleSmall</ID>

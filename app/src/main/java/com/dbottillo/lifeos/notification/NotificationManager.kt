@@ -5,8 +5,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
-import android.appwidget.AppWidgetManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -15,7 +13,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.dbottillo.lifeos.R
-import com.dbottillo.lifeos.feature.widgets.NextActionsWidgetProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -61,15 +58,6 @@ class NotificationManager @Inject constructor(
                 ).build()
             )
         }
-        updateWidgets()
-    }
-
-    private fun updateWidgets() {
-        val appWidgetManager = AppWidgetManager.getInstance(context)
-        val appWidgetIds = appWidgetManager.getAppWidgetIds(
-            ComponentName(context, NextActionsWidgetProvider::class.java)
-        )
-        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.widget_next_actions)
     }
 
     override fun clear() {

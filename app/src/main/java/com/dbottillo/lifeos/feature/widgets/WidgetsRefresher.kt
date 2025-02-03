@@ -4,7 +4,7 @@ import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import androidx.glance.appwidget.GlanceAppWidgetManager
+import androidx.glance.appwidget.updateAll
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -24,12 +24,6 @@ class WidgetsRefresher @Inject constructor(
         )
         articlesIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, articlesIds)
         context.sendBroadcast(articlesIntent)
-
-        val manager = GlanceAppWidgetManager(context)
-        val widget = OverviewWidget()
-        val glanceIds = manager.getGlanceIds(widget.javaClass)
-        glanceIds.forEach { glanceId ->
-            widget.update(context, glanceId)
-        }
+        OverviewWidget().updateAll(context)
     }
 }
