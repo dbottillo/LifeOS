@@ -1,5 +1,6 @@
 package com.dbottillo.lifeos.feature.tasks
 
+import android.annotation.SuppressLint
 import com.dbottillo.lifeos.data.AppConstant
 import com.dbottillo.lifeos.db.AppDatabase
 import com.dbottillo.lifeos.db.NotionEntry
@@ -9,6 +10,7 @@ import com.dbottillo.lifeos.feature.logs.LogsRepository
 import com.dbottillo.lifeos.network.AddPageNotionBodyRequest
 import com.dbottillo.lifeos.network.AddPageNotionBodyRequestParent
 import com.dbottillo.lifeos.network.AddPageNotionProperty
+import com.dbottillo.lifeos.network.AddPageNotionPropertyDate
 import com.dbottillo.lifeos.network.AddPageNotionPropertySelect
 import com.dbottillo.lifeos.network.AddPageNotionPropertyText
 import com.dbottillo.lifeos.network.AddPageNotionPropertyTitle
@@ -24,10 +26,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 class TasksRepository @Inject constructor(
@@ -180,7 +185,8 @@ class TasksRepository @Inject constructor(
         title: String?,
         url: String,
         type: String?,
-        status: String?
+        status: String?,
+        due: Long? = null
     ): ApiResult<Unit> {
         return try {
             val properties = mutableMapOf(
@@ -208,6 +214,14 @@ class TasksRepository @Inject constructor(
                 properties["Status"] = AddPageNotionProperty(
                     status = AddPageNotionPropertySelect(
                         name = status
+                    )
+                )
+            }
+            if (due != null && due > -1) {
+                val date = dateFormat.format(Date(due))
+                properties["Due"] = AddPageNotionProperty(
+                    date = AddPageNotionPropertyDate(
+                        start = date
                     )
                 )
             }
@@ -271,3 +285,6 @@ fun String.mapColor(): String {
         else -> "gray"
     }
 }
+
+@SuppressLint("ConstantLocale")
+val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())

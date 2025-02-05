@@ -29,7 +29,8 @@ class TaskManager @Inject constructor(
         title: String?,
         url: String?,
         type: String,
-        status: String
+        status: String,
+        due: Long?
     ): Operation {
         val request = OneTimeWorkRequestBuilder<AddTaskWorker>()
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
@@ -40,7 +41,8 @@ class TaskManager @Inject constructor(
                     ADD_PAGE_URL to url,
                     ADD_PAGE_ID to Random.nextInt(),
                     ADD_PAGE_TYPE to type,
-                    ADD_PAGE_STATUS to status
+                    ADD_PAGE_STATUS to status,
+                    ADD_PAGE_DUE to due
                 )
             )
             .setBackoffCriteria(
@@ -59,4 +61,5 @@ internal const val ADD_PAGE_TITLE = "title"
 internal const val ADD_PAGE_URL = "url"
 internal const val ADD_PAGE_TYPE = "type"
 internal const val ADD_PAGE_STATUS = "status"
+internal const val ADD_PAGE_DUE = "due"
 internal const val ADD_PAGE_ID = "uuid"

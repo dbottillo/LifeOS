@@ -144,6 +144,7 @@ data class AddPageNotionProperty(
     val url: String? = null,
     val select: AddPageNotionPropertySelect? = null,
     val status: AddPageNotionPropertySelect? = null,
+    val date: AddPageNotionPropertyDate? = null,
 )
 
 @JsonClass(generateAdapter = true)
@@ -159,6 +160,11 @@ data class AddPageNotionPropertyTitle(
 @JsonClass(generateAdapter = true)
 data class AddPageNotionPropertySelect(
     val name: String
+)
+
+@JsonClass(generateAdapter = true)
+data class AddPageNotionPropertyDate(
+    val start: String
 )
 
 @JsonClass(generateAdapter = true)

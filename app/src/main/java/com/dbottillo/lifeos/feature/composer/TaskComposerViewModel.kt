@@ -1,5 +1,6 @@
 package com.dbottillo.lifeos.feature.composer
 
+import android.annotation.SuppressLint
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +11,9 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,7 +39,8 @@ class TaskComposerViewModel @Inject constructor(
             title = state.value.title,
             url = state.value.sanitizedUrl,
             type = state.value.typeSelection,
-            status = state.value.statusSelection
+            status = state.value.statusSelection,
+            due = state.value.selectedDueDate
         )
         events.trySend(ComposerEvents.Finish)
     }
@@ -80,6 +85,31 @@ class TaskComposerViewModel @Inject constructor(
             )
         }
     }
+
+    fun onSelectDate() {
+        viewModelScope.launch {
+            state.value = state.first().copy(
+                showDueDatePicker = true
+            )
+        }
+    }
+
+    fun onDateSelected(newDate: Long?) {
+        viewModelScope.launch {
+            state.value = state.first().copy(
+                selectedDueDate = newDate,
+                showDueDatePicker = false
+            )
+        }
+    }
+
+    fun onDateSelectionDismiss() {
+        viewModelScope.launch {
+            state.value = state.first().copy(
+                showDueDatePicker = false
+            )
+        }
+    }
 }
 
 data class ComposerState(
@@ -105,11 +135,18 @@ data class ComposerState(
         "Archive",
         "Done"
     ),
+    val showDueDatePicker: Boolean = false,
+    val selectedDueDate: Long? = null,
 ) {
     val sanitizedUrl = url.split("?").first()
     val saveArticleEnabled = Patterns.WEB_URL.matcher(sanitizedUrl).matches() && url.isNotEmpty() &&
             typeSelection != "None" && statusSelection != "None"
+
+    val formattedDate = selectedDueDate?.let { formatter.format(Date(selectedDueDate)) }
 }
+
+@SuppressLint("ConstantLocale")
+val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
 
 sealed class ComposerEvents {
     data object Finish : ComposerEvents()
