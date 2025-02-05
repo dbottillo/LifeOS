@@ -141,7 +141,9 @@ data class AddPageNotionBodyRequestParent(
 data class AddPageNotionProperty(
     @Json(name = "rich_text") val richText: List<AddPageNotionPropertyRichText>? = null,
     val title: List<AddPageNotionPropertyTitle>? = null,
-    val url: String? = null
+    val url: String? = null,
+    val select: AddPageNotionPropertySelect? = null,
+    val status: AddPageNotionPropertySelect? = null,
 )
 
 @JsonClass(generateAdapter = true)
@@ -152,6 +154,11 @@ data class AddPageNotionPropertyRichText(
 @JsonClass(generateAdapter = true)
 data class AddPageNotionPropertyTitle(
     val text: AddPageNotionPropertyText
+)
+
+@JsonClass(generateAdapter = true)
+data class AddPageNotionPropertySelect(
+    val name: String
 )
 
 @JsonClass(generateAdapter = true)

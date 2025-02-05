@@ -31,6 +31,8 @@ class AddTaskWorker @AssistedInject constructor(
             val title = inputData.getString(ADD_PAGE_TITLE) ?: ""
             val url = inputData.getString(ADD_PAGE_URL) ?: ""
             val id = inputData.getInt(ADD_PAGE_ID, -1)
+            val type = inputData.getString(ADD_PAGE_TYPE)
+            val status = inputData.getString(ADD_PAGE_STATUS)
             notificationManager.sendOrUpdateInfoNotification(
                 id = id,
                 title = "[Uploading] Task with title: $title",
@@ -41,7 +43,13 @@ class AddTaskWorker @AssistedInject constructor(
                 level = LogLevel.INFO,
                 message = "Adding [$title] for url: $url"
             )
-            val result = tasksRepository.addTask(AppConstant.GTD_ONE_DATABASE_ID, title, url)
+            val result = tasksRepository.addTask(
+                databaseId = AppConstant.GTD_ONE_DATABASE_ID,
+                title = title,
+                url = url,
+                type = type,
+                status = status
+            )
             if (result is ApiResult.Success) {
                 logsRepository.addEntry(
                     tag = LogTags.ADD_TASK_WORKER,

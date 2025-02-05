@@ -25,7 +25,12 @@ class TaskManager @Inject constructor(
         .setRequiredNetworkType(NetworkType.CONNECTED)
         .build()
 
-    fun addTask(title: String?, url: String?): Operation {
+    fun addTask(
+        title: String?,
+        url: String?,
+        type: String,
+        status: String
+    ): Operation {
         val request = OneTimeWorkRequestBuilder<AddTaskWorker>()
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .addTag(TASK_WORKER_TAG)
@@ -33,7 +38,9 @@ class TaskManager @Inject constructor(
                 workDataOf(
                     ADD_PAGE_TITLE to title,
                     ADD_PAGE_URL to url,
-                    ADD_PAGE_ID to Random.nextInt()
+                    ADD_PAGE_ID to Random.nextInt(),
+                    ADD_PAGE_TYPE to type,
+                    ADD_PAGE_STATUS to status
                 )
             )
             .setBackoffCriteria(
@@ -50,4 +57,6 @@ class TaskManager @Inject constructor(
 private const val TASK_WORKER_TAG = "task"
 internal const val ADD_PAGE_TITLE = "title"
 internal const val ADD_PAGE_URL = "url"
+internal const val ADD_PAGE_TYPE = "type"
+internal const val ADD_PAGE_STATUS = "status"
 internal const val ADD_PAGE_ID = "uuid"

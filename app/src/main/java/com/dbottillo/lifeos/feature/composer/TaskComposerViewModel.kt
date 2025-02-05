@@ -31,7 +31,12 @@ class TaskComposerViewModel @Inject constructor(
     }
 
     fun saveLifeOs() {
-        taskManager.addTask(title = state.value.title, url = state.value.sanitizedUrl)
+        taskManager.addTask(
+            title = state.value.title,
+            url = state.value.sanitizedUrl,
+            type = state.value.typeSelection,
+            status = state.value.statusSelection
+        )
         events.trySend(ComposerEvents.Finish)
     }
 
@@ -59,14 +64,51 @@ class TaskComposerViewModel @Inject constructor(
             )
         }
     }
+
+    fun onTypeSelected(type: String) {
+        viewModelScope.launch {
+            state.value = state.first().copy(
+                typeSelection = type
+            )
+        }
+    }
+
+    fun onStatusSelected(status: String) {
+        viewModelScope.launch {
+            state.value = state.first().copy(
+                statusSelection = status
+            )
+        }
+    }
 }
 
 data class ComposerState(
     val title: String = "",
-    val url: String = ""
+    val url: String = "",
+    val typeSelection: String = "None",
+    val typeSelectorOptions: List<String> = listOf(
+        "None",
+        "Idea",
+        "Task",
+        "Resource",
+        "Project",
+        "Bookmark",
+        "Area"
+    ),
+    val statusSelection: String = "None",
+    val statusSelectorOptions: List<String> = listOf(
+        "None",
+        "Focus",
+        "Blocked",
+        "Backlog",
+        "Recurring",
+        "Archive",
+        "Done"
+    ),
 ) {
     val sanitizedUrl = url.split("?").first()
-    val validUrl = Patterns.WEB_URL.matcher(sanitizedUrl).matches()
+    val saveArticleEnabled = Patterns.WEB_URL.matcher(sanitizedUrl).matches() && url.isNotEmpty() &&
+            typeSelection != "None" && statusSelection != "None"
 }
 
 sealed class ComposerEvents {

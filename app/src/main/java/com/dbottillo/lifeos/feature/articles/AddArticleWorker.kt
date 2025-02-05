@@ -34,7 +34,13 @@ class AddArticleWorker @AssistedInject constructor(
                 level = LogLevel.INFO,
                 message = "Adding [$title] for url: $url"
             )
-            val result = tasksRepository.addTask(AppConstant.ARTICLES_DATABASE_ID, title, url)
+            val result = tasksRepository.addTask(
+                AppConstant.ARTICLES_DATABASE_ID,
+                title,
+                url,
+                null,
+                null
+            )
             if (result is ApiResult.Success) {
                 logsRepository.addEntry(
                     tag = LogTags.ADD_ARTICLE_WORKER,

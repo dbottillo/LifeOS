@@ -9,6 +9,7 @@ import com.dbottillo.lifeos.feature.logs.LogsRepository
 import com.dbottillo.lifeos.network.AddPageNotionBodyRequest
 import com.dbottillo.lifeos.network.AddPageNotionBodyRequestParent
 import com.dbottillo.lifeos.network.AddPageNotionProperty
+import com.dbottillo.lifeos.network.AddPageNotionPropertySelect
 import com.dbottillo.lifeos.network.AddPageNotionPropertyText
 import com.dbottillo.lifeos.network.AddPageNotionPropertyTitle
 import com.dbottillo.lifeos.network.ApiInterface
@@ -174,7 +175,13 @@ class TasksRepository @Inject constructor(
         }
     }
 
-    suspend fun addTask(databaseId: String, title: String?, url: String): ApiResult<Unit> {
+    suspend fun addTask(
+        databaseId: String,
+        title: String?,
+        url: String,
+        type: String?,
+        status: String?
+    ): ApiResult<Unit> {
         return try {
             val properties = mutableMapOf(
                 "Name" to AddPageNotionProperty(
@@ -188,6 +195,20 @@ class TasksRepository @Inject constructor(
             if (url.isNotEmpty()) {
                 properties["URL"] = AddPageNotionProperty(
                     url = url
+                )
+            }
+            if (type?.isNotEmpty() == true && type != "None") {
+                properties["Type"] = AddPageNotionProperty(
+                    select = AddPageNotionPropertySelect(
+                        name = type
+                    )
+                )
+            }
+            if (status?.isNotEmpty() == true && status != "None") {
+                properties["Status"] = AddPageNotionProperty(
+                    status = AddPageNotionPropertySelect(
+                        name = status
+                    )
                 )
             }
             val request = AddPageNotionBodyRequest(
