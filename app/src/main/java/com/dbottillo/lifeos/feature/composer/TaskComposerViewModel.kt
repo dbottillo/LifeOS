@@ -140,7 +140,7 @@ data class ComposerState(
 ) {
     val sanitizedUrl = url.split("?").first()
     val saveArticleEnabled = Patterns.WEB_URL.matcher(sanitizedUrl).matches() && url.isNotEmpty() &&
-            typeSelection != "None" && statusSelection != "None"
+            typeSelection == "None" && statusSelection == "None" && selectedDueDate == null
 
     val formattedDate = selectedDueDate?.let { formatter.format(Date(selectedDueDate)) }
 }
