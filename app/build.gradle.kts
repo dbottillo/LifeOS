@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.crashlytics)
     alias(libs.plugins.versions)
     alias(libs.plugins.compose.compiler)
+    kotlin("plugin.serialization") version "1.9.22"
 }
 
 android {
@@ -118,6 +119,7 @@ dependencies {
     debugImplementation(libs.soloader)
     releaseImplementation(libs.flipper.noop)
     releaseImplementation(libs.flipper.plugins.noop)
+    implementation(libs.kotlinx.serialization.json)
 }
 
 kapt {

@@ -15,11 +15,14 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
@@ -41,10 +44,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.dbottillo.lifeos.ui.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -114,18 +118,63 @@ fun TaskComposerScreen(
         }
     }
     val state = viewModel.state.collectAsStateWithLifecycle()
-        TaskComposerScreenContent(
-            state = state.value,
-            onTitleChange = viewModel::onTitleChange,
-            onUrlChange = viewModel::onUrlChange,
-            saveArticle = viewModel::saveArticle,
-            saveLifeOs = viewModel::saveLifeOs,
-            onTypeSelected = viewModel::onTypeSelected,
-            onStatusSelected = viewModel::onStatusSelected,
-            onSelectDate = viewModel::onSelectDate,
-            onDateSelected = viewModel::onDateSelected,
-            onDateSelectionDismiss = viewModel::onDateSelectionDismiss
-        )
+    TaskComposerScreenContent(
+        state = state.value,
+        onTitleChange = viewModel::onTitleChange,
+        onUrlChange = viewModel::onUrlChange,
+        saveArticle = viewModel::saveArticle,
+        saveLifeOs = viewModel::saveLifeOs,
+        onTypeSelected = viewModel::onTypeSelected,
+        onStatusSelected = viewModel::onStatusSelected,
+        onSelectDate = viewModel::onSelectDate,
+        onDateSelected = viewModel::onDateSelected,
+        onDateSelectionDismiss = viewModel::onDateSelectionDismiss
+    )
+}
+
+@Composable
+fun TaskComposerScreenDialog(
+    navController: NavHostController? = null,
+    viewModel: TaskComposerViewModel,
+    close: (() -> Unit)? = null,
+){
+
+    LaunchedEffect(Unit) {
+        viewModel.events.consumeEach {
+            when (it) {
+                ComposerEvents.Finish -> {
+                    if (navController == null){
+                        close?.invoke()
+                    } else {
+                        navController.popBackStack()
+                    }
+                }
+            }
+        }
+    }
+    val state = viewModel.state.collectAsStateWithLifecycle()
+    Dialog(onDismissRequest = { navController?.navigateUp() }) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(500.dp)
+                .padding(16.dp),
+            shape = RoundedCornerShape(16.dp),
+        ) {
+            TaskComposerScreenContentDialog(
+                state = state.value,
+                onTitleChange = viewModel::onTitleChange,
+                onUrlChange = viewModel::onUrlChange,
+                saveArticle = viewModel::saveArticle,
+                saveLifeOs = viewModel::saveLifeOs,
+                onTypeSelected = viewModel::onTypeSelected,
+                onStatusSelected = viewModel::onStatusSelected,
+                onSelectDate = viewModel::onSelectDate,
+                onDateSelected = viewModel::onDateSelected,
+                onDateSelectionDismiss = viewModel::onDateSelectionDismiss
+            )
+        }
+    }
 }
 
 @Composable
@@ -141,7 +190,9 @@ private fun TaskComposerScreenContent(
     onDateSelected: (Long?) -> Unit,
     onDateSelectionDismiss: () -> Unit
 ) {
-    Box {
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
         if (state.showDueDatePicker) {
             DatePickerModal(
                 onDateSelected = onDateSelected,
@@ -149,9 +200,7 @@ private fun TaskComposerScreenContent(
             )
         }
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-
+            modifier = Modifier.fillMaxSize()
         ) {
             Column(
                 modifier = Modifier
@@ -181,18 +230,21 @@ private fun TaskComposerScreenContent(
                     }
                 }
                 Selector(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
                     prefix = "Type",
                     selection = state.typeSelection,
                     options = state.typeSelectorOptions,
                     onOptionSelected = onTypeSelected
                 )
                 Selector(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
                     prefix = "Status",
                     selection = state.statusSelection,
                     options = state.statusSelectorOptions,
                     onOptionSelected = onStatusSelected
                 )
                 DueDatePicker(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
                     dueDate = state.formattedDate,
                     onSelectDate = onSelectDate
                 )
@@ -223,14 +275,111 @@ private fun TaskComposerScreenContent(
 }
 
 @Composable
+private fun TaskComposerScreenContentDialog(
+    state: ComposerState,
+    onTitleChange: (String) -> Unit = {},
+    onUrlChange: (String) -> Unit = {},
+    saveArticle: () -> Unit,
+    saveLifeOs: () -> Unit,
+    onTypeSelected: (String) -> Unit,
+    onStatusSelected: (String) -> Unit,
+    onSelectDate: () -> Unit,
+    onDateSelected: (Long?) -> Unit,
+    onDateSelectionDismiss: () -> Unit
+) {
+    if (state.showDueDatePicker) {
+        DatePickerModal(
+            onDateSelected = onDateSelected,
+            onDismiss = onDateSelectionDismiss
+        )
+    }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            modifier = Modifier.padding(top = 16.dp),
+            text = "Composer",
+            style = MaterialTheme.typography.titleLarge
+        )
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = state.title,
+            onValueChange = onTitleChange,
+            label = { Text("Title") }
+        )
+        Column {
+            OutlinedTextField(
+                modifier = Modifier.fillMaxWidth(),
+                value = state.sanitizedUrl,
+                onValueChange = onUrlChange,
+                label = { Text("Url") }
+            )
+            if (state.url != state.sanitizedUrl) {
+                Text(
+                    text = "Original url: ${state.url}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.secondary,
+                )
+            }
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Selector(
+                prefix = "Type",
+                selection = state.typeSelection,
+                options = state.typeSelectorOptions,
+                onOptionSelected = onTypeSelected
+            )
+            Selector(
+                prefix = "Status",
+                selection = state.statusSelection,
+                options = state.statusSelectorOptions,
+                onOptionSelected = onStatusSelected
+            )
+        }
+        DueDatePicker(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            dueDate = state.formattedDate,
+            onSelectDate = onSelectDate
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Button(
+                modifier = Modifier.padding(top = 24.dp),
+                onClick = { saveLifeOs() }
+            ) {
+                Text(text = "Task")
+            }
+            Button(
+                modifier = Modifier.padding(top = 24.dp),
+                onClick = { saveArticle() },
+                enabled = state.saveArticleEnabled
+            ) {
+                Text(text = "Article")
+            }
+        }
+    }
+}
+
+@Composable
 fun Selector(
+    modifier: Modifier = Modifier,
     prefix: String,
     selection: String?,
     options: List<String>,
     onOptionSelected: (String) -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
@@ -265,11 +414,12 @@ fun Selector(
 
 @Composable
 fun DueDatePicker(
+    modifier: Modifier = Modifier,
     dueDate: String?,
     onSelectDate: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(16.dp),
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
@@ -321,6 +471,47 @@ fun ShareScreenPreview() {
             modifier = Modifier.background(Color.White)
         ){
             TaskComposerScreenContent(
+                state = ComposerState(
+                    url = "https://www.google.com?abc=def",
+                    title = "Google",
+                    typeSelectorOptions = listOf(
+                        "Idea",
+                        "Task",
+                        "Resource",
+                        "Project",
+                        "Bookmark",
+                        "Area"
+                    ),
+                    statusSelectorOptions = listOf(
+                        "Focus",
+                        "Blocked",
+                        "Backlog",
+                        "Recurring",
+                        "Archive",
+                        "Done"
+                    ),
+                ),
+                saveArticle = { },
+                saveLifeOs = { },
+                onTypeSelected = { },
+                onStatusSelected = {},
+                onDateSelected = { _ -> },
+                onDateSelectionDismiss = {},
+                onSelectDate = {}
+            )
+        }
+    }
+}
+
+
+@Preview(device = Devices.PIXEL_TABLET, widthDp = 500, heightDp = 500)
+@Composable
+fun ShareScreenPreviewDialog() {
+    AppTheme {
+        Box(
+            modifier = Modifier.background(Color.White)
+        ){
+            TaskComposerScreenContentDialog(
                 state = ComposerState(
                     url = "https://www.google.com?abc=def",
                     title = "Google",

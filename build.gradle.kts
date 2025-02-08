@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.crashlytics) apply false
     alias(libs.plugins.room) apply false
     alias(libs.plugins.compose.compiler) apply false
+    kotlin("plugin.serialization") version "1.9.22"
 }
 
 allprojects {

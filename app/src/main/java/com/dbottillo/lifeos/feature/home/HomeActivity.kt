@@ -1,16 +1,18 @@
 package com.dbottillo.lifeos.feature.home
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -20,6 +22,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -31,7 +34,9 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -39,18 +44,22 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
+import androidx.window.core.layout.WindowWidthSizeClass
 import com.dbottillo.lifeos.BuildConfig
 import com.dbottillo.lifeos.R
 import com.dbottillo.lifeos.data.AppConstant
 import com.dbottillo.lifeos.feature.articles.ArticlesScreen
 import com.dbottillo.lifeos.feature.composer.TaskComposerScreen
+import com.dbottillo.lifeos.feature.composer.TaskComposerScreenDialog
 import com.dbottillo.lifeos.feature.composer.TaskComposerViewModel
 import com.dbottillo.lifeos.feature.status.StatusScreen
 import com.dbottillo.lifeos.feature.status.StatusViewModel
 import com.dbottillo.lifeos.ui.AppTheme
 import com.dbottillo.lifeos.util.openLink
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.serialization.Serializable
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -75,6 +84,7 @@ class HomeActivity : AppCompatActivity() {
             )
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
+            val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
             AppTheme {
                 Scaffold(
                     topBar = { TopBarForDestination(navController, currentDestination) },
@@ -117,8 +127,10 @@ class HomeActivity : AppCompatActivity() {
                                 containerColor = Color.Yellow,
                                 contentColor = Color.Black,
                                 onClick = {
-                                    navController.navigate(Screen.Composer.route) {
-
+                                    if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
+                                        navController.navigate(Screen.ComposerDialog)
+                                    } else {
+                                        navController.navigate(Screen.Composer.route)
                                     }
                                 },
                             ) {
@@ -128,7 +140,8 @@ class HomeActivity : AppCompatActivity() {
                                 )
                             }
                         }
-                    }
+                    },
+
                 ) { innerPadding ->
                     NavHost(
                         navController = navController,
@@ -164,6 +177,13 @@ class HomeActivity : AppCompatActivity() {
                         composable(Screen.Composer.route) {
                             val taskComposerViewModel = viewModels<TaskComposerViewModel>()
                             TaskComposerScreen(
+                                navController = navController,
+                                viewModel = taskComposerViewModel.value
+                            )
+                        }
+                        dialog<Screen.ComposerDialog> {
+                            val taskComposerViewModel = viewModels<TaskComposerViewModel>()
+                            TaskComposerScreenDialog(
                                 navController = navController,
                                 viewModel = taskComposerViewModel.value
                             )
@@ -250,6 +270,7 @@ class HomeActivity : AppCompatActivity() {
     }
 }
 
+@Serializable
 sealed class Screen(
     val route: String,
     @StringRes val resourceId: Int,
@@ -259,4 +280,5 @@ sealed class Screen(
     data object Articles : Screen("articles", R.string.articles, R.drawable.baseline_list_24)
     data object Status : Screen("status", R.string.status, R.drawable.baseline_settings_24)
     data object Composer : Screen("composer", R.string.composer, R.drawable.baseline_add_24)
+    @Serializable data object ComposerDialog : Screen("composer-dialog", R.string.composer, R.drawable.baseline_add_24)
 }
