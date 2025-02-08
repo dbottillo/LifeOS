@@ -1,5 +1,6 @@
 package com.dbottillo.lifeos.feature.home
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -7,7 +8,11 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
@@ -15,8 +20,10 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -25,6 +32,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -35,6 +44,8 @@ import com.dbottillo.lifeos.BuildConfig
 import com.dbottillo.lifeos.R
 import com.dbottillo.lifeos.data.AppConstant
 import com.dbottillo.lifeos.feature.articles.ArticlesScreen
+import com.dbottillo.lifeos.feature.composer.TaskComposerScreen
+import com.dbottillo.lifeos.feature.composer.TaskComposerViewModel
 import com.dbottillo.lifeos.feature.status.StatusScreen
 import com.dbottillo.lifeos.feature.status.StatusViewModel
 import com.dbottillo.lifeos.ui.AppTheme
@@ -64,41 +75,9 @@ class HomeActivity : AppCompatActivity() {
             )
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
-            val context = LocalContext.current
             AppTheme {
                 Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = {
-                                Text(
-                                    buildAnnotatedString {
-                                    append("Life OS ")
-                                    withStyle(style = SpanStyle(fontSize = 12.sp, fontWeight = FontWeight.Light)) {
-                                        append(BuildConfig.VERSION_NAME)
-                                    }
-                                }
-                                )
-                            },
-                            actions = {
-                                if (currentDestination?.hierarchy?.any { it.route == Screen.Articles.route } == true) {
-                                    IconButton(onClick = {
-                                        context.openLink(AppConstant.NOTION_ARTICLE_PAGE_URL)
-                                    }) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.baseline_external),
-                                            contentDescription = null
-                                        )
-                                    }
-                                    IconButton(onClick = { homeViewModel.load() }) {
-                                        Icon(
-                                            painter = painterResource(id = R.drawable.baseline_reload),
-                                            contentDescription = null
-                                        )
-                                    }
-                                }
-                            }
-                        )
-                    },
+                    topBar = { TopBarForDestination(navController, currentDestination) },
                     bottomBar = {
                         NavigationBar {
                             items.forEach { screen ->
@@ -110,7 +89,9 @@ class HomeActivity : AppCompatActivity() {
                                         )
                                     },
                                     label = { Text(stringResource(screen.resourceId)) },
-                                    selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                                    selected = currentDestination?.hierarchy?.any {
+                                        it.route == screen.route || (it.route == Screen.Composer.route && screen.route == Screen.Home.route)
+                                    } == true,
                                     onClick = {
                                         navController.navigate(screen.route) {
                                             // Pop up to the start destination of the graph to
@@ -126,6 +107,24 @@ class HomeActivity : AppCompatActivity() {
                                             restoreState = true
                                         }
                                     }
+                                )
+                            }
+                        }
+                    },
+                    floatingActionButton = {
+                        if (currentDestination?.route == Screen.Home.route) {
+                            FloatingActionButton(
+                                containerColor = Color.Yellow,
+                                contentColor = Color.Black,
+                                onClick = {
+                                    navController.navigate(Screen.Composer.route) {
+
+                                    }
+                                },
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.baseline_add_24),
+                                    "Floating action button."
                                 )
                             }
                         }
@@ -155,15 +154,109 @@ class HomeActivity : AppCompatActivity() {
                                 dateFormatter
                             )
                         }
+                        composable(Screen.Status.route) {
+                            StatusScreen(
+                                navController,
+                                statusViewModel,
+                                dateFormatter
+                            )
+                        }
+                        composable(Screen.Composer.route) {
+                            val taskComposerViewModel = viewModels<TaskComposerViewModel>()
+                            TaskComposerScreen(
+                                navController = navController,
+                                viewModel = taskComposerViewModel.value
+                            )
+                        }
                     }
                 }
             }
         }
     }
+
+    @Composable
+    private fun TopBarForDestination(
+        navController: NavController,
+        currentDestination: NavDestination?
+    ) {
+        val context = LocalContext.current
+        when (currentDestination?.route) {
+            Screen.Composer.route -> {
+                TopAppBar(
+                    title = { Text("Composer") },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.navigateUp() }) {
+                            Icon(Icons.AutoMirrored.Default.ArrowBack, "Back")
+                        }
+                    }
+                )
+            }
+
+            Screen.Articles.route -> {
+                TopAppBar(
+                    title = {
+                        Text(
+                            buildAnnotatedString {
+                                append("Life OS ")
+                                withStyle(
+                                    style = SpanStyle(
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Light
+                                    )
+                                ) {
+                                    append(BuildConfig.VERSION_NAME)
+                                }
+                            }
+                        )
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            context.openLink(AppConstant.NOTION_ARTICLE_PAGE_URL)
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.baseline_external),
+                                contentDescription = null
+                            )
+                        }
+                        IconButton(onClick = { homeViewModel.load() }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.baseline_reload),
+                                contentDescription = null
+                            )
+                        }
+                    }
+                )
+            }
+            else -> {
+                TopAppBar(
+                    title = {
+                        Text(
+                            buildAnnotatedString {
+                                append("Life OS ")
+                                withStyle(
+                                    style = SpanStyle(
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Light
+                                    )
+                                ) {
+                                    append(BuildConfig.VERSION_NAME)
+                                }
+                            }
+                        )
+                    },
+                )
+            }
+        }
+    }
 }
 
-sealed class Screen(val route: String, @StringRes val resourceId: Int, @DrawableRes val iconId: Int) {
+sealed class Screen(
+    val route: String,
+    @StringRes val resourceId: Int,
+    @DrawableRes val iconId: Int
+) {
     data object Home : Screen("home", R.string.home, R.drawable.baseline_sun_24)
     data object Articles : Screen("articles", R.string.articles, R.drawable.baseline_list_24)
     data object Status : Screen("status", R.string.status, R.drawable.baseline_settings_24)
+    data object Composer : Screen("composer", R.string.composer, R.drawable.baseline_add_24)
 }

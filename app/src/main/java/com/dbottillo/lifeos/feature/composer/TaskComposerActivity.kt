@@ -6,12 +6,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -31,67 +33,103 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.dbottillo.lifeos.ui.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class TaskComposerActivity : AppCompatActivity() {
 
     private val viewModel: TaskComposerViewModel by viewModels()
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
 
-        lifecycleScope.launch {
-            viewModel.events.consumeEach {
-                when (it) {
-                    ComposerEvents.Finish -> finish()
-                }
-            }
-        }
-
         viewModel.init(
             url = intent.getStringExtra(Intent.EXTRA_TEXT),
-            title = intent.getStringExtra(Intent.EXTRA_SUBJECT)
+            title = intent.getStringExtra(Intent.EXTRA_SUBJECT),
         )
 
         setContent {
-            val state = viewModel.state.collectAsStateWithLifecycle()
             AppTheme {
-                TaskComposerScreen(
-                    state = state.value,
-                    onTitleChange = viewModel::onTitleChange,
-                    onUrlChange = viewModel::onUrlChange,
-                    saveArticle = viewModel::saveArticle,
-                    saveLifeOs = viewModel::saveLifeOs,
-                    onTypeSelected = viewModel::onTypeSelected,
-                    onStatusSelected = viewModel::onStatusSelected,
-                    onSelectDate = viewModel::onSelectDate,
-                    onDateSelected = viewModel::onDateSelected,
-                    onDateSelectionDismiss = viewModel::onDateSelectionDismiss
-                )
+                Scaffold(
+                    topBar = {
+                        TopAppBar(
+                            title = { Text("Composer") }
+                        )
+                    }
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .consumeWindowInsets(it)
+                            .padding(it)
+                            .safeDrawingPadding(),
+                    ){
+                        TaskComposerScreen(
+                            navController = null,
+                            viewModel = viewModel,
+                            close = { finish() }
+                        )
+                    }
+                }
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskComposerScreen(
+    navController: NavHostController? = null,
+    viewModel: TaskComposerViewModel,
+    close: (() -> Unit)? = null,
+){
+
+    LaunchedEffect(Unit) {
+        viewModel.events.consumeEach {
+            when (it) {
+                ComposerEvents.Finish -> {
+                    if (navController == null){
+                        close?.invoke()
+                    } else {
+                        navController.popBackStack()
+                    }
+                }
+            }
+        }
+    }
+    val state = viewModel.state.collectAsStateWithLifecycle()
+        TaskComposerScreenContent(
+            state = state.value,
+            onTitleChange = viewModel::onTitleChange,
+            onUrlChange = viewModel::onUrlChange,
+            saveArticle = viewModel::saveArticle,
+            saveLifeOs = viewModel::saveLifeOs,
+            onTypeSelected = viewModel::onTypeSelected,
+            onStatusSelected = viewModel::onStatusSelected,
+            onSelectDate = viewModel::onSelectDate,
+            onDateSelected = viewModel::onDateSelected,
+            onDateSelectionDismiss = viewModel::onDateSelectionDismiss
+        )
+}
+
+@Composable
+private fun TaskComposerScreenContent(
     state: ComposerState,
     onTitleChange: (String) -> Unit = {},
     onUrlChange: (String) -> Unit = {},
@@ -103,13 +141,7 @@ fun TaskComposerScreen(
     onDateSelected: (Long?) -> Unit,
     onDateSelectionDismiss: () -> Unit
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Link handler") }
-            )
-        }
-    ) {
+    Box {
         if (state.showDueDatePicker) {
             DatePickerModal(
                 onDateSelected = onDateSelected,
@@ -118,9 +150,8 @@ fun TaskComposerScreen(
         }
         Column(
             modifier = Modifier
-                .consumeWindowInsets(it)
-                .padding(it)
-                .safeDrawingPadding(),
+                .fillMaxSize()
+
         ) {
             Column(
                 modifier = Modifier
@@ -286,34 +317,38 @@ fun DatePickerModal(
 @Composable
 fun ShareScreenPreview() {
     AppTheme {
-        TaskComposerScreen(
-            state = ComposerState(
-                url = "https://www.google.com?abc=def",
-                title = "Google",
-                typeSelectorOptions = listOf(
-                    "Idea",
-                    "Task",
-                    "Resource",
-                    "Project",
-                    "Bookmark",
-                    "Area"
+        Box(
+            modifier = Modifier.background(Color.White)
+        ){
+            TaskComposerScreenContent(
+                state = ComposerState(
+                    url = "https://www.google.com?abc=def",
+                    title = "Google",
+                    typeSelectorOptions = listOf(
+                        "Idea",
+                        "Task",
+                        "Resource",
+                        "Project",
+                        "Bookmark",
+                        "Area"
+                    ),
+                    statusSelectorOptions = listOf(
+                        "Focus",
+                        "Blocked",
+                        "Backlog",
+                        "Recurring",
+                        "Archive",
+                        "Done"
+                    ),
                 ),
-                statusSelectorOptions = listOf(
-                    "Focus",
-                    "Blocked",
-                    "Backlog",
-                    "Recurring",
-                    "Archive",
-                    "Done"
-                ),
-            ),
-            saveArticle = { },
-            saveLifeOs = { },
-            onTypeSelected = { },
-            onStatusSelected = {},
-            onDateSelected = { _ -> },
-            onDateSelectionDismiss = {},
-            onSelectDate = {}
-        )
+                saveArticle = { },
+                saveLifeOs = { },
+                onTypeSelected = { },
+                onStatusSelected = {},
+                onDateSelected = { _ -> },
+                onDateSelectionDismiss = {},
+                onSelectDate = {}
+            )
+        }
     }
 }

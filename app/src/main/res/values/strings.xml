@@ -19,6 +19,7 @@
     <string name="channel_next_name">Inbox</string>
     <string name="channel_next_description">Life OS - Inbox</string>
     <string name="status">Status</string>
+    <string name="composer">Composer</string>
     <string name="articles">Articles</string>
     <string name="home">Home</string>
     <string name="notion_widget_focus_title">Focus</string>
