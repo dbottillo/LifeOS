@@ -84,7 +84,7 @@ class TaskComposerActivity : AppCompatActivity() {
                             .consumeWindowInsets(it)
                             .padding(it)
                             .safeDrawingPadding(),
-                    ){
+                    ) {
                         TaskComposerScreen(
                             navController = null,
                             viewModel = viewModel,
@@ -102,13 +102,12 @@ fun TaskComposerScreen(
     navController: NavHostController? = null,
     viewModel: TaskComposerViewModel,
     close: (() -> Unit)? = null,
-){
-
+) {
     LaunchedEffect(Unit) {
         viewModel.events.consumeEach {
             when (it) {
                 ComposerEvents.Finish -> {
-                    if (navController == null){
+                    if (navController == null) {
                         close?.invoke()
                     } else {
                         navController.popBackStack()
@@ -137,13 +136,12 @@ fun TaskComposerScreenDialog(
     navController: NavHostController? = null,
     viewModel: TaskComposerViewModel,
     close: (() -> Unit)? = null,
-){
-
+) {
     LaunchedEffect(Unit) {
         viewModel.events.consumeEach {
             when (it) {
                 ComposerEvents.Finish -> {
-                    if (navController == null){
+                    if (navController == null) {
                         close?.invoke()
                     } else {
                         navController.popBackStack()
@@ -469,7 +467,7 @@ fun ShareScreenPreview() {
     AppTheme {
         Box(
             modifier = Modifier.background(Color.White)
-        ){
+        ) {
             TaskComposerScreenContent(
                 state = ComposerState(
                     url = "https://www.google.com?abc=def",
@@ -503,14 +501,13 @@ fun ShareScreenPreview() {
     }
 }
 
-
 @Preview(device = Devices.PIXEL_TABLET, widthDp = 500, heightDp = 500)
 @Composable
 fun ShareScreenPreviewDialog() {
     AppTheme {
         Box(
             modifier = Modifier.background(Color.White)
-        ){
+        ) {
             TaskComposerScreenContentDialog(
                 state = ComposerState(
                     url = "https://www.google.com?abc=def",
