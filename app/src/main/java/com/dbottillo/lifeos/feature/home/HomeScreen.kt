@@ -61,7 +61,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
 
     val openComposer: (String) -> Unit = { entryId ->
         if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
-            navController.navigate(Screen.ComposerDialog)
+            navController.navigate(ComposerDialog(entryId = entryId))
         } else {
             navController.navigate(Composer(entryId = entryId)) {
                 launchSingleTop = true

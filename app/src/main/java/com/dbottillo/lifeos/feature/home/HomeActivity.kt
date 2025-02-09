@@ -125,7 +125,7 @@ class HomeActivity : AppCompatActivity() {
                                 contentColor = Color.Black,
                                 onClick = {
                                     if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
-                                        navController.navigate(Screen.ComposerDialog)
+                                        navController.navigate(ComposerDialog(null))
                                     } else {
                                         navController.navigate(Composer(null)){
                                             launchSingleTop = true
@@ -183,7 +183,10 @@ class HomeActivity : AppCompatActivity() {
                                 viewModel = taskComposerViewModel
                             )
                         }
-                        dialog<Screen.ComposerDialog> { backStackEntry ->
+                        dialog<ComposerDialog> { backStackEntry ->
+                            val composer =  backStackEntry.toRoute<Composer>()
+                            val entryId = composer.entryId
+                            taskComposerViewModel.init(ComposerInput(entryId = entryId))
                             TaskComposerScreenDialog(
                                 navController = navController,
                                 viewModel = taskComposerViewModel
@@ -280,7 +283,7 @@ sealed class Screen(
     data object Home : Screen("home", R.string.home, R.drawable.baseline_sun_24)
     data object Articles : Screen("articles", R.string.articles, R.drawable.baseline_list_24)
     data object Status : Screen("status", R.string.status, R.drawable.baseline_settings_24)
-    @Serializable data object ComposerDialog : Screen("composer-dialog", R.string.composer, R.drawable.baseline_add_24)
 }
 
 @Serializable data class Composer(val entryId: String?)
+@Serializable data class ComposerDialog(val entryId: String?)

@@ -218,14 +218,16 @@ private fun TaskComposerScreenContent(
                             modifier = Modifier.padding(top = 24.dp),
                             onClick = { saveLifeOs() }
                         ) {
-                            Text(text = "Task")
+                            Text(text = if (state.editTaskMode) "Edit" else "Task")
                         }
-                        Button(
-                            modifier = Modifier.padding(top = 24.dp),
-                            onClick = { saveArticle() },
-                            enabled = state.saveArticleEnabled
-                        ) {
-                            Text(text = "Article")
+                        if (state.showArticle) {
+                            Button(
+                                modifier = Modifier.padding(top = 24.dp),
+                                onClick = { saveArticle() },
+                                enabled = state.saveArticleEnabled
+                            ) {
+                                Text(text = "Article")
+                            }
                         }
                     }
                 }
