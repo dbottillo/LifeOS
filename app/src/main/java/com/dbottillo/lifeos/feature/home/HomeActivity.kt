@@ -40,11 +40,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.dialog
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import androidx.window.core.layout.WindowWidthSizeClass
 import com.dbottillo.lifeos.BuildConfig
 import com.dbottillo.lifeos.R
 import com.dbottillo.lifeos.data.AppConstant
 import com.dbottillo.lifeos.feature.articles.ArticlesScreen
+import com.dbottillo.lifeos.feature.composer.ComposerInput
 import com.dbottillo.lifeos.feature.composer.TaskComposerScreen
 import com.dbottillo.lifeos.feature.composer.TaskComposerScreenDialog
 import com.dbottillo.lifeos.feature.composer.TaskComposerViewModel
@@ -64,6 +66,7 @@ class HomeActivity : AppCompatActivity() {
 
     private val homeViewModel: HomeViewModel by viewModels()
     private val statusViewModel: StatusViewModel by viewModels()
+    private val taskComposerViewModel: TaskComposerViewModel by viewModels()
 
     private val dateFormatter = SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS", Locale.getDefault())
 
@@ -94,7 +97,7 @@ class HomeActivity : AppCompatActivity() {
                                     },
                                     label = { Text(stringResource(screen.resourceId)) },
                                     selected = currentDestination?.hierarchy?.any {
-                                        it.route == screen.route || (it.route == Screen.Composer.route && screen.route == Screen.Home.route)
+                                        it.route == screen.route || (it.route == "composer" && screen.route == Screen.Home.route)
                                     } == true,
                                     onClick = {
                                         navController.navigate(screen.route) {
@@ -124,7 +127,10 @@ class HomeActivity : AppCompatActivity() {
                                     if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
                                         navController.navigate(Screen.ComposerDialog)
                                     } else {
-                                        navController.navigate(Screen.Composer.route)
+                                        navController.navigate(Composer(null)){
+                                            launchSingleTop = true
+                                            restoreState = false
+                                        }
                                     }
                                 },
                             ) {
@@ -168,18 +174,19 @@ class HomeActivity : AppCompatActivity() {
                                 dateFormatter
                             )
                         }
-                        composable(Screen.Composer.route) {
-                            val taskComposerViewModel = viewModels<TaskComposerViewModel>()
+                        composable<Composer> { backStackEntry ->
+                            val composer =  backStackEntry.toRoute<Composer>()
+                            val entryId = composer.entryId
+                            taskComposerViewModel.init(ComposerInput(entryId = entryId))
                             TaskComposerScreen(
                                 navController = navController,
-                                viewModel = taskComposerViewModel.value
+                                viewModel = taskComposerViewModel
                             )
                         }
-                        dialog<Screen.ComposerDialog> {
-                            val taskComposerViewModel = viewModels<TaskComposerViewModel>()
+                        dialog<Screen.ComposerDialog> { backStackEntry ->
                             TaskComposerScreenDialog(
                                 navController = navController,
-                                viewModel = taskComposerViewModel.value
+                                viewModel = taskComposerViewModel
                             )
                         }
                     }
@@ -195,7 +202,7 @@ class HomeActivity : AppCompatActivity() {
     ) {
         val context = LocalContext.current
         when (currentDestination?.route) {
-            Screen.Composer.route -> {
+            "composer" -> {
                 TopAppBar(
                     title = { Text("Composer") },
                     navigationIcon = {
@@ -273,7 +280,7 @@ sealed class Screen(
     data object Home : Screen("home", R.string.home, R.drawable.baseline_sun_24)
     data object Articles : Screen("articles", R.string.articles, R.drawable.baseline_list_24)
     data object Status : Screen("status", R.string.status, R.drawable.baseline_settings_24)
-    data object Composer : Screen("composer", R.string.composer, R.drawable.baseline_add_24)
-
     @Serializable data object ComposerDialog : Screen("composer-dialog", R.string.composer, R.drawable.baseline_add_24)
 }
+
+@Serializable data class Composer(val entryId: String?)

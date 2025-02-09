@@ -256,6 +256,10 @@ class TasksRepository @Inject constructor(
             notificationProvider.updateNextActions(titles)
         }
     }
+
+    suspend fun loadTask(entryId: String): NotionEntry {
+        return dao.getEntry(entryId).notionEntry
+    }
 }
 
 private fun NotionPage.toEntry() = NotionEntry(

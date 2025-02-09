@@ -52,6 +52,9 @@ interface NotionEntryDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(vararg entries: NotionEntry)
 
+    @Query("SELECT * FROM notionEntry WHERE uid = :entryId")
+    suspend fun getEntry(entryId: String): NotionEntryWithParent
+
     @Suppress("SpreadOperator")
     @Transaction
     suspend fun deleteAndSaveFocusInboxBlocked(entries: List<NotionEntry>) {

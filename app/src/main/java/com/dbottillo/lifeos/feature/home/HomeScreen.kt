@@ -48,7 +48,6 @@ import java.util.UUID
 const val CONTENT_TYPE_ENTRY = "entry"
 const val CONTENT_TYPE_TITLE = "title"
 
-@Suppress("UNUSED_PARAMETER")
 @Composable
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
     val state = viewModel.homeState.collectAsStateWithLifecycle()
@@ -59,6 +58,18 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
     }
 
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+
+    val openComposer: (String) -> Unit = { entryId ->
+        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
+            navController.navigate(Screen.ComposerDialog)
+        } else {
+            navController.navigate(Composer(entryId = entryId)) {
+                launchSingleTop = true
+                restoreState = false
+            }
+        }
+    }
+
     if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
         HomeScreenContentExpanded(
             refreshing = state.value.refreshing,
@@ -69,6 +80,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             goals = state.value.goals,
             bottom = state.value.others,
             refresh = viewModel::reloadHome,
+            openComposer = openComposer,
             bottomSelection = viewModel::bottomSelection,
             bottomSelectionDoubleTap = viewModel::bottomSelectionDoubleTap,
             longPressProjects = viewModel::refreshProjects
@@ -84,6 +96,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             bottom = state.value.others,
             refresh = viewModel::reloadHome,
             numberOfColumns = if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) 3 else 2,
+            openComposer = openComposer,
             bottomSelection = viewModel::bottomSelection,
             bottomSelectionDoubleTap = viewModel::bottomSelectionDoubleTap,
             refreshProjects = viewModel::refreshProjects
@@ -116,12 +129,12 @@ fun HomeScreenContent(
     refresh: () -> Unit,
     bottomSelection: (BottomSelection) -> Unit,
     bottomSelectionDoubleTap: (BottomSelection) -> Unit,
-    refreshProjects: () -> Unit
+    refreshProjects: () -> Unit,
+    openComposer: (String) -> Unit
 ) {
     val pullRefreshState = rememberPullRefreshState(refreshing, refresh)
 
     Box(Modifier.pullRefresh(pullRefreshState)) {
-        PullRefreshIndicator(refreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))
         LazyVerticalStaggeredGrid(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
@@ -140,7 +153,7 @@ fun HomeScreenContent(
                 }
                 inbox.forEach {
                     item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
-                        Entry(content = it)
+                        Entry(content = it, openComposer = openComposer)
                     }
                 }
             }
@@ -156,7 +169,7 @@ fun HomeScreenContent(
             }
             top.forEach {
                 item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
-                    Entry(content = it)
+                    Entry(content = it, openComposer = openComposer)
                 }
             }
             if (blocked.isNotEmpty()) {
@@ -172,7 +185,7 @@ fun HomeScreenContent(
                 }
                 blocked.forEach {
                     item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
-                        Entry(content = it)
+                        Entry(content = it, openComposer = openComposer)
                     }
                 }
             }
@@ -194,7 +207,7 @@ fun HomeScreenContent(
             }
             middle.forEach {
                 item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
-                    Entry(content = it)
+                    Entry(content = it, openComposer = openComposer)
                 }
             }
             header {
@@ -209,7 +222,7 @@ fun HomeScreenContent(
             }
             goals.forEach {
                 item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
-                    Entry(content = it)
+                    Entry(content = it, openComposer = openComposer)
                 }
             }
             header {
@@ -242,7 +255,7 @@ fun HomeScreenContent(
             }
             bottom.list.forEach {
                 item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
-                    Entry(content = it)
+                    Entry(content = it, openComposer = openComposer)
                 }
             }
             header {
@@ -253,6 +266,7 @@ fun HomeScreenContent(
                 )
             }
         }
+        PullRefreshIndicator(refreshing, pullRefreshState, Modifier.align(Alignment.TopCenter))
     }
 }
 
@@ -270,7 +284,8 @@ fun HomeScreenContentExpanded(
     refresh: () -> Unit,
     bottomSelection: (BottomSelection) -> Unit,
     bottomSelectionDoubleTap: (BottomSelection) -> Unit,
-    longPressProjects: () -> Unit
+    longPressProjects: () -> Unit,
+    openComposer: (String) -> Unit
 ) {
     val pullRefreshState = rememberPullRefreshState(refreshing, refresh)
 
@@ -297,7 +312,7 @@ fun HomeScreenContentExpanded(
                     }
                     inbox.forEach {
                         item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
-                            Entry(content = it)
+                            Entry(content = it, openComposer = openComposer)
                         }
                     }
                 }
@@ -313,7 +328,7 @@ fun HomeScreenContentExpanded(
                 }
                 top.forEach {
                     item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
-                        Entry(content = it)
+                        Entry(content = it, openComposer = openComposer)
                     }
                 }
                 if (blocked.isNotEmpty()) {
@@ -329,7 +344,7 @@ fun HomeScreenContentExpanded(
                     }
                     blocked.forEach {
                         item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
-                            Entry(content = it)
+                            Entry(content = it, openComposer = openComposer)
                         }
                     }
                 }
@@ -351,7 +366,7 @@ fun HomeScreenContentExpanded(
                 }
                 middle.forEach {
                     item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
-                        Entry(content = it)
+                        Entry(content = it, openComposer = openComposer)
                     }
                 }
                 header {
@@ -366,7 +381,7 @@ fun HomeScreenContentExpanded(
                 }
                 goals.forEach {
                     item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
-                        Entry(content = it)
+                        Entry(content = it, openComposer = openComposer)
                     }
                 }
             }
@@ -407,7 +422,7 @@ fun HomeScreenContentExpanded(
                 }
                 bottom.list.forEach {
                     item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
-                        Entry(content = it)
+                        Entry(content = it, openComposer = openComposer)
                     }
                 }
                 header {
@@ -426,7 +441,8 @@ fun HomeScreenContentExpanded(
 @Composable
 fun Entry(
     content: EntryContent,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    openComposer: (String) -> Unit
 ) {
     val context = LocalContext.current
     val textColor = MaterialTheme.colorScheme.onSurface
@@ -437,7 +453,7 @@ fun Entry(
         modifier = modifier
             .fillMaxSize()
             .clickable {
-                context.openLink(content.url)
+                openComposer.invoke(content.id)
             },
         color = content.color,
         shape = RoundedCornerShape(8.dp)
@@ -505,7 +521,8 @@ fun HomeScreenPreview() {
                     bottomSelection = {},
                     bottomSelectionDoubleTap = {},
                     numberOfColumns = 2,
-                    refreshProjects = {}
+                    refreshProjects = {},
+                    openComposer = {}
                 )
             }
         }
@@ -530,7 +547,8 @@ fun HomeScreenContentExpandedPreview() {
                     refresh = {},
                     bottomSelection = {},
                     bottomSelectionDoubleTap = {},
-                    longPressProjects = {}
+                    longPressProjects = {},
+                    openComposer = {}
                 )
             }
         }
