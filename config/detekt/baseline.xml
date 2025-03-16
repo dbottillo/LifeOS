@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
 <SmellBaseline>
-  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>LongMethod:AddTaskWorker.kt$AddTaskWorker$@Suppress("SwallowedException", "TooGenericExceptionCaught") override suspend fun doWork(): Result</ID>
     <ID>LongMethod:HomeScreen.kt$@OptIn(ExperimentalFoundationApi::class) @Composable fun Entry( content: EntryContent, modifier: Modifier = Modifier, openComposer: (String) -&gt; Unit )</ID>
@@ -18,7 +18,7 @@
     <ID>MagicNumber:HomeScreen.kt$0.5f</ID>
     <ID>MagicNumber:HomeViewModel.kt$100</ID>
     <ID>MagicNumber:RefreshManager.kt$RefreshManager$10L</ID>
-    <ID>MagicNumber:build.gradle.kts$18</ID>
+    <ID>MagicNumber:build.gradle.kts$19</ID>
     <ID>MagicNumber:build.gradle.kts$28</ID>
     <ID>MagicNumber:build.gradle.kts$35</ID>
     <ID>MaxLineLength:HomeScreen.kt$style = if (!selection.selected) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleSmall</ID>
