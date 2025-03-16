@@ -15,10 +15,12 @@ import com.dbottillo.lifeos.network.AddPageNotionPropertySelect
 import com.dbottillo.lifeos.network.AddPageNotionPropertyText
 import com.dbottillo.lifeos.network.AddPageNotionPropertyTitle
 import com.dbottillo.lifeos.network.ApiInterface
+import com.dbottillo.lifeos.network.ApiNotionProperty
 import com.dbottillo.lifeos.network.ApiResult
 import com.dbottillo.lifeos.network.NotionBodyRequest
 import com.dbottillo.lifeos.network.NotionDatabaseQueryResult
 import com.dbottillo.lifeos.network.NotionPage
+import com.dbottillo.lifeos.network.UpdatePropertiesBodyRequest
 import com.dbottillo.lifeos.notification.NotificationProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
@@ -59,7 +61,7 @@ class TasksRepository @Inject constructor(
     }
     val focusFlow: Flow<List<Focus>> = dao.getFocus().map(mapper::mapFocus)
     val blockedFlow: Flow<List<Blocked>> = dao.getBlocked().map(mapper::mapBlocked)
-    val projectsFlow: Flow<List<Project>> = dao.getProjects().map(mapper::mapProjects)
+    val foldersFlow: Flow<List<Folder>> = dao.getFolders().map(mapper::mapFolders)
     val areasFlow: Flow<List<Area>> = dao.getAreas().map(mapper::mapAreas)
     val ideasFlow: Flow<List<Idea>> = dao.getIdeas().map(mapper::mapIdeas)
     val resourcesFlow: Flow<List<Resource>> = dao.getResources().map(mapper::mapResources)
@@ -103,7 +105,12 @@ class TasksRepository @Inject constructor(
             "load static resources"
         )
         return coroutineScope {
-            val pages = fetchNotionPages(StaticResourcesRequest().get(resources = resources))
+            val pages = fetchNotionPages(
+                StaticResourcesRequest().get(
+                // temp removing them as there are too many ~180
+                resources = resources.filter { it != "Resources" }
+            )
+            )
             when (pages) {
                 is ApiResult.Error -> {
                     logsRepository.addEntry(
@@ -189,42 +196,13 @@ class TasksRepository @Inject constructor(
         due: Long? = null
     ): ApiResult<Unit> {
         return try {
-            val properties = mutableMapOf(
-                "Name" to AddPageNotionProperty(
-                    title = listOf(
-                        AddPageNotionPropertyTitle(
-                            AddPageNotionPropertyText(content = title)
-                        )
-                    )
-                )
+            val properties = prepareProperties(
+                title = title,
+                link = url,
+                type = type,
+                status = status,
+                due = due
             )
-            if (url.isNotEmpty()) {
-                properties["URL"] = AddPageNotionProperty(
-                    url = url
-                )
-            }
-            if (type?.isNotEmpty() == true && type != "None") {
-                properties["Type"] = AddPageNotionProperty(
-                    select = AddPageNotionPropertySelect(
-                        name = type
-                    )
-                )
-            }
-            if (status?.isNotEmpty() == true && status != "None") {
-                properties["Status"] = AddPageNotionProperty(
-                    status = AddPageNotionPropertySelect(
-                        name = status
-                    )
-                )
-            }
-            if (due != null && due > -1) {
-                val date = dateFormat.format(Date(due))
-                properties["Due"] = AddPageNotionProperty(
-                    date = AddPageNotionPropertyDate(
-                        start = date
-                    )
-                )
-            }
             val request = AddPageNotionBodyRequest(
                 parent = AddPageNotionBodyRequestParent(
                     type = "database_id",
@@ -243,6 +221,154 @@ class TasksRepository @Inject constructor(
         } catch (e: Exception) {
             ApiResult.Error(Throwable(e.message ?: e.toString()))
         }
+    }
+
+    suspend fun editTask(
+        entryId: String,
+        title: String?,
+        link: String,
+        type: String?,
+        status: String?,
+        due: Long? = null
+    ): ApiResult<Unit> {
+        try {
+            val properties = prepareApiProperties(
+                title = title,
+                link = link,
+                type = type,
+                status = status,
+                due = due
+            )
+            val request = UpdatePropertiesBodyRequest(
+                properties = properties
+            )
+            val response = api.updatePageV2(
+                pageId = entryId,
+                body = request
+            )
+            if (response.isSuccessful) {
+                val body = response.body()
+                val startDate = (properties["Due"] as? ApiNotionProperty.Date)?.date?.start
+                if (body != null) {
+                    try {
+                        dao.updateEntry(
+                            entryId = entryId,
+                            title = title,
+                            link = link,
+                            type = type,
+                            status = status ?: "Inbox",
+                            startDate = startDate
+                        )
+                        return ApiResult.Success(Unit)
+                    } catch (dbE: Exception) {
+                        return ApiResult.Error(Throwable(dbE.message ?: dbE.toString()))
+                    }
+                }
+            }
+            return ApiResult.Error(Throwable("${response.code()} ${response.message()}"))
+        } catch (e: Exception) {
+            return ApiResult.Error(Throwable(e.message ?: e.toString()))
+        }
+    }
+
+    private fun prepareProperties(
+        title: String?,
+        link: String,
+        type: String?,
+        status: String?,
+        due: Long? = null,
+    ): MutableMap<String, AddPageNotionProperty> {
+        val properties = mutableMapOf(
+            "Name" to AddPageNotionProperty(
+                title = listOf(
+                    AddPageNotionPropertyTitle(
+                        AddPageNotionPropertyText(content = title)
+                    )
+                )
+            )
+        )
+        if (link.isNotEmpty()) {
+            properties["URL"] = AddPageNotionProperty(
+                url = link
+            )
+        } else {
+            properties["URL"] = AddPageNotionProperty(
+                url = null
+            )
+        }
+        if (type?.isNotEmpty() == true && type != "None") {
+            properties["Type"] = AddPageNotionProperty(
+                select = AddPageNotionPropertySelect(
+                    name = type
+                )
+            )
+        }
+        if (status?.isNotEmpty() == true && status != "None") {
+            properties["Status"] = AddPageNotionProperty(
+                status = AddPageNotionPropertySelect(
+                    name = status
+                )
+            )
+        }
+        if (due != null && due > -1) {
+            val date = dateFormat.format(Date(due))
+            properties["Due"] = AddPageNotionProperty(
+                date = AddPageNotionPropertyDate(
+                    start = date
+                )
+            )
+        }
+        return properties
+    }
+
+    private fun prepareApiProperties(
+        title: String?,
+        link: String,
+        type: String?,
+        status: String?,
+        due: Long? = null,
+    ): MutableMap<String, ApiNotionProperty> {
+        val properties: MutableMap<String, ApiNotionProperty> = mutableMapOf(
+            "Name" to ApiNotionProperty.Title(
+                title = listOf(
+                    AddPageNotionPropertyTitle(
+                        AddPageNotionPropertyText(content = title)
+                    )
+                )
+            )
+        )
+        if (link.isNotEmpty()) {
+            properties["URL"] = ApiNotionProperty.Url(
+                url = link
+            )
+        } else {
+            properties["URL"] = ApiNotionProperty.Url(
+                url = null
+            )
+        }
+        if (type?.isNotEmpty() == true && type != "None") {
+            properties["Type"] = ApiNotionProperty.Select(
+                select = AddPageNotionPropertySelect(
+                    name = type
+                )
+            )
+        }
+        if (status?.isNotEmpty() == true && status != "None") {
+            properties["Status"] = ApiNotionProperty.Status(
+                status = AddPageNotionPropertySelect(
+                    name = status
+                )
+            )
+        }
+        if (due != null && due > -1) {
+            val date = dateFormat.format(Date(due))
+            properties["Due"] = ApiNotionProperty.Date(
+                date = AddPageNotionPropertyDate(
+                    start = date
+                )
+            )
+        }
+        return properties
     }
 
     private suspend fun updateFocusNotification() {
@@ -283,7 +409,7 @@ fun String.mapColor(): String {
         "Idea" -> "orange"
         "Task" -> "blue"
         "Resource" -> "purple"
-        "Project" -> "green"
+        "Folder" -> "green"
         "Area" -> "yellow"
         "Bookmark" -> "pink"
         else -> "gray"

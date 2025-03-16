@@ -147,6 +147,30 @@ data class AddPageNotionProperty(
     val date: AddPageNotionPropertyDate? = null,
 )
 
+sealed class ApiNotionProperty {
+    @JsonClass(generateAdapter = true)
+    data class RichText(
+        @Json(
+        name = "rich_text"
+    ) val richText: List<AddPageNotionPropertyRichText>
+    ) : ApiNotionProperty()
+
+    @JsonClass(generateAdapter = true)
+    data class Title(val title: List<AddPageNotionPropertyTitle>) : ApiNotionProperty()
+
+    @JsonClass(generateAdapter = true)
+    data class Url(val url: String?) : ApiNotionProperty()
+
+    @JsonClass(generateAdapter = true)
+    data class Select(val select: AddPageNotionPropertySelect) : ApiNotionProperty()
+
+    @JsonClass(generateAdapter = true)
+    data class Status(val status: AddPageNotionPropertySelect) : ApiNotionProperty()
+
+    @JsonClass(generateAdapter = true)
+    data class Date(val date: AddPageNotionPropertyDate) : ApiNotionProperty()
+}
+
 @JsonClass(generateAdapter = true)
 data class AddPageNotionPropertyRichText(
     val text: AddPageNotionPropertyText
@@ -184,12 +208,12 @@ class ArchiveBodyRequest(
 
 @JsonClass(generateAdapter = true)
 class UpdateBodyRequest(
-    val properties: Map<String, NotionUpdateProperty>,
+    val properties: Map<String, AddPageNotionProperty>,
 )
 
 @JsonClass(generateAdapter = true)
-data class NotionUpdateProperty(
-    val status: NotionStatus
+class UpdatePropertiesBodyRequest(
+    val properties: Map<String, ApiNotionProperty>,
 )
 
 @JsonClass(generateAdapter = true)

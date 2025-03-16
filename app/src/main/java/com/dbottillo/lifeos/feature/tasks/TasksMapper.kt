@@ -6,14 +6,12 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
+import javax.inject.Singleton
 import kotlin.Exception
 
-class TasksMapper @Inject constructor() {
-
-    private val inputDateAndTimeFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
-    private val inputDateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-    private val outputDateAndTimeFormatter = SimpleDateFormat("dd/MM HH:mm", Locale.getDefault())
-    private val outputDateFormatter = SimpleDateFormat("dd/MM", Locale.getDefault())
+class TasksMapper @Inject constructor(
+    private val dateMapper: NotionEntryDateMapper
+) {
 
     fun mapIdeas(input: List<NotionEntryWithParent>): List<Idea> {
         return input.map { entry ->
@@ -29,7 +27,7 @@ class TasksMapper @Inject constructor() {
 
     fun mapInbox(input: List<NotionEntryWithParent>): List<Inbox> {
         return input.map { entry ->
-            val dates = entry.notionEntry.toDate()
+            val dates = dateMapper.map(entry.notionEntry)
             Inbox(
                 id = entry.notionEntry.uid,
                 text = entry.notionEntry.toTitle(),
@@ -45,7 +43,7 @@ class TasksMapper @Inject constructor() {
 
     fun mapFocus(input: List<NotionEntryWithParent>): List<Focus> {
         return input.map { entry ->
-            val dates = entry.notionEntry.toDate()
+            val dates = dateMapper.map(entry.notionEntry)
             Focus(
                 id = entry.notionEntry.uid,
                 text = entry.notionEntry.toTitle(),
@@ -61,7 +59,7 @@ class TasksMapper @Inject constructor() {
 
     fun mapBlocked(input: List<NotionEntryWithParent>): List<Blocked> {
         return input.map { entry ->
-            val dates = entry.notionEntry.toDate()
+            val dates = dateMapper.map(entry.notionEntry)
             Blocked(
                 id = entry.notionEntry.uid,
                 text = entry.notionEntry.toTitle(),
@@ -75,10 +73,10 @@ class TasksMapper @Inject constructor() {
         }
     }
 
-    fun mapProjects(input: List<NotionEntryWithParent>): List<Project> {
+    fun mapFolders(input: List<NotionEntryWithParent>): List<Folder> {
         return input.map { entry ->
-            val dates = entry.notionEntry.toDate()
-            Project(
+            val dates = dateMapper.map(entry.notionEntry)
+            Folder(
                 id = entry.notionEntry.uid,
                 text = entry.notionEntry.toTitle(),
                 url = entry.notionEntry.url,
@@ -115,9 +113,17 @@ class TasksMapper @Inject constructor() {
             )
         }
     }
+}
 
-    private fun NotionEntry.toDate(): Pair<Date, String>? {
-        return startDate?.let { sD ->
+@Singleton
+class NotionEntryDateMapper @Inject constructor() {
+    private val inputDateAndTimeFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+    private val inputDateFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    private val outputDateAndTimeFormatter = SimpleDateFormat("dd/MM HH:mm", Locale.getDefault())
+    private val outputDateFormatter = SimpleDateFormat("dd/MM", Locale.getDefault())
+
+    fun map(entry: NotionEntry): Pair<Date, String>? {
+        return entry.startDate?.let { sD ->
             try {
                 inputDateAndTimeFormatter.parse(sD)?.let {
                     it to outputDateAndTimeFormatter.format(it)

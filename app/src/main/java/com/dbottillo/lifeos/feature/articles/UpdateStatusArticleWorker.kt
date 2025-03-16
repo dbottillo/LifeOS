@@ -7,9 +7,9 @@ import androidx.work.WorkerParameters
 import com.dbottillo.lifeos.feature.logs.LogLevel
 import com.dbottillo.lifeos.feature.logs.LogTags
 import com.dbottillo.lifeos.feature.logs.LogsRepository
+import com.dbottillo.lifeos.network.AddPageNotionProperty
+import com.dbottillo.lifeos.network.AddPageNotionPropertySelect
 import com.dbottillo.lifeos.network.ApiInterface
-import com.dbottillo.lifeos.network.NotionStatus
-import com.dbottillo.lifeos.network.NotionUpdateProperty
 import com.dbottillo.lifeos.network.UpdateBodyRequest
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -43,7 +43,7 @@ class UpdateStatusArticleWorker @AssistedInject constructor(
                 uuid,
                 UpdateBodyRequest(
                     properties = mapOf(
-                        "Status" to NotionUpdateProperty(status = NotionStatus(status))
+                        "Status" to AddPageNotionProperty(status = AddPageNotionPropertySelect(status))
                     )
                 )
             )

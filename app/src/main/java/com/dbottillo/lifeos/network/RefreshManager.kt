@@ -83,6 +83,7 @@ class RefreshManager @Inject constructor(
     }
 }
 
+// private const val REFRESH_WORKER_INTERVAL = 30L
 private const val REFRESH_WORKER_INTERVAL = 30L
 private const val REFRESH_WORKER_FLEX_INTERVAL = 15L
 private const val REFRESH_WORKER_PERIODIC_TAG = "periodic_refresh"

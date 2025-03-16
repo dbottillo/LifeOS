@@ -6,6 +6,9 @@ import androidx.activity.viewModels
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -21,6 +24,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -82,39 +88,46 @@ class HomeActivity : AppCompatActivity() {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
             val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+            var bottomBarVisible by remember { mutableStateOf(true) }
             AppTheme {
                 Scaffold(
                     topBar = { TopBarForDestination(navController, currentDestination) },
                     bottomBar = {
-                        NavigationBar {
-                            items.forEach { screen ->
-                                NavigationBarItem(
-                                    icon = {
-                                        Icon(
-                                            painterResource(id = screen.iconId),
-                                            contentDescription = null
-                                        )
-                                    },
-                                    label = { Text(stringResource(screen.resourceId)) },
-                                    selected = currentDestination?.hierarchy?.any {
-                                        it.route == screen.route || (it.route == "composer" && screen.route == Screen.Home.route)
-                                    } == true,
-                                    onClick = {
-                                        navController.navigate(screen.route) {
-                                            // Pop up to the start destination of the graph to
-                                            // avoid building up a large stack of destinations
-                                            // on the back stack as users select items
-                                            popUpTo(navController.graph.findStartDestination().id) {
-                                                saveState = true
+                        AnimatedVisibility(
+                            visible = bottomBarVisible,
+                            enter = slideInVertically(initialOffsetY = { it }),
+                            exit = slideOutVertically(targetOffsetY = { it })
+                        ) {
+                            NavigationBar {
+                                items.forEach { screen ->
+                                    NavigationBarItem(
+                                        icon = {
+                                            Icon(
+                                                painterResource(id = screen.iconId),
+                                                contentDescription = null
+                                            )
+                                        },
+                                        label = { Text(stringResource(screen.resourceId)) },
+                                        selected = currentDestination?.hierarchy?.any {
+                                            it.route == screen.route
+                                        } == true,
+                                        onClick = {
+                                            navController.navigate(screen.route) {
+                                                // Pop up to the start destination of the graph to
+                                                // avoid building up a large stack of destinations
+                                                // on the back stack as users select items
+                                                popUpTo(navController.graph.findStartDestination().id) {
+                                                    saveState = true
+                                                }
+                                                // Avoid multiple copies of the same destination when
+                                                // reselecting the same item
+                                                launchSingleTop = true
+                                                // Restore state when reselecting a previously selected item
+                                                restoreState = true
                                             }
-                                            // Avoid multiple copies of the same destination when
-                                            // reselecting the same item
-                                            launchSingleTop = true
-                                            // Restore state when reselecting a previously selected item
-                                            restoreState = true
                                         }
-                                    }
-                                )
+                                    )
+                                }
                             }
                         }
                     },
@@ -127,7 +140,7 @@ class HomeActivity : AppCompatActivity() {
                                     if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
                                         navController.navigate(ComposerDialog(null))
                                     } else {
-                                        navController.navigate(Composer(null)){
+                                        navController.navigate(Composer(null)) {
                                             launchSingleTop = true
                                             restoreState = false
                                         }
@@ -149,25 +162,21 @@ class HomeActivity : AppCompatActivity() {
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         composable(Screen.Home.route) {
+                            bottomBarVisible = true
                             HomeScreen(
                                 navController,
                                 homeViewModel
                             )
                         }
                         composable(Screen.Articles.route) {
+                            bottomBarVisible = true
                             ArticlesScreen(
                                 navController,
                                 homeViewModel
                             )
                         }
                         composable(Screen.Status.route) {
-                            StatusScreen(
-                                navController,
-                                statusViewModel,
-                                dateFormatter
-                            )
-                        }
-                        composable(Screen.Status.route) {
+                            bottomBarVisible = true
                             StatusScreen(
                                 navController,
                                 statusViewModel,
@@ -175,7 +184,8 @@ class HomeActivity : AppCompatActivity() {
                             )
                         }
                         composable<Composer> { backStackEntry ->
-                            val composer =  backStackEntry.toRoute<Composer>()
+                            bottomBarVisible = false
+                            val composer = backStackEntry.toRoute<Composer>()
                             val entryId = composer.entryId
                             taskComposerViewModel.init(ComposerInput(entryId = entryId))
                             TaskComposerScreen(
@@ -184,7 +194,8 @@ class HomeActivity : AppCompatActivity() {
                             )
                         }
                         dialog<ComposerDialog> { backStackEntry ->
-                            val composer =  backStackEntry.toRoute<Composer>()
+                            bottomBarVisible = true
+                            val composer = backStackEntry.toRoute<Composer>()
                             val entryId = composer.entryId
                             taskComposerViewModel.init(ComposerInput(entryId = entryId))
                             TaskComposerScreenDialog(
@@ -286,4 +297,5 @@ sealed class Screen(
 }
 
 @Serializable data class Composer(val entryId: String?)
+
 @Serializable data class ComposerDialog(val entryId: String?)

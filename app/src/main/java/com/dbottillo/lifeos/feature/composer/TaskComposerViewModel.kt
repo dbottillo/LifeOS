@@ -4,8 +4,10 @@ import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dbottillo.lifeos.feature.articles.ArticleManager
+import com.dbottillo.lifeos.feature.tasks.NotionEntryDateMapper
 import com.dbottillo.lifeos.feature.tasks.TaskManager
 import com.dbottillo.lifeos.feature.tasks.TasksRepository
+import com.dbottillo.lifeos.network.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,18 +23,19 @@ import javax.inject.Inject
 class TaskComposerViewModel @Inject constructor(
     private val articleManager: ArticleManager,
     private val taskManager: TaskManager,
-    private val tasksRepository: TasksRepository
+    private val tasksRepository: TasksRepository,
+    private val notionEntryDateMapper: NotionEntryDateMapper
 ) : ViewModel() {
 
     val state: MutableStateFlow<ComposerState> = MutableStateFlow(ComposerState.Loading)
 
     fun init(input: ComposerInput) {
-        if (input.entryId.isNullOrEmpty()){
+        if (input.entryId.isNullOrEmpty()) {
             viewModelScope.launch {
                 state.value = ComposerState.Data(
                     entryId = null,
                     title = input.title ?: "",
-                    url = input.url ?: ""
+                    link = input.url ?: ""
                 )
             }
         } else {
@@ -40,10 +43,13 @@ class TaskComposerViewModel @Inject constructor(
                 state.value = ComposerState.Loading
                 // load from db
                 val entry = tasksRepository.loadTask(input.entryId)
+                val date = notionEntryDateMapper.map(entry)?.first
+                entry.startDate
                 state.value = ComposerState.Data(
                     entryId = input.entryId,
                     title = entry.title ?: "",
-                    url = entry.url,
+                    link = entry.link ?: "",
+                    selectedDueDate = date?.time,
                     statusSelection = entry.status,
                     typeSelection = entry.type
                 )
@@ -62,14 +68,43 @@ class TaskComposerViewModel @Inject constructor(
 
     fun saveLifeOs() {
         val value = (state.value as ComposerState.Data)
-        taskManager.addTask(
-            title = value.title,
-            url = value.sanitizedUrl,
-            type = value.typeSelection,
-            status = value.statusSelection,
-            due = value.selectedDueDate
-        )
-        events.trySend(ComposerEvents.Finish)
+        if (value.editTaskMode) {
+            editTask()
+        } else {
+            taskManager.addTask(
+                title = value.title,
+                url = value.sanitizedUrl,
+                type = value.typeSelection,
+                status = value.statusSelection,
+                due = value.selectedDueDate
+            )
+            events.trySend(ComposerEvents.Finish)
+        }
+    }
+
+    private fun editTask() {
+        viewModelScope.launch {
+            val value = (state.value as ComposerState.Data)
+            state.value = dataState().copy(
+                editingInProgress = true
+            )
+            val result = tasksRepository.editTask(
+                entryId = value.entryId!!,
+                title = value.title,
+                link = value.sanitizedUrl,
+                type = value.typeSelection,
+                status = value.statusSelection,
+                due = value.selectedDueDate
+            )
+            if (result is ApiResult.Success) {
+                events.send(ComposerEvents.Finish)
+                return@launch
+            }
+            events.send(ComposerEvents.Error(result.toString()))
+            state.value = dataState().copy(
+                editingInProgress = false
+            )
+        }
     }
 
     fun onTitleChange(newTitle: String) {
@@ -83,7 +118,7 @@ class TaskComposerViewModel @Inject constructor(
     fun onUrlChange(newUrl: String) {
         viewModelScope.launch {
             state.value = dataState().copy(
-                url = newUrl
+                link = newUrl
             )
         }
     }
@@ -129,7 +164,7 @@ class TaskComposerViewModel @Inject constructor(
         }
     }
 
-    private suspend fun dataState(): ComposerState.Data{
+    private suspend fun dataState(): ComposerState.Data {
         return state.first() as ComposerState.Data
     }
 }
@@ -142,18 +177,18 @@ data class ComposerInput(
 )
 
 sealed class ComposerState {
-    data object Loading: ComposerState()
+    data object Loading : ComposerState()
     data class Data(
         val entryId: String?,
         val title: String,
-        val url: String,
+        val link: String,
         val typeSelection: String = "None",
         val typeSelectorOptions: List<String> = listOf(
             "None",
             "Idea",
             "Task",
             "Resource",
-            "Project",
+            "Folder",
             "Bookmark",
             "Area"
         ),
@@ -169,8 +204,9 @@ sealed class ComposerState {
         ),
         val showDueDatePicker: Boolean = false,
         val selectedDueDate: Long? = null,
-    ): ComposerState() {
-        val sanitizedUrl = url.split("?").first()
+        val editingInProgress: Boolean = false
+    ) : ComposerState() {
+        val sanitizedUrl = link.split("?").first()
         val saveArticleEnabled =
             sanitizedUrl.isNotEmpty() && typeSelection == "None" && statusSelection == "None" && selectedDueDate == null
 
@@ -182,10 +218,10 @@ sealed class ComposerState {
     }
 }
 
-
 @SuppressLint("ConstantLocale")
-val formatter = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
 sealed class ComposerEvents {
     data object Finish : ComposerEvents()
+    data class Error(val message: String) : ComposerEvents()
 }

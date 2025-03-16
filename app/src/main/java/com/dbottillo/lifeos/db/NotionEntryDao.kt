@@ -22,7 +22,7 @@ interface NotionEntryDao {
     fun getInbox(): Flow<List<NotionEntryWithParent>>
 
     @Transaction
-    @Query("SELECT * FROM notionEntry WHERE status = 'Focus' and type !='Goal' and type !='Project' order by parentId")
+    @Query("SELECT * FROM notionEntry WHERE status = 'Focus' and type !='Goal' and type !='Folder' order by parentId")
     fun getFocus(): Flow<List<NotionEntryWithParent>>
 
     @Transaction
@@ -30,8 +30,8 @@ interface NotionEntryDao {
     fun getBlocked(): Flow<List<NotionEntryWithParent>>
 
     @Transaction
-    @Query("SELECT * FROM notionEntry WHERE type = 'Project'")
-    fun getProjects(): Flow<List<NotionEntryWithParent>>
+    @Query("SELECT * FROM notionEntry WHERE type = 'Folder'")
+    fun getFolders(): Flow<List<NotionEntryWithParent>>
 
     @Transaction
     @Query("SELECT * FROM notionEntry WHERE type = 'Area'")
@@ -54,6 +54,18 @@ interface NotionEntryDao {
 
     @Query("SELECT * FROM notionEntry WHERE uid = :entryId")
     suspend fun getEntry(entryId: String): NotionEntryWithParent
+
+    @Query(
+        "UPDATE notionEntry SET title = :title, link = :link, type = :type, status = :status, start_date = :startDate WHERE uid = :entryId"
+    )
+    suspend fun updateEntry(
+        entryId: String,
+        title: String?,
+        link: String?,
+        type: String?,
+        status: String,
+        startDate: String?
+    ): Int
 
     @Suppress("SpreadOperator")
     @Transaction

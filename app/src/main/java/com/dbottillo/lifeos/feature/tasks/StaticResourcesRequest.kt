@@ -12,38 +12,6 @@ class StaticResourcesRequest {
             filter = FilterRequest(
                 and = listOf(
                     FilterRequest(
-                        /*or = listOf(
-                            FilterRequest(
-                                property = "Type",
-                                select = FilterEqualsRequest(
-                                    equals = "Area"
-                                )
-                            ),
-                            FilterRequest(
-                                property = "Type",
-                                select = FilterEqualsRequest(
-                                    equals = "Project"
-                                )
-                            ),
-                            FilterRequest(
-                                property = "Type",
-                                select = FilterEqualsRequest(
-                                    equals = "Resource"
-                                )
-                            ),
-                            FilterRequest(
-                                property = "Type",
-                                select = FilterEqualsRequest(
-                                    equals = "Goal"
-                                )
-                            ),
-                            FilterRequest(
-                                property = "Type",
-                                select = FilterEqualsRequest(
-                                    equals = "Idea"
-                                )
-                            )
-                        )*/
                         or = resources.map { res ->
                             FilterRequest(
                                 property = "Type",

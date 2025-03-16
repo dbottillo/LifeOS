@@ -12,7 +12,7 @@ import com.dbottillo.lifeos.feature.tasks.Focus
 import com.dbottillo.lifeos.feature.tasks.Goal
 import com.dbottillo.lifeos.feature.tasks.Idea
 import com.dbottillo.lifeos.feature.tasks.Inbox
-import com.dbottillo.lifeos.feature.tasks.Project
+import com.dbottillo.lifeos.feature.tasks.Folder
 import com.dbottillo.lifeos.feature.tasks.Resource
 import com.dbottillo.lifeos.feature.tasks.Status
 import com.dbottillo.lifeos.feature.tasks.TasksRepository
@@ -46,7 +46,7 @@ class HomeViewModel @Inject constructor(
             inbox = emptyList(),
             focus = emptyList(),
             blocked = emptyList(),
-            projects = emptyList(),
+            folders = emptyList(),
             goals = emptyList(),
             others = HomeStateBottom(
                 selection = listOf(),
@@ -80,13 +80,13 @@ class HomeViewModel @Inject constructor(
             ) { focus, inbox, blocked ->
                 Triple(focus, inbox, blocked)
             },
-            tasksRepository.projectsFlow,
+            tasksRepository.foldersFlow,
             tasksRepository.areasFlow,
             tasksRepository.ideasFlow,
             tasksRepository.resourcesFlow,
             otherStateBottomSelection,
             goalsRepository.goalsFlow
-        ) { focusInboxBlocked, projects, areas, ideas, resources, bottomSelection, goals ->
+        ) { focusInboxBlocked, folders, areas, ideas, resources, bottomSelection, goals ->
             val uiAreas = areas.mapAreas()
             val uiResources = resources.mapResources()
             val uiIdeas = ideas.mapIdeas()
@@ -116,7 +116,7 @@ class HomeViewModel @Inject constructor(
             )
             Triple(
                 focusInboxBlocked.second.mapInbox() to focusInboxBlocked.first.mapFocus(),
-                focusInboxBlocked.third.mapBlocked() to projects.filter { it.status is Status.Focus }.mapProjects(),
+                focusInboxBlocked.third.mapBlocked() to folders.filter { (it.progress ?: 0f) > 0f }.mapFolder(),
                 bottom to goals.filter { it.status is Status.Focus }.mapGoals()
             )
         }.collectLatest { (top, middle, bottom) ->
@@ -124,7 +124,7 @@ class HomeViewModel @Inject constructor(
                 inbox = top.first,
                 focus = top.second,
                 blocked = middle.first,
-                projects = middle.second,
+                folders = middle.second,
                 others = bottom.first,
                 goals = bottom.second
             )
@@ -199,10 +199,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun refreshProjects() {
+    fun refreshFolders() {
         viewModelScope.launch {
             tasksRepository.loadStaticResources(
-                listOf("Project")
+                listOf("Folder")
             )
         }
     }
@@ -221,7 +221,7 @@ data class HomeState(
     val inbox: List<EntryContent>,
     val blocked: List<EntryContent>,
     val focus: List<EntryContent>,
-    val projects: List<EntryContent>,
+    val folders: List<EntryContent>,
     val goals: List<EntryContent>,
     val others: HomeStateBottom,
     val nonBlockingError: Throwable? = null
@@ -252,6 +252,7 @@ data class Articles(val inbox: List<Article>, val longRead: List<Article>)
 
 data class EntryContent(
     val id: String,
+    val displayId: String,
     val title: String,
     val url: String,
     val subtitle: String? = null,
@@ -264,6 +265,7 @@ fun List<Inbox>.mapInbox(): List<EntryContent> {
     return map {
         EntryContent(
             id = it.id,
+            displayId = "inbox-${it.id}",
             title = it.text,
             url = it.url,
             subtitle = it.dueFormatted,
@@ -278,6 +280,7 @@ fun List<Focus>.mapFocus(): List<EntryContent> {
     return map {
         EntryContent(
             id = it.id,
+            displayId = "focus-${it.id}",
             title = it.text,
             url = it.url,
             subtitle = it.dueFormatted,
@@ -288,11 +291,12 @@ fun List<Focus>.mapFocus(): List<EntryContent> {
     }
 }
 
-fun List<Project>.mapProjects(): List<EntryContent> {
+fun List<Folder>.mapFolder(): List<EntryContent> {
     return map {
         val subtitle = it.progress?.let { "${(it * 100).toInt()}%" } ?: ""
         EntryContent(
             id = it.id,
+            displayId = "folder-${it.id}",
             title = it.text,
             subtitle = subtitle,
             url = it.url,
@@ -307,6 +311,7 @@ fun List<Blocked>.mapBlocked(): List<EntryContent> {
     return map {
         EntryContent(
             id = it.id,
+            displayId = "blocked-${it.id}",
             title = it.text,
             subtitle = it.dueFormatted,
             url = it.url,
@@ -321,6 +326,7 @@ fun List<Area>.mapAreas(): List<EntryContent> {
     return map {
         EntryContent(
             id = it.id,
+            displayId = "area-${it.id}",
             title = it.text,
             url = it.url,
             link = it.link,
@@ -333,6 +339,7 @@ fun List<Idea>.mapIdeas(): List<EntryContent> {
     return map {
         EntryContent(
             id = it.id,
+            displayId = "idea-${it.id}",
             title = it.text,
             url = it.url,
             link = it.link,
@@ -346,6 +353,7 @@ fun List<Resource>.mapResources(): List<EntryContent> {
     return map {
         EntryContent(
             id = it.id,
+            displayId = "resource-${it.id}",
             title = it.text,
             url = it.url,
             link = it.link,
@@ -359,6 +367,7 @@ fun List<Goal>.mapGoals(): List<EntryContent> {
     return map {
         EntryContent(
             id = it.id,
+            displayId = "goal-${it.id}",
             title = it.text,
             url = it.url,
             parent = it.parent?.title,

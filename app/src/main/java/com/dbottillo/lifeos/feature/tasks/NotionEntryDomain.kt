@@ -25,7 +25,7 @@ data class Idea(
     val parent: Parent?
 )
 
-data class Project(
+data class Folder(
     val id: String,
     val text: String,
     val url: String,

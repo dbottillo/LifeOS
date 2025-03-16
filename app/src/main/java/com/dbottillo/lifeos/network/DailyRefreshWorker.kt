@@ -25,7 +25,7 @@ class DailyRefreshWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
             tasksRepository.loadStaticResources(
-                listOf("Project", "Area", "Goal", "Idea", "Resource")
+                listOf("Folder", "Area", "Goal", "Idea", "Resource")
             )
             return@withContext Result.success()
         } catch (error: Throwable) {

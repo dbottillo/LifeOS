@@ -76,14 +76,14 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             inbox = state.value.inbox,
             top = state.value.focus,
             blocked = state.value.blocked,
-            middle = state.value.projects,
+            middle = state.value.folders,
             goals = state.value.goals,
             bottom = state.value.others,
             refresh = viewModel::reloadHome,
             openComposer = openComposer,
             bottomSelection = viewModel::bottomSelection,
             bottomSelectionDoubleTap = viewModel::bottomSelectionDoubleTap,
-            longPressProjects = viewModel::refreshProjects
+            longPressFolders = viewModel::refreshFolders
         )
     } else {
         HomeScreenContent(
@@ -91,7 +91,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             inbox = state.value.inbox,
             top = state.value.focus,
             blocked = state.value.blocked,
-            middle = state.value.projects,
+            middle = state.value.folders,
             goals = state.value.goals,
             bottom = state.value.others,
             refresh = viewModel::reloadHome,
@@ -99,7 +99,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             openComposer = openComposer,
             bottomSelection = viewModel::bottomSelection,
             bottomSelectionDoubleTap = viewModel::bottomSelectionDoubleTap,
-            refreshProjects = viewModel::refreshProjects
+            refreshFolders = viewModel::refreshFolders
         )
     }
 }
@@ -129,7 +129,7 @@ fun HomeScreenContent(
     refresh: () -> Unit,
     bottomSelection: (BottomSelection) -> Unit,
     bottomSelectionDoubleTap: (BottomSelection) -> Unit,
-    refreshProjects: () -> Unit,
+    refreshFolders: () -> Unit,
     openComposer: (String) -> Unit
 ) {
     val pullRefreshState = rememberPullRefreshState(refreshing, refresh)
@@ -152,7 +152,7 @@ fun HomeScreenContent(
                     )
                 }
                 inbox.forEach {
-                    item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
+                    item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
                         Entry(content = it, openComposer = openComposer)
                     }
                 }
@@ -168,7 +168,7 @@ fun HomeScreenContent(
                 )
             }
             top.forEach {
-                item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
+                item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
                     Entry(content = it, openComposer = openComposer)
                 }
             }
@@ -184,14 +184,14 @@ fun HomeScreenContent(
                     )
                 }
                 blocked.forEach {
-                    item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
+                    item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
                         Entry(content = it, openComposer = openComposer)
                     }
                 }
             }
             header {
                 Text(
-                    text = "Projects",
+                    text = "Open Folders",
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.tertiary,
                     modifier = Modifier
@@ -200,13 +200,13 @@ fun HomeScreenContent(
                         .combinedClickable(
                             onClick = { },
                             onDoubleClick = {
-                                refreshProjects.invoke()
+                                refreshFolders.invoke()
                             },
                         )
                 )
             }
             middle.forEach {
-                item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
+                item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
                     Entry(content = it, openComposer = openComposer)
                 }
             }
@@ -221,7 +221,7 @@ fun HomeScreenContent(
                 )
             }
             goals.forEach {
-                item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
+                item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
                     Entry(content = it, openComposer = openComposer)
                 }
             }
@@ -254,7 +254,7 @@ fun HomeScreenContent(
                 }
             }
             bottom.list.forEach {
-                item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
+                item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
                     Entry(content = it, openComposer = openComposer)
                 }
             }
@@ -284,7 +284,7 @@ fun HomeScreenContentExpanded(
     refresh: () -> Unit,
     bottomSelection: (BottomSelection) -> Unit,
     bottomSelectionDoubleTap: (BottomSelection) -> Unit,
-    longPressProjects: () -> Unit,
+    longPressFolders: () -> Unit,
     openComposer: (String) -> Unit
 ) {
     val pullRefreshState = rememberPullRefreshState(refreshing, refresh)
@@ -350,7 +350,7 @@ fun HomeScreenContentExpanded(
                 }
                 header {
                     Text(
-                        text = "Projects",
+                        text = "Folders",
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier
@@ -359,7 +359,7 @@ fun HomeScreenContentExpanded(
                             .combinedClickable(
                                 onClick = { },
                                 onLongClick = {
-                                    longPressProjects.invoke()
+                                    longPressFolders.invoke()
                                 },
                             )
                     )
@@ -438,6 +438,7 @@ fun HomeScreenContentExpanded(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Entry(
     content: EntryContent,
@@ -452,9 +453,14 @@ fun Entry(
     Surface(
         modifier = modifier
             .fillMaxSize()
-            .clickable {
-                openComposer.invoke(content.id)
-            },
+            .combinedClickable(
+                onClick = {
+                    context.openLink(content.url)
+                },
+                onLongClick = {
+                    openComposer.invoke(content.id)
+                },
+            ),
         color = content.color,
         shape = RoundedCornerShape(8.dp)
     ) {
@@ -521,7 +527,7 @@ fun HomeScreenPreview() {
                     bottomSelection = {},
                     bottomSelectionDoubleTap = {},
                     numberOfColumns = 2,
-                    refreshProjects = {},
+                    refreshFolders = {},
                     openComposer = {}
                 )
             }
@@ -547,7 +553,7 @@ fun HomeScreenContentExpandedPreview() {
                     refresh = {},
                     bottomSelection = {},
                     bottomSelectionDoubleTap = {},
-                    longPressProjects = {},
+                    longPressFolders = {},
                     openComposer = {}
                 )
             }
@@ -558,6 +564,7 @@ fun HomeScreenContentExpandedPreview() {
 private val inbox = listOf(
     EntryContent(
         id = UUID.randomUUID().toString(),
+        displayId = "inbox-${UUID.randomUUID()}",
         title = "🔃 Change Phox filter - last: 07/07/2024",
         url = "https://www.phoxwater.com/pages/setup",
         link = "https://www.phoxwater.com/pages/setup",
@@ -567,6 +574,7 @@ private val inbox = listOf(
     ),
     EntryContent(
         id = UUID.randomUUID().toString(),
+        displayId = "inbox-${UUID.randomUUID()}",
         title = "NHS app",
         url = "https://www.phoxwater.com/pages/setup",
         color = ColorType.Gray.color
@@ -576,6 +584,7 @@ private val inbox = listOf(
 private val blocked = listOf(
     EntryContent(
         id = UUID.randomUUID().toString(),
+        displayId = "blocked-${UUID.randomUUID()}",
         title = "Map review",
         url = "url",
         color = ColorType.Pink.color
@@ -585,12 +594,14 @@ private val blocked = listOf(
 private val top = listOf(
     EntryContent(
         id = UUID.randomUUID().toString(),
+        displayId = "focus-${UUID.randomUUID()}",
         title = "Decide tooling",
         url = "url",
         color = ColorType.Blue.color
     ),
     EntryContent(
         id = UUID.randomUUID().toString(),
+        displayId = "focus-${UUID.randomUUID()}",
         title = "Replicate home",
         url = "url",
         color = ColorType.Blue.color
@@ -600,6 +611,7 @@ private val top = listOf(
 private val middle = listOf(
     EntryContent(
         id = UUID.randomUUID().toString(),
+        displayId = "folder-${UUID.randomUUID()}",
         title = "Life OS",
         subtitle = "36%",
         url = "",
@@ -610,12 +622,14 @@ private val middle = listOf(
 private val goals = listOf(
     EntryContent(
         id = UUID.randomUUID().toString(),
+        displayId = "goal-${UUID.randomUUID()}",
         title = "Fat 18kg",
         url = "",
         color = ColorType.Aqua.color
     ),
     EntryContent(
         id = UUID.randomUUID().toString(),
+        displayId = "inbox-${UUID.randomUUID()}",
         title = "Deep on coroutines",
         url = "",
         color = ColorType.Aqua.color
@@ -643,6 +657,7 @@ private val bottom = HomeStateBottom(
     list = listOf(
         EntryContent(
             id = UUID.randomUUID().toString(),
+            displayId = "idea-${UUID.randomUUID()}",
             title = "Nothing phone testing device",
             subtitle = "12%",
             url = "url",
@@ -650,6 +665,7 @@ private val bottom = HomeStateBottom(
         ),
         EntryContent(
             id = UUID.randomUUID().toString(),
+            displayId = "area-${UUID.randomUUID()}",
             title = "Knowledge hub",
             url = "url",
             link = "https://drive.google.com/file/d/1PYB-TYIXX_w1LkwxQtX0TzG_eLInU9Dv/view?usp=sharing",
@@ -657,6 +673,7 @@ private val bottom = HomeStateBottom(
         ),
         EntryContent(
             id = UUID.randomUUID().toString(),
+            displayId = "resource-${UUID.randomUUID()}",
             title = "Monitor research",
             url = "url",
             color = ColorType.Purple.color

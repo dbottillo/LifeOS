@@ -1,5 +1,6 @@
 package com.dbottillo.lifeos.feature.composer
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,6 +54,7 @@ fun TaskComposerScreen(
     viewModel: TaskComposerViewModel,
     close: (() -> Unit)? = null,
 ) {
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.events.consumeEach {
             when (it) {
@@ -61,6 +65,8 @@ fun TaskComposerScreen(
                         navController.navigateUp()
                     }
                 }
+                is ComposerEvents.Error ->
+                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -85,6 +91,7 @@ fun TaskComposerScreenDialog(
     viewModel: TaskComposerViewModel,
     close: (() -> Unit)? = null,
 ) {
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
         viewModel.events.consumeEach {
             when (it) {
@@ -94,6 +101,10 @@ fun TaskComposerScreenDialog(
                     } else {
                         navController.navigateUp()
                     }
+                }
+
+                is ComposerEvents.Error -> {
+                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -136,11 +147,11 @@ private fun TaskComposerScreenContent(
     onDateSelected: (Long?) -> Unit,
     onDateSelectionDismiss: () -> Unit
 ) {
-    when(state){
+    when (state) {
         ComposerState.Loading -> Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
-        ){
+        ) {
             CircularProgressIndicator(
                 modifier = Modifier.width(48.dp),
                 color = MaterialTheme.colorScheme.secondary,
@@ -177,11 +188,11 @@ private fun TaskComposerScreenContent(
                                 modifier = Modifier.fillMaxWidth(),
                                 value = state.sanitizedUrl,
                                 onValueChange = onUrlChange,
-                                label = { Text("Url") }
+                                label = { Text("Link") }
                             )
-                            if (state.url != state.sanitizedUrl) {
+                            if (state.link != state.sanitizedUrl) {
                                 Text(
-                                    text = "Original url: ${state.url}",
+                                    text = "Original url: ${state.link}",
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.secondary,
                                 )
@@ -218,7 +229,19 @@ private fun TaskComposerScreenContent(
                             modifier = Modifier.padding(top = 24.dp),
                             onClick = { saveLifeOs() }
                         ) {
-                            Text(text = if (state.editTaskMode) "Edit" else "Task")
+                            if (state.editingInProgress) {
+                                Box(
+                                    modifier = Modifier.size(24.dp)
+                                ) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.width(16.dp).align(Alignment.Center),
+                                        color = MaterialTheme.colorScheme.secondary,
+                                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    )
+                                }
+                            } else {
+                                Text(text = if (state.editTaskMode) "Edit" else "Task")
+                            }
                         }
                         if (state.showArticle) {
                             Button(
@@ -249,11 +272,11 @@ private fun TaskComposerScreenContentDialog(
     onDateSelected: (Long?) -> Unit,
     onDateSelectionDismiss: () -> Unit
 ) {
-    when(state){
-        ComposerState.Loading ->  Box(
+    when (state) {
+        ComposerState.Loading -> Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
-        ){
+        ) {
             CircularProgressIndicator(
                 modifier = Modifier.width(48.dp),
                 color = MaterialTheme.colorScheme.secondary,
@@ -292,9 +315,9 @@ private fun TaskComposerScreenContentDialog(
                         onValueChange = onUrlChange,
                         label = { Text("Url") }
                     )
-                    if (state.url != state.sanitizedUrl) {
+                    if (state.link != state.sanitizedUrl) {
                         Text(
-                            text = "Original url: ${state.url}",
+                            text = "Original url: ${state.link}",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.secondary,
                         )
@@ -451,13 +474,13 @@ fun ShareScreenPreview() {
             TaskComposerScreenContent(
                 state = ComposerState.Data(
                     entryId = null,
-                    url = "https://www.google.com?abc=def",
+                    link = "https://www.google.com?abc=def",
                     title = "Google",
                     typeSelectorOptions = listOf(
                         "Idea",
                         "Task",
                         "Resource",
-                        "Project",
+                        "Folder",
                         "Bookmark",
                         "Area"
                     ),
@@ -513,13 +536,13 @@ fun ShareScreenPreviewDialog() {
             TaskComposerScreenContentDialog(
                 state = ComposerState.Data(
                     entryId = null,
-                    url = "https://www.google.com?abc=def",
+                    link = "https://www.google.com?abc=def",
                     title = "Google",
                     typeSelectorOptions = listOf(
                         "Idea",
                         "Task",
                         "Resource",
-                        "Project",
+                        "Folder",
                         "Bookmark",
                         "Area"
                     ),
