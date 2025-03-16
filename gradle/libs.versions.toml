@@ -1,7 +1,8 @@
 [versions]
 androidGradlePlugin = "8.6.1"
 moshi="1.15.2"
-kotlin = "2.0.21"
+kotlin = "2.1.10"
+ksp="2.1.10-1.0.31"
 coroutines = "1.9.0"
 androidDesugarJdkLibs = "2.1.5"
 androidXCore = "1.15.0"
@@ -149,4 +150,5 @@ crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlyti
 room = { id = "androidx.room", version.ref = "room" }
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 

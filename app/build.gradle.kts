@@ -4,13 +4,13 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    id("kotlin-kapt")
     id("dagger.hilt.android.plugin")
     alias(libs.plugins.room)
     alias(libs.plugins.google.services)
     alias(libs.plugins.crashlytics)
     alias(libs.plugins.versions)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.ksp)
     kotlin("plugin.serialization") version "1.9.22"
 }
 
@@ -97,7 +97,7 @@ room {
 dependencies {
     implementation(libs.bundles.ui)
     implementation(libs.bundles.network)
-    kapt(libs.moshi.codegen)
+    ksp(libs.moshi.codegen)
     implementation(libs.bundles.old.ui)
     implementation(libs.bundles.work.manager)
     implementation(libs.bundles.hilt)
@@ -106,11 +106,11 @@ dependencies {
     implementation(libs.bundles.compose.ui)
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
-    kapt(libs.dagger.hilt.compiler)
-    kapt(libs.hilt.compiler)
+    ksp(libs.dagger.hilt.compiler)
+    ksp(libs.hilt.compiler)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
-    kapt(libs.room.compiler)
+    ksp(libs.room.compiler)
     implementation(libs.bundles.androidx.glance)
     debugImplementation(libs.chucker)
     releaseImplementation(libs.chucker.noop)
@@ -120,21 +120,4 @@ dependencies {
     releaseImplementation(libs.flipper.noop)
     releaseImplementation(libs.flipper.plugins.noop)
     implementation(libs.kotlinx.serialization.json)
-}
-
-kapt {
-    useBuildCache = true
-    correctErrorTypes = true
-}
-
-task("devTest") {
-    dependsOn("testDebugUnitTest")
-}
-
-task("stagingTest") {
-    dependsOn("testDebugUnitTest")
-}
-
-task("prodTest") {
-    dependsOn("testReleaseUnitTest")
 }
