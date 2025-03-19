@@ -196,7 +196,7 @@ sealed class ComposerState {
         val statusSelectorOptions: List<String> = listOf(
             "None",
             "Focus",
-            "Blocked",
+            "Next week",
             "Backlog",
             "Recurring",
             "Archive",

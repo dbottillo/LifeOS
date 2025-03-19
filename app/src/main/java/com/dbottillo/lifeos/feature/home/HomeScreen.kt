@@ -75,7 +75,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             refreshing = state.value.refreshing,
             inbox = state.value.inbox,
             top = state.value.focus,
-            blocked = state.value.blocked,
+            nextWeek = state.value.nextWeek,
             middle = state.value.folders,
             goals = state.value.goals,
             bottom = state.value.others,
@@ -90,7 +90,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             refreshing = state.value.refreshing,
             inbox = state.value.inbox,
             top = state.value.focus,
-            blocked = state.value.blocked,
+            nextWeek = state.value.nextWeek,
             middle = state.value.folders,
             goals = state.value.goals,
             bottom = state.value.others,
@@ -121,7 +121,7 @@ fun HomeScreenContent(
     refreshing: Boolean,
     inbox: List<EntryContent>,
     top: List<EntryContent>,
-    blocked: List<EntryContent>,
+    nextWeek: List<EntryContent>,
     middle: List<EntryContent>,
     goals: List<EntryContent>,
     bottom: HomeStateBottom,
@@ -172,10 +172,10 @@ fun HomeScreenContent(
                     Entry(content = it, openComposer = openComposer)
                 }
             }
-            if (blocked.isNotEmpty()) {
+            if (nextWeek.isNotEmpty()) {
                 header {
                     Text(
-                        text = "Blocked",
+                        text = "Next week",
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.tertiary,
                         modifier = Modifier
@@ -183,7 +183,7 @@ fun HomeScreenContent(
                             .padding(top = 16.dp)
                     )
                 }
-                blocked.forEach {
+                nextWeek.forEach {
                     item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
                         Entry(content = it, openComposer = openComposer)
                     }
@@ -277,7 +277,7 @@ fun HomeScreenContentExpanded(
     refreshing: Boolean,
     inbox: List<EntryContent>,
     top: List<EntryContent>,
-    blocked: List<EntryContent>,
+    nextWeek: List<EntryContent>,
     middle: List<EntryContent>,
     goals: List<EntryContent>,
     bottom: HomeStateBottom,
@@ -331,10 +331,10 @@ fun HomeScreenContentExpanded(
                         Entry(content = it, openComposer = openComposer)
                     }
                 }
-                if (blocked.isNotEmpty()) {
+                if (nextWeek.isNotEmpty()) {
                     header {
                         Text(
-                            text = "Blocked",
+                            text = "Next week",
                             style = MaterialTheme.typography.titleSmall,
                             color = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier
@@ -342,7 +342,7 @@ fun HomeScreenContentExpanded(
                                 .padding(top = 16.dp)
                         )
                     }
-                    blocked.forEach {
+                    nextWeek.forEach {
                         item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
                             Entry(content = it, openComposer = openComposer)
                         }
@@ -518,7 +518,7 @@ fun HomeScreenPreview() {
                 HomeScreenContent(
                     refreshing = false,
                     inbox = inbox,
-                    blocked = blocked,
+                    nextWeek = nextWeek,
                     top = top,
                     middle = middle,
                     bottom = bottom,
@@ -545,7 +545,7 @@ fun HomeScreenContentExpandedPreview() {
                 HomeScreenContentExpanded(
                     refreshing = false,
                     inbox = inbox,
-                    blocked = blocked,
+                    nextWeek = nextWeek,
                     top = top,
                     middle = middle,
                     bottom = bottom,
@@ -581,13 +581,13 @@ private val inbox = listOf(
     )
 )
 
-private val blocked = listOf(
+private val nextWeek = listOf(
     EntryContent(
         id = UUID.randomUUID().toString(),
-        displayId = "blocked-${UUID.randomUUID()}",
+        displayId = "next-week-${UUID.randomUUID()}",
         title = "Map review",
         url = "url",
-        color = ColorType.Pink.color
+        color = ColorType.Orange.color
     )
 )
 

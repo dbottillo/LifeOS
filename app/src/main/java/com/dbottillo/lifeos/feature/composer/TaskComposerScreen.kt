@@ -486,7 +486,7 @@ fun ShareScreenPreview() {
                     ),
                     statusSelectorOptions = listOf(
                         "Focus",
-                        "Blocked",
+                        "Next week",
                         "Backlog",
                         "Recurring",
                         "Archive",
@@ -548,7 +548,7 @@ fun ShareScreenPreviewDialog() {
                     ),
                     statusSelectorOptions = listOf(
                         "Focus",
-                        "Blocked",
+                        "Next week",
                         "Backlog",
                         "Recurring",
                         "Archive",

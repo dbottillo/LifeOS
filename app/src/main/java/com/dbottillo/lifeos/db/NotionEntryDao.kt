@@ -26,8 +26,8 @@ interface NotionEntryDao {
     fun getFocus(): Flow<List<NotionEntryWithParent>>
 
     @Transaction
-    @Query("SELECT * FROM notionEntry WHERE status = 'Blocked' order by parentId")
-    fun getBlocked(): Flow<List<NotionEntryWithParent>>
+    @Query("SELECT * FROM notionEntry WHERE status = 'Next week' order by parentId")
+    fun getNextWeek(): Flow<List<NotionEntryWithParent>>
 
     @Transaction
     @Query("SELECT * FROM notionEntry WHERE type = 'Folder'")
@@ -69,10 +69,10 @@ interface NotionEntryDao {
 
     @Suppress("SpreadOperator")
     @Transaction
-    suspend fun deleteAndSaveFocusInboxBlocked(entries: List<NotionEntry>) {
+    suspend fun deleteAndSaveFocusInboxNextWeek(entries: List<NotionEntry>) {
         getInbox().first().forEach { delete(it.notionEntry) }
         getFocus().first().forEach { delete(it.notionEntry) }
-        getBlocked().first().forEach { delete(it.notionEntry) }
+        getNextWeek().first().forEach { delete(it.notionEntry) }
         insertAll(*entries.toTypedArray())
     }
 

@@ -2,7 +2,6 @@ package com.dbottillo.lifeos.feature.widgets
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.graphics.Color
@@ -38,10 +37,10 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.dbottillo.lifeos.R
 import com.dbottillo.lifeos.feature.home.EntryContent
-import com.dbottillo.lifeos.feature.home.mapBlocked
+import com.dbottillo.lifeos.feature.home.mapNextWeek
 import com.dbottillo.lifeos.feature.home.mapFocus
 import com.dbottillo.lifeos.feature.home.mapInbox
-import com.dbottillo.lifeos.feature.tasks.Blocked
+import com.dbottillo.lifeos.feature.tasks.NextWeek
 import com.dbottillo.lifeos.feature.tasks.Focus
 import com.dbottillo.lifeos.feature.tasks.Inbox
 import com.dbottillo.lifeos.feature.tasks.TasksRepository
@@ -50,6 +49,7 @@ import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
+import androidx.core.net.toUri
 
 class OverviewWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget = OverviewWidget()
@@ -76,7 +76,7 @@ class OverviewWidget : GlanceAppWidget() {
         provideContent {
             val inbox = tasksRepository.inboxFlow.collectAsState(emptyList())
             val focus = tasksRepository.focusFlow.collectAsState(emptyList())
-            val blocked = tasksRepository.blockedFlow.collectAsState(emptyList())
+            val nextWeek = tasksRepository.nextWeekFlow.collectAsState(emptyList())
             GlanceTheme(colors = LifeOSAppWidgetGlanceColorScheme.colors) {
                 Box(
                     modifier = GlanceModifier
@@ -86,7 +86,7 @@ class OverviewWidget : GlanceAppWidget() {
                     OverviewAppWidgetContent(
                         inbox = inbox.value,
                         focus = focus.value,
-                        blocked = blocked.value
+                        nextWeek = nextWeek.value
                     )
                 }
             }
@@ -97,7 +97,7 @@ class OverviewWidget : GlanceAppWidget() {
     fun OverviewAppWidgetContent(
         inbox: List<Inbox>,
         focus: List<Focus>,
-        blocked: List<Blocked>
+        nextWeek: List<NextWeek>
     ) {
         LazyColumn(
             modifier = GlanceModifier
@@ -143,11 +143,11 @@ class OverviewWidget : GlanceAppWidget() {
                     )
                 }
             }
-            if (blocked.isNotEmpty()) {
+            if (nextWeek.isNotEmpty()) {
                 item {
-                    Header("Blocked")
+                    Header("Next week")
                 }
-                blocked.mapBlocked().forEach { entry ->
+                nextWeek.mapNextWeek().forEach { entry ->
                     item {
                         EntryWidget(content = entry)
                     }
@@ -180,7 +180,7 @@ fun EntryWidget(
     Column {
         Spacer(GlanceModifier.fillMaxWidth().height(2.dp))
         val intent = Intent(Intent.ACTION_VIEW)
-        intent.data = Uri.parse(content.url)
+        intent.data = content.url.toUri()
         Box(
             modifier = GlanceModifier
                 .fillMaxWidth()
@@ -212,7 +212,7 @@ fun EntryWidget(
                 }
                 if (content.link?.isNotEmpty() == true) {
                     val intentLink = Intent(Intent.ACTION_VIEW)
-                    intentLink.data = Uri.parse(content.link)
+                    intentLink.data = content.link.toUri()
                     Text(
                         modifier = GlanceModifier
                             .padding(top = 2.dp)

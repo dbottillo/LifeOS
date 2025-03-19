@@ -7,7 +7,7 @@ import com.dbottillo.lifeos.db.Article
 import com.dbottillo.lifeos.feature.articles.ArticleRepository
 import com.dbottillo.lifeos.feature.blocks.GoalsRepository
 import com.dbottillo.lifeos.feature.tasks.Area
-import com.dbottillo.lifeos.feature.tasks.Blocked
+import com.dbottillo.lifeos.feature.tasks.NextWeek
 import com.dbottillo.lifeos.feature.tasks.Focus
 import com.dbottillo.lifeos.feature.tasks.Goal
 import com.dbottillo.lifeos.feature.tasks.Idea
@@ -45,7 +45,7 @@ class HomeViewModel @Inject constructor(
             refreshing = false,
             inbox = emptyList(),
             focus = emptyList(),
-            blocked = emptyList(),
+            nextWeek = emptyList(),
             folders = emptyList(),
             goals = emptyList(),
             others = HomeStateBottom(
@@ -76,9 +76,9 @@ class HomeViewModel @Inject constructor(
             combine(
                 tasksRepository.focusFlow,
                 tasksRepository.inboxFlow,
-                tasksRepository.blockedFlow
-            ) { focus, inbox, blocked ->
-                Triple(focus, inbox, blocked)
+                tasksRepository.nextWeekFlow
+            ) { focus, inbox, nextWeek ->
+                Triple(focus, inbox, nextWeek)
             },
             tasksRepository.foldersFlow,
             tasksRepository.areasFlow,
@@ -86,7 +86,7 @@ class HomeViewModel @Inject constructor(
             tasksRepository.resourcesFlow,
             otherStateBottomSelection,
             goalsRepository.goalsFlow
-        ) { focusInboxBlocked, folders, areas, ideas, resources, bottomSelection, goals ->
+        ) { focusInboxNextWeek, folders, areas, ideas, resources, bottomSelection, goals ->
             val uiAreas = areas.mapAreas()
             val uiResources = resources.mapResources()
             val uiIdeas = ideas.mapIdeas()
@@ -115,15 +115,15 @@ class HomeViewModel @Inject constructor(
                 }
             )
             Triple(
-                focusInboxBlocked.second.mapInbox() to focusInboxBlocked.first.mapFocus(),
-                focusInboxBlocked.third.mapBlocked() to folders.filter { (it.progress ?: 0f) > 0f }.mapFolder(),
+                focusInboxNextWeek.second.mapInbox() to focusInboxNextWeek.first.mapFocus(),
+                focusInboxNextWeek.third.mapNextWeek() to folders.filter { (it.progress ?: 0f) > 0f }.mapFolder(),
                 bottom to goals.filter { it.status is Status.Focus }.mapGoals()
             )
         }.collectLatest { (top, middle, bottom) ->
             homeState.value = homeState.first().copy(
                 inbox = top.first,
                 focus = top.second,
-                blocked = middle.first,
+                nextWeek = middle.first,
                 folders = middle.second,
                 others = bottom.first,
                 goals = bottom.second
@@ -219,7 +219,7 @@ class HomeViewModel @Inject constructor(
 data class HomeState(
     val refreshing: Boolean,
     val inbox: List<EntryContent>,
-    val blocked: List<EntryContent>,
+    val nextWeek: List<EntryContent>,
     val focus: List<EntryContent>,
     val folders: List<EntryContent>,
     val goals: List<EntryContent>,
@@ -307,17 +307,17 @@ fun List<Folder>.mapFolder(): List<EntryContent> {
     }
 }
 
-fun List<Blocked>.mapBlocked(): List<EntryContent> {
+fun List<NextWeek>.mapNextWeek(): List<EntryContent> {
     return map {
         EntryContent(
             id = it.id,
-            displayId = "blocked-${it.id}",
+            displayId = "next-week-${it.id}",
             title = it.text,
             subtitle = it.dueFormatted,
             url = it.url,
             link = it.link,
             parent = it.parent?.title,
-            color = ColorType.Red.color
+            color = ColorType.Orange.color
         )
     }
 }
@@ -393,7 +393,7 @@ fun String?.toColor(): Color {
 @Suppress("MagicNumber")
 enum class ColorType(val color: Color) {
     Gray(Color(0xFF777777)),
-    Orange(Color(0xFF572F0E)),
+    Orange(Color(0xFF8D4A13)),
     Green(Color(0xFF2C6845)),
     Blue(Color(0xFF183A69)),
     Red(Color(0xFF751E1E)),

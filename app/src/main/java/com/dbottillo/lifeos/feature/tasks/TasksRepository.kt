@@ -60,7 +60,7 @@ class TasksRepository @Inject constructor(
         }
     }
     val focusFlow: Flow<List<Focus>> = dao.getFocus().map(mapper::mapFocus)
-    val blockedFlow: Flow<List<Blocked>> = dao.getBlocked().map(mapper::mapBlocked)
+    val nextWeekFlow: Flow<List<NextWeek>> = dao.getNextWeek().map(mapper::mapNextWeek)
     val foldersFlow: Flow<List<Folder>> = dao.getFolders().map(mapper::mapFolders)
     val areasFlow: Flow<List<Area>> = dao.getAreas().map(mapper::mapAreas)
     val ideasFlow: Flow<List<Idea>> = dao.getIdeas().map(mapper::mapIdeas)
@@ -76,7 +76,7 @@ class TasksRepository @Inject constructor(
             LogLevel.INFO,
             "load next actions"
         )
-        return when (val nextActions = fetchFocusInboxBlocked()) {
+        return when (val nextActions = fetchFocusInboxNextWeek()) {
             is ApiResult.Success -> {
                 storeAndNotify(nextActions.data)
                 logsRepository.addEntry(
@@ -135,17 +135,17 @@ class TasksRepository @Inject constructor(
         }
     }
 
-    private suspend fun fetchFocusInboxBlocked(): ApiResult<List<NotionPage>> {
+    private suspend fun fetchFocusInboxNextWeek(): ApiResult<List<NotionPage>> {
         val now = Instant.now()
         val dtm = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
-        val request = FocusInboxBlockedRequest(dtm.format(now))
+        val request = FocusInboxNextWeekRequest(dtm.format(now))
         return fetchNotionPages(request.get())
     }
 
     private suspend fun storeAndNotify(
         result: List<NotionPage>
     ) {
-        dao.deleteAndSaveFocusInboxBlocked(result.map { it.toEntry() })
+        dao.deleteAndSaveFocusInboxNextWeek(result.map { it.toEntry() })
         updateFocusNotification()
     }
 

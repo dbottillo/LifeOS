@@ -6,7 +6,7 @@ import com.dbottillo.lifeos.network.FilterRequest
 import com.dbottillo.lifeos.network.NotionBodyRequest
 import com.dbottillo.lifeos.network.SortRequest
 
-class FocusInboxBlockedRequest(private val date: String) {
+class FocusInboxNextWeekRequest(private val date: String) {
 
     fun get(): NotionBodyRequest {
         return NotionBodyRequest(
@@ -43,7 +43,7 @@ class FocusInboxBlockedRequest(private val date: String) {
                     FilterRequest(
                         property = "Status",
                         status = FilterEqualsRequest(
-                            equals = "Blocked"
+                            equals = "Next week"
                         )
                     )
                 )
