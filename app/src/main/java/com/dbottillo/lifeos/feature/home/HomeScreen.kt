@@ -1,5 +1,6 @@
 package com.dbottillo.lifeos.feature.home
 
+import android.content.Intent
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -41,6 +42,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.window.core.layout.WindowWidthSizeClass
+import com.dbottillo.lifeos.feature.composer.EXTRA_ENTRY_ID
+import com.dbottillo.lifeos.feature.composer.TaskComposerActivity
 import com.dbottillo.lifeos.ui.AppTheme
 import com.dbottillo.lifeos.util.openLink
 import java.util.UUID
@@ -51,9 +54,10 @@ const val CONTENT_TYPE_TITLE = "title"
 @Composable
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
     val state = viewModel.homeState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     state.value.nonBlockingError?.let { error ->
-        Toast.makeText(LocalContext.current, error.message, Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, error.message, Toast.LENGTH_SHORT).show()
         viewModel.nonBlockingErrorShown()
     }
 
@@ -63,10 +67,9 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
         if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
             navController.navigate(ComposerDialog(entryId = entryId))
         } else {
-            navController.navigate(Composer(entryId = entryId)) {
-                launchSingleTop = true
-                restoreState = false
-            }
+            val intent = Intent(context, TaskComposerActivity::class.java)
+            intent.putExtra(EXTRA_ENTRY_ID, entryId)
+            context.startActivity(intent)
         }
     }
 

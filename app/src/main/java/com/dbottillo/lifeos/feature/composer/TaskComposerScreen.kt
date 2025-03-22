@@ -6,15 +6,18 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -26,8 +29,10 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,8 +42,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -47,6 +55,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.dbottillo.lifeos.ui.AppTheme
 import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.job
 
 @Composable
 fun TaskComposerScreen(
@@ -83,6 +92,120 @@ fun TaskComposerScreen(
         onDateSelected = viewModel::onDateSelected,
         onDateSelectionDismiss = viewModel::onDateSelectionDismiss
     )
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun TaskComposerScreenContent(
+    state: ComposerState,
+    onTitleChange: (String) -> Unit = {},
+    onUrlChange: (String) -> Unit = {},
+    saveArticle: () -> Unit,
+    saveLifeOs: () -> Unit,
+    onTypeSelected: (String) -> Unit,
+    onStatusSelected: (String) -> Unit,
+    onSelectDate: () -> Unit,
+    onDateSelected: (Long?) -> Unit,
+    onDateSelectionDismiss: () -> Unit
+) {
+    Scaffold(
+        modifier = Modifier.fillMaxSize().imePadding(),
+        topBar = {
+            TopAppBar(
+                title = { Text("Composer") }
+            )
+        },
+        bottomBar = {
+            if (state is ComposerState.Data) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                ) {
+                    if (state.showArticle) {
+                        MainActionButton(
+                            modifier = Modifier.weight(0.5f).padding(end = 8.dp),
+                            editingInProgress = state.editingInProgress,
+                            editTaskMode = state.editTaskMode,
+                            saveLifeOs = saveLifeOs
+                        )
+                        ArticleActionButton(
+                            modifier = Modifier.weight(0.5f).padding(start = 8.dp),
+                            enabled = state.saveArticleEnabled,
+                            saveArticle = saveArticle
+                        )
+                    } else {
+                        MainActionButton(
+                            modifier = Modifier.weight(1f),
+                            editingInProgress = state.editingInProgress,
+                            editTaskMode = state.editTaskMode,
+                            saveLifeOs = saveLifeOs
+                        )
+                    }
+                }
+            }
+        }
+    ) {
+        Box(
+            modifier = Modifier
+                .consumeWindowInsets(it)
+                .padding(it)
+                .safeDrawingPadding()
+        ) {
+            TaskComposerScreenDataContent(
+                state = state,
+                onTitleChange = onTitleChange,
+                onUrlChange = onUrlChange,
+                onTypeSelected = onTypeSelected,
+                onStatusSelected = onStatusSelected,
+                onSelectDate = onSelectDate,
+                onDateSelected = onDateSelected,
+                onDateSelectionDismiss = onDateSelectionDismiss
+            )
+        }
+    }
+}
+
+@Composable
+private fun MainActionButton(
+    modifier: Modifier = Modifier,
+    editingInProgress: Boolean,
+    editTaskMode: Boolean,
+    saveLifeOs: () -> Unit
+) {
+    Button(
+        modifier = modifier,
+        onClick = saveLifeOs
+    ) {
+        if (editingInProgress) {
+            Box(
+                modifier = Modifier.size(24.dp)
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.width(16.dp).align(Alignment.Center),
+                    color = MaterialTheme.colorScheme.secondary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                )
+            }
+        } else {
+            Text(text = if (editTaskMode) "Edit" else "Task")
+        }
+    }
+}
+
+@Composable
+private fun ArticleActionButton(
+    modifier: Modifier = Modifier,
+    enabled: Boolean,
+    saveArticle: () -> Unit
+) {
+    Button(
+        modifier = modifier,
+        onClick = saveArticle,
+        enabled = enabled
+    ) {
+        Text(text = "Article")
+    }
 }
 
 @Composable
@@ -135,18 +258,17 @@ fun TaskComposerScreenDialog(
 }
 
 @Composable
-private fun TaskComposerScreenContent(
+private fun TaskComposerScreenDataContent(
     state: ComposerState,
     onTitleChange: (String) -> Unit = {},
     onUrlChange: (String) -> Unit = {},
-    saveArticle: () -> Unit,
-    saveLifeOs: () -> Unit,
     onTypeSelected: (String) -> Unit,
     onStatusSelected: (String) -> Unit,
     onSelectDate: () -> Unit,
     onDateSelected: (Long?) -> Unit,
     onDateSelectionDismiss: () -> Unit
 ) {
+    val focusRequester = remember { FocusRequester() }
     when (state) {
         ComposerState.Loading -> Box(
             modifier = Modifier.fillMaxSize(),
@@ -159,103 +281,64 @@ private fun TaskComposerScreenContent(
             )
         }
         is ComposerState.Data -> {
-            Box(
-                modifier = Modifier.fillMaxSize()
+            if (state.showDueDatePicker) {
+                DatePickerModal(
+                    onDateSelected = onDateSelected,
+                    onDismiss = onDateSelectionDismiss
+                )
+            }
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                if (state.showDueDatePicker) {
-                    DatePickerModal(
-                        onDateSelected = onDateSelected,
-                        onDismiss = onDateSelectionDismiss
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                    value = state.title,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                    onValueChange = onTitleChange,
+                    label = { Text("Title") }
+                )
+                Column {
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = state.sanitizedUrl,
+                        onValueChange = onUrlChange,
+                        label = { Text("Link") }
                     )
-                }
-                Column(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .verticalScroll(rememberScrollState())
-                            .padding(horizontal = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        OutlinedTextField(
-                            modifier = Modifier.fillMaxWidth(),
-                            value = state.title,
-                            onValueChange = onTitleChange,
-                            label = { Text("Title") }
-                        )
-                        Column {
-                            OutlinedTextField(
-                                modifier = Modifier.fillMaxWidth(),
-                                value = state.sanitizedUrl,
-                                onValueChange = onUrlChange,
-                                label = { Text("Link") }
-                            )
-                            if (state.link != state.sanitizedUrl) {
-                                Text(
-                                    text = "Original url: ${state.link}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.secondary,
-                                )
-                            }
-                        }
-                        Selector(
-                            modifier = Modifier.fillMaxWidth().padding(16.dp),
-                            prefix = "Type",
-                            selection = state.typeSelection,
-                            options = state.typeSelectorOptions,
-                            onOptionSelected = onTypeSelected
-                        )
-                        Selector(
-                            modifier = Modifier.fillMaxWidth().padding(16.dp),
-                            prefix = "Status",
-                            selection = state.statusSelection,
-                            options = state.statusSelectorOptions,
-                            onOptionSelected = onStatusSelected
-                        )
-                        DueDatePicker(
-                            modifier = Modifier.fillMaxWidth().padding(16.dp),
-                            dueDate = state.formattedDate,
-                            onSelectDate = onSelectDate
+                    if (state.link != state.sanitizedUrl) {
+                        Text(
+                            text = "Original url: ${state.link}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.secondary,
                         )
                     }
-                    Spacer(modifier = Modifier.weight(1f))
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly
-                    ) {
-                        Button(
-                            modifier = Modifier.padding(top = 24.dp),
-                            onClick = { saveLifeOs() }
-                        ) {
-                            if (state.editingInProgress) {
-                                Box(
-                                    modifier = Modifier.size(24.dp)
-                                ) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.width(16.dp).align(Alignment.Center),
-                                        color = MaterialTheme.colorScheme.secondary,
-                                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                                    )
-                                }
-                            } else {
-                                Text(text = if (state.editTaskMode) "Edit" else "Task")
-                            }
-                        }
-                        if (state.showArticle) {
-                            Button(
-                                modifier = Modifier.padding(top = 24.dp),
-                                onClick = { saveArticle() },
-                                enabled = state.saveArticleEnabled
-                            ) {
-                                Text(text = "Article")
-                            }
-                        }
-                    }
                 }
+                Selector(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    prefix = "Type",
+                    selection = state.typeSelection,
+                    options = state.typeSelectorOptions,
+                    onOptionSelected = onTypeSelected
+                )
+                Selector(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    prefix = "Status",
+                    selection = state.statusSelection,
+                    options = state.statusSelectorOptions,
+                    onOptionSelected = onStatusSelected
+                )
+                DueDatePicker(
+                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    dueDate = state.formattedDate,
+                    onSelectDate = onSelectDate
+                )
             }
         }
+    }
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
     }
 }
 
@@ -272,6 +355,7 @@ private fun TaskComposerScreenContentDialog(
     onDateSelected: (Long?) -> Unit,
     onDateSelectionDismiss: () -> Unit
 ) {
+    val focusRequester = remember { FocusRequester() }
     when (state) {
         ComposerState.Loading -> Box(
             modifier = Modifier.fillMaxSize(),
@@ -303,7 +387,7 @@ private fun TaskComposerScreenContentDialog(
                     style = MaterialTheme.typography.titleLarge
                 )
                 OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
                     value = state.title,
                     onValueChange = onTitleChange,
                     label = { Text("Title") }
@@ -367,6 +451,11 @@ private fun TaskComposerScreenContentDialog(
                     }
                 }
             }
+        }
+    }
+    LaunchedEffect(Unit) {
+        this.coroutineContext.job.invokeOnCompletion {
+            focusRequester.requestFocus()
         }
     }
 }

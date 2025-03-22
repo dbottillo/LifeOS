@@ -1,5 +1,6 @@
 package com.dbottillo.lifeos.feature.home
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -53,7 +54,7 @@ import com.dbottillo.lifeos.R
 import com.dbottillo.lifeos.data.AppConstant
 import com.dbottillo.lifeos.feature.articles.ArticlesScreen
 import com.dbottillo.lifeos.feature.composer.ComposerInput
-import com.dbottillo.lifeos.feature.composer.TaskComposerScreen
+import com.dbottillo.lifeos.feature.composer.TaskComposerActivity
 import com.dbottillo.lifeos.feature.composer.TaskComposerScreenDialog
 import com.dbottillo.lifeos.feature.composer.TaskComposerViewModel
 import com.dbottillo.lifeos.feature.status.StatusScreen
@@ -140,10 +141,9 @@ class HomeActivity : AppCompatActivity() {
                                     if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
                                         navController.navigate(ComposerDialog(null))
                                     } else {
-                                        navController.navigate(Composer(null)) {
-                                            launchSingleTop = true
-                                            restoreState = false
-                                        }
+                                        this@HomeActivity.startActivity(
+                                            Intent(this@HomeActivity, TaskComposerActivity::class.java)
+                                        )
                                     }
                                 },
                             ) {
@@ -183,19 +183,9 @@ class HomeActivity : AppCompatActivity() {
                                 dateFormatter
                             )
                         }
-                        composable<Composer> { backStackEntry ->
-                            bottomBarVisible = false
-                            val composer = backStackEntry.toRoute<Composer>()
-                            val entryId = composer.entryId
-                            taskComposerViewModel.init(ComposerInput(entryId = entryId))
-                            TaskComposerScreen(
-                                navController = navController,
-                                viewModel = taskComposerViewModel
-                            )
-                        }
                         dialog<ComposerDialog> { backStackEntry ->
                             bottomBarVisible = true
-                            val composer = backStackEntry.toRoute<Composer>()
+                            val composer = backStackEntry.toRoute<ComposerDialog>()
                             val entryId = composer.entryId
                             taskComposerViewModel.init(ComposerInput(entryId = entryId))
                             TaskComposerScreenDialog(
@@ -295,7 +285,5 @@ sealed class Screen(
     data object Articles : Screen("articles", R.string.articles, R.drawable.baseline_list_24)
     data object Status : Screen("status", R.string.status, R.drawable.baseline_settings_24)
 }
-
-@Serializable data class Composer(val entryId: String?)
 
 @Serializable data class ComposerDialog(val entryId: String?)

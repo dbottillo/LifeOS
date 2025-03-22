@@ -209,11 +209,8 @@ sealed class ComposerState {
         val sanitizedUrl = link.split("?").first()
         val saveArticleEnabled =
             sanitizedUrl.isNotEmpty() && typeSelection == "None" && statusSelection == "None" && selectedDueDate == null
-
         val formattedDate = selectedDueDate?.let { formatter.format(Date(selectedDueDate)) }
-
         val showArticle: Boolean = entryId == null
-
         val editTaskMode = entryId != null
     }
 }
