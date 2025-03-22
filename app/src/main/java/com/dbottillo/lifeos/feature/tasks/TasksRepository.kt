@@ -196,7 +196,7 @@ class TasksRepository @Inject constructor(
         due: Long? = null
     ): ApiResult<Unit> {
         return try {
-            val properties = prepareProperties(
+            val properties = prepareApiPropertiesToCreate(
                 title = title,
                 link = url,
                 type = type,
@@ -232,7 +232,7 @@ class TasksRepository @Inject constructor(
         due: Long? = null
     ): ApiResult<Unit> {
         try {
-            val properties = prepareApiProperties(
+            val properties = prepareApiPropertiesForEdit(
                 title = title,
                 link = link,
                 type = type,
@@ -271,7 +271,7 @@ class TasksRepository @Inject constructor(
         }
     }
 
-    private fun prepareProperties(
+    private fun prepareApiPropertiesToCreate(
         title: String?,
         link: String,
         type: String?,
@@ -290,10 +290,6 @@ class TasksRepository @Inject constructor(
         if (link.isNotEmpty()) {
             properties["URL"] = AddPageNotionProperty(
                 url = link
-            )
-        } else {
-            properties["URL"] = AddPageNotionProperty(
-                url = null
             )
         }
         if (type?.isNotEmpty() == true && type != "None") {
@@ -321,7 +317,7 @@ class TasksRepository @Inject constructor(
         return properties
     }
 
-    private fun prepareApiProperties(
+    private fun prepareApiPropertiesForEdit(
         title: String?,
         link: String,
         type: String?,
