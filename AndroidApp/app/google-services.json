@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1009464070284",
+    "project_id": "notion-companion-fec87",
+    "storage_bucket": "notion-companion-fec87.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1009464070284:android:acd1c5847ec137d82c2ba9",
+        "android_client_info": {
+          "package_name": "com.dbottillo.lifeos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_b06sHcWheHDGgbCDKA5sADWlhLPXQBo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1009464070284:android:13e476bd381467112c2ba9",
+        "android_client_info": {
+          "package_name": "com.dbottillo.notioncompanion"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_b06sHcWheHDGgbCDKA5sADWlhLPXQBo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

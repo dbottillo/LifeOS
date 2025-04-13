@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background_color">#FFFFFF</color>
+
+    <color name="color_primary">#ff9800</color>
+    <color name="color_primary_variant">#ffa726</color>
+    <color name="color_on_primary">#000000</color>
+
+    <color name="color_secondary">#9c27b0</color>
+    <color name="secondary_variant_color">#e6ceff</color>
+    <color name="color_on_secondary">#FFFFFF</color>
+
+    <color name="surface_color">#FFFFFF</color>
+    <color name="color_on_surface">#000000</color>
+    <color name="widget_color_subtitle">#242424</color>
+    <color name="color_on_background">#000000</color>
+
+    <color name="action_gray">#373737</color>
+    <color name="action_blue">#4878BE</color>
+    <color name="action_green">#56AC7B</color>
+    <color name="action_red">#7C1C1C</color>
+    <color name="action_purple">#9360C9</color>
+    <color name="action_pink">#FFBFF3</color>
+    <color name="action_yellow">#DB9F45</color>
+    <color name="action_orange">#C97530</color>
+</resources>

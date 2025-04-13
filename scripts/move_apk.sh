@@ -1,1 +1,0 @@
-cp -r app/release/app-release.apk ~/Google\ Drive/My\ Drive/LifeOS/app-release.apk
