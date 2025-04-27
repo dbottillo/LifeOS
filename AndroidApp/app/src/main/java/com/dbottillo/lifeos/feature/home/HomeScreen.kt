@@ -80,7 +80,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             inbox = state.value.inbox,
             focus = state.value.focus,
             folders = state.value.folders,
-            // soon = state.value.soon,
+            soon = state.value.soon,
             refresh = viewModel::reloadHome,
             openComposer = openComposer,
             longPressFolders = viewModel::refreshFolders
@@ -118,7 +118,7 @@ fun HomeScreenContent(
     inbox: List<EntryContent>,
     focus: List<EntryContent>,
     folders: List<EntryContent>,
-    soon: List<EntryContent>,
+    soon: Map<String, List<EntryContent>>,
     numberOfColumns: Int,
     refresh: () -> Unit,
     refreshFolders: () -> Unit,
@@ -187,18 +187,27 @@ fun HomeScreenContent(
             }
             if (soon.isNotEmpty()) {
                 header {
-                    Text(
-                        text = "Soon",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.tertiary,
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 16.dp)
+                            .height(16.dp)
                     )
                 }
-                soon.forEach {
-                    item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
-                        Entry(content = it, openComposer = openComposer)
+                soon.entries.forEach { (weekStart, items) ->
+                    header {
+                        Text(
+                            text = if (weekStart == "No date") "No date" else "Week of $weekStart",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp, start = 8.dp)
+                        )
+                    }
+                    items.forEach {
+                        item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
+                            Entry(content = it, openComposer = openComposer)
+                        }
                     }
                 }
             }
@@ -222,6 +231,7 @@ fun HomeScreenContentExpanded(
     inbox: List<EntryContent>,
     focus: List<EntryContent>,
     folders: List<EntryContent>,
+    soon: Map<String, List<EntryContent>>,
     refresh: () -> Unit,
     longPressFolders: () -> Unit,
     openComposer: (String) -> Unit
@@ -235,7 +245,12 @@ fun HomeScreenContentExpanded(
         ) {
             LazyVerticalStaggeredGrid(
                 modifier = Modifier.weight(0.5f),
-                contentPadding = PaddingValues(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 8.dp),
+                contentPadding = PaddingValues(
+                    start = 16.dp,
+                    end = 8.dp,
+                    top = 8.dp,
+                    bottom = 8.dp
+                ),
                 columns = StaggeredGridCells.Fixed(2),
                 verticalItemSpacing = 8.dp,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -270,14 +285,6 @@ fun HomeScreenContentExpanded(
                         Entry(content = it, openComposer = openComposer)
                     }
                 }
-            }
-            LazyVerticalStaggeredGrid(
-                modifier = Modifier.weight(0.5f),
-                contentPadding = PaddingValues(start = 8.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
-                columns = StaggeredGridCells.Fixed(2),
-                verticalItemSpacing = 8.dp,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
                 header {
                     Text(
                         text = "Folders",
@@ -297,6 +304,45 @@ fun HomeScreenContentExpanded(
                 folders.forEach {
                     item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
                         Entry(content = it, openComposer = openComposer)
+                    }
+                }
+                header {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(24.dp)
+                    )
+                }
+            }
+            LazyVerticalStaggeredGrid(
+                modifier = Modifier.weight(0.5f),
+                contentPadding = PaddingValues(
+                    start = 8.dp,
+                    end = 16.dp,
+                    top = 8.dp,
+                    bottom = 8.dp
+                ),
+                columns = StaggeredGridCells.Fixed(2),
+                verticalItemSpacing = 8.dp,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                if (soon.isNotEmpty()) {
+                    soon.entries.forEach { (weekStart, items) ->
+                        header {
+                            Text(
+                                text = if (weekStart == "No date") "No date" else "Week of $weekStart",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.tertiary,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp, start = 8.dp)
+                            )
+                        }
+                        items.forEach {
+                            item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
+                                Entry(content = it, openComposer = openComposer)
+                            }
+                        }
                     }
                 }
                 header {
@@ -416,6 +462,7 @@ fun HomeScreenContentExpandedPreview() {
                     inbox = inbox,
                     focus = focus,
                     folders = folders,
+                    soon = soon,
                     refresh = {},
                     longPressFolders = {},
                     openComposer = {}
@@ -473,19 +520,37 @@ private val folders = listOf(
     )
 )
 
-private val soon = listOf(
-    EntryContent(
-        id = UUID.randomUUID().toString(),
-        displayId = "soon-${UUID.randomUUID()}",
-        title = "Testing",
-        url = "url",
-        color = ColorType.Blue.color
+private val soon = mapOf(
+    "28/04" to listOf(
+        EntryContent(
+            id = UUID.randomUUID().toString(),
+            displayId = "soon-${UUID.randomUUID()}",
+            title = "Testing",
+            url = "url",
+            color = ColorType.Blue.color
+        ),
+        EntryContent(
+            id = UUID.randomUUID().toString(),
+            displayId = "soon-${UUID.randomUUID()}",
+            title = "Call GP",
+            url = "url",
+            color = ColorType.Blue.color
+        )
     ),
-    EntryContent(
-        id = UUID.randomUUID().toString(),
-        displayId = "soon-${UUID.randomUUID()}",
-        title = "Call GP",
-        url = "url",
-        color = ColorType.Blue.color
+    "05/05" to listOf(
+        EntryContent(
+            id = UUID.randomUUID().toString(),
+            displayId = "soon-${UUID.randomUUID()}",
+            title = "Check application",
+            url = "url",
+            color = ColorType.Blue.color
+        ),
+        EntryContent(
+            id = UUID.randomUUID().toString(),
+            displayId = "soon-${UUID.randomUUID()}",
+            title = "Book Museum",
+            url = "url",
+            color = ColorType.Blue.color
+        )
     )
 )

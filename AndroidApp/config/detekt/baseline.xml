@@ -31,7 +31,9 @@
     <ID>ReturnCount:TasksRepository.kt$TasksRepository$suspend fun editTask( entryId: String, title: String?, link: String, type: String?, status: String?, due: Long? = null ): ApiResult&lt;Unit&gt;</ID>
     <ID>StringLiteralDuplication:ArticleRepository.kt$ArticleRepository$"Status"</ID>
     <ID>StringLiteralDuplication:FocusInboxSoonRequest.kt$FocusInboxSoonRequest$"Status"</ID>
+    <ID>StringLiteralDuplication:HomeScreen.kt$"No date"</ID>
     <ID>StringLiteralDuplication:HomeScreen.kt$"https://www.phoxwater.com/pages/setup"</ID>
+    <ID>StringLiteralDuplication:HomeScreen.kt$"soon-${UUID.randomUUID()}"</ID>
     <ID>StringLiteralDuplication:TasksRepository.kt$TasksRepository$"Status"</ID>
     <ID>StringLiteralDuplication:build.gradle.kts$"engBuild"</ID>
     <ID>StringLiteralDuplication:build.gradle.kts$"release"</ID>
