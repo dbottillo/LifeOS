@@ -23,8 +23,8 @@ if [ -f "Icon.icns" ]; then
 fi
 
 # Copy menu bar icon if it exists
-if [ -f "MenuBarIcon.png" ]; then
-    cp MenuBarIcon.png LifeOS.app/Contents/Resources/
+if [ -f "menubar_icon.icns" ]; then
+    cp menubar_icon.icns LifeOS.app/Contents/Resources/
 fi
 
 # Set executable permissions

@@ -8,6 +8,10 @@
 		<data>
 		df5kh+vcGZAwR8duR2MV5rZFrxM=
 		</data>
+		<key>Resources/menubar_icon.icns</key>
+		<data>
+		YRGTzg3m8BwyMUJq3Po+OFvpdKg=
+		</data>
 	</dict>
 	<key>files2</key>
 	<dict>
@@ -16,6 +20,13 @@
 			<key>hash2</key>
 			<data>
 			hiHcEfsIi4WCwsKCC2mK4WHhv1PAxo5bH7q/KWeM53Y=
+			</data>
+		</dict>
+		<key>Resources/menubar_icon.icns</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			/DajuyXU/IvdNmMzrcJyu1lMJKZ/UdS9G3p4i6oq8So=
 			</data>
 		</dict>
 	</dict>

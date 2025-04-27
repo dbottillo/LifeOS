@@ -17,7 +17,8 @@ let package = Package(
             name: "LifeOS",
             path: ".",
             resources: [
-                .process("Icon.icns")
+                .copy("Icon.icns"),
+                .copy("menubar_icon.png")
             ]
         )
     ]

@@ -8,16 +8,7 @@ struct LifeOSApp: App {
         MenuBarExtra {
             MenuView()
         } label: {
-            if let image = NSImage(named: "MenuBarIcon") {
-                // Ensure the image is treated as a template
-                image.isTemplate = true
-                Image(nsImage: image)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 18, height: 18)
-            } else {
-                Image(systemName: "list.bullet")
-            }
+            Image("MenuBarIcon")
         }
         .menuBarExtraStyle(.window)
     }
