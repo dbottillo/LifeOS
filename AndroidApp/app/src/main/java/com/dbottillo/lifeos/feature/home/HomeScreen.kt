@@ -78,31 +78,21 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
         HomeScreenContentExpanded(
             refreshing = state.value.refreshing,
             inbox = state.value.inbox,
-            top = state.value.focus,
-            nextWeek = state.value.nextWeek,
-            middle = state.value.folders,
-            goals = state.value.goals,
-            bottom = state.value.others,
+            focus = state.value.focus,
+            folders = state.value.folders,
             refresh = viewModel::reloadHome,
             openComposer = openComposer,
-            bottomSelection = viewModel::bottomSelection,
-            bottomSelectionDoubleTap = viewModel::bottomSelectionDoubleTap,
             longPressFolders = viewModel::refreshFolders
         )
     } else {
         HomeScreenContent(
             refreshing = state.value.refreshing,
             inbox = state.value.inbox,
-            top = state.value.focus,
-            nextWeek = state.value.nextWeek,
-            middle = state.value.folders,
-            goals = state.value.goals,
-            bottom = state.value.others,
+            focus = state.value.focus,
+            folders = state.value.folders,
             refresh = viewModel::reloadHome,
             numberOfColumns = if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) 3 else 2,
             openComposer = openComposer,
-            bottomSelection = viewModel::bottomSelection,
-            bottomSelectionDoubleTap = viewModel::bottomSelectionDoubleTap,
             refreshFolders = viewModel::refreshFolders
         )
     }
@@ -124,15 +114,10 @@ fun LazyStaggeredGridScope.header(
 fun HomeScreenContent(
     refreshing: Boolean,
     inbox: List<EntryContent>,
-    top: List<EntryContent>,
-    nextWeek: List<EntryContent>,
-    middle: List<EntryContent>,
-    goals: List<EntryContent>,
-    bottom: HomeStateBottom,
+    focus: List<EntryContent>,
+    folders: List<EntryContent>,
     numberOfColumns: Int,
     refresh: () -> Unit,
-    bottomSelection: (BottomSelection) -> Unit,
-    bottomSelectionDoubleTap: (BottomSelection) -> Unit,
     refreshFolders: () -> Unit,
     openComposer: (String) -> Unit
 ) {
@@ -171,26 +156,9 @@ fun HomeScreenContent(
                         .padding(top = if (inbox.isEmpty()) 0.dp else 16.dp)
                 )
             }
-            top.forEach {
+            focus.forEach {
                 item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
                     Entry(content = it, openComposer = openComposer)
-                }
-            }
-            if (nextWeek.isNotEmpty()) {
-                header {
-                    Text(
-                        text = "Next week",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.tertiary,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp)
-                    )
-                }
-                nextWeek.forEach {
-                    item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
-                        Entry(content = it, openComposer = openComposer)
-                    }
                 }
             }
             header {
@@ -209,55 +177,7 @@ fun HomeScreenContent(
                         )
                 )
             }
-            middle.forEach {
-                item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
-                    Entry(content = it, openComposer = openComposer)
-                }
-            }
-            header {
-                Text(
-                    text = "Goals",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.tertiary,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp)
-                )
-            }
-            goals.forEach {
-                item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
-                    Entry(content = it, openComposer = openComposer)
-                }
-            }
-            header {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    bottom.selection.forEach { selection ->
-                        Text(
-                            text = selection.title,
-                            style = if (!selection.selected) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleSmall,
-                            color = if (selection.selected) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary,
-                            modifier = if (selection.selected) {
-                                    Modifier.padding(end = 16.dp)
-                                } else {
-                                Modifier
-                                    .padding(end = 16.dp)
-                                    .combinedClickable(
-                                        onClick = { bottomSelection.invoke(selection.type) },
-                                        onDoubleClick = {
-                                            bottomSelectionDoubleTap.invoke(selection.type)
-                                        },
-                                    )
-                            }
-                        )
-                    }
-                }
-            }
-            bottom.list.forEach {
+            folders.forEach {
                 item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
                     Entry(content = it, openComposer = openComposer)
                 }
@@ -280,14 +200,9 @@ fun HomeScreenContent(
 fun HomeScreenContentExpanded(
     refreshing: Boolean,
     inbox: List<EntryContent>,
-    top: List<EntryContent>,
-    nextWeek: List<EntryContent>,
-    middle: List<EntryContent>,
-    goals: List<EntryContent>,
-    bottom: HomeStateBottom,
+    focus: List<EntryContent>,
+    folders: List<EntryContent>,
     refresh: () -> Unit,
-    bottomSelection: (BottomSelection) -> Unit,
-    bottomSelectionDoubleTap: (BottomSelection) -> Unit,
     longPressFolders: () -> Unit,
     openComposer: (String) -> Unit
 ) {
@@ -330,28 +245,19 @@ fun HomeScreenContentExpanded(
                             .padding(top = if (inbox.isEmpty()) 0.dp else 16.dp)
                     )
                 }
-                top.forEach {
+                focus.forEach {
                     item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
                         Entry(content = it, openComposer = openComposer)
                     }
                 }
-                if (nextWeek.isNotEmpty()) {
-                    header {
-                        Text(
-                            text = "Next week",
-                            style = MaterialTheme.typography.titleSmall,
-                            color = MaterialTheme.colorScheme.tertiary,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 16.dp)
-                        )
-                    }
-                    nextWeek.forEach {
-                        item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
-                            Entry(content = it, openComposer = openComposer)
-                        }
-                    }
-                }
+            }
+            LazyVerticalStaggeredGrid(
+                modifier = Modifier.weight(0.5f),
+                contentPadding = PaddingValues(start = 8.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
+                columns = StaggeredGridCells.Fixed(2),
+                verticalItemSpacing = 8.dp,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 header {
                     Text(
                         text = "Folders",
@@ -368,63 +274,7 @@ fun HomeScreenContentExpanded(
                             )
                     )
                 }
-                middle.forEach {
-                    item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
-                        Entry(content = it, openComposer = openComposer)
-                    }
-                }
-                header {
-                    Text(
-                        text = "Goals",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.tertiary,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp)
-                    )
-                }
-                goals.forEach {
-                    item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
-                        Entry(content = it, openComposer = openComposer)
-                    }
-                }
-            }
-            LazyVerticalStaggeredGrid(
-                modifier = Modifier.weight(0.5f),
-                contentPadding = PaddingValues(start = 8.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
-                columns = StaggeredGridCells.Fixed(2),
-                verticalItemSpacing = 8.dp,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                header {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp),
-                        verticalAlignment = Alignment.Bottom
-                    ) {
-                        bottom.selection.forEach { selection ->
-                            Text(
-                                text = selection.title,
-                                style = if (!selection.selected) MaterialTheme.typography.titleSmall else MaterialTheme.typography.titleSmall,
-                                color = if (selection.selected) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary,
-                                modifier = if (selection.selected) {
-                                    Modifier.padding(end = 16.dp)
-                                } else {
-                                    Modifier
-                                        .padding(end = 16.dp)
-                                        .combinedClickable(
-                                            onClick = { bottomSelection.invoke(selection.type) },
-                                            onDoubleClick = {
-                                                bottomSelectionDoubleTap.invoke(selection.type)
-                                            },
-                                        )
-                                }
-                            )
-                        }
-                    }
-                }
-                bottom.list.forEach {
+                folders.forEach {
                     item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
                         Entry(content = it, openComposer = openComposer)
                     }
@@ -521,14 +371,9 @@ fun HomeScreenPreview() {
                 HomeScreenContent(
                     refreshing = false,
                     inbox = inbox,
-                    nextWeek = nextWeek,
-                    top = top,
-                    middle = middle,
-                    bottom = bottom,
-                    goals = goals,
+                    focus = focus,
+                    folders = folders,
                     refresh = {},
-                    bottomSelection = {},
-                    bottomSelectionDoubleTap = {},
                     numberOfColumns = 2,
                     refreshFolders = {},
                     openComposer = {}
@@ -548,14 +393,9 @@ fun HomeScreenContentExpandedPreview() {
                 HomeScreenContentExpanded(
                     refreshing = false,
                     inbox = inbox,
-                    nextWeek = nextWeek,
-                    top = top,
-                    middle = middle,
-                    bottom = bottom,
-                    goals = goals,
+                    focus = focus,
+                    folders = folders,
                     refresh = {},
-                    bottomSelection = {},
-                    bottomSelectionDoubleTap = {},
                     longPressFolders = {},
                     openComposer = {}
                 )
@@ -584,17 +424,7 @@ private val inbox = listOf(
     )
 )
 
-private val nextWeek = listOf(
-    EntryContent(
-        id = UUID.randomUUID().toString(),
-        displayId = "next-week-${UUID.randomUUID()}",
-        title = "Map review",
-        url = "url",
-        color = ColorType.Orange.color
-    )
-)
-
-private val top = listOf(
+private val focus = listOf(
     EntryContent(
         id = UUID.randomUUID().toString(),
         displayId = "focus-${UUID.randomUUID()}",
@@ -611,7 +441,7 @@ private val top = listOf(
     )
 )
 
-private val middle = listOf(
+private val folders = listOf(
     EntryContent(
         id = UUID.randomUUID().toString(),
         displayId = "folder-${UUID.randomUUID()}",
@@ -619,67 +449,5 @@ private val middle = listOf(
         subtitle = "36%",
         url = "",
         color = ColorType.Green.color
-    )
-)
-
-private val goals = listOf(
-    EntryContent(
-        id = UUID.randomUUID().toString(),
-        displayId = "goal-${UUID.randomUUID()}",
-        title = "Fat 18kg",
-        url = "",
-        color = ColorType.Aqua.color
-    ),
-    EntryContent(
-        id = UUID.randomUUID().toString(),
-        displayId = "inbox-${UUID.randomUUID()}",
-        title = "Deep on coroutines",
-        url = "",
-        color = ColorType.Aqua.color
-    )
-)
-
-private val bottom = HomeStateBottom(
-    selection = listOf(
-        HomeBottomSelection(
-            title = "Ideas (100)",
-            selected = true,
-            type = BottomSelection.IDEAS
-        ),
-        HomeBottomSelection(
-            title = "Areas (15)",
-            selected = false,
-            type = BottomSelection.AREAS
-        ),
-        HomeBottomSelection(
-            title = "Resources (112)",
-            selected = false,
-            type = BottomSelection.RESOURCES
-        )
-    ),
-    list = listOf(
-        EntryContent(
-            id = UUID.randomUUID().toString(),
-            displayId = "idea-${UUID.randomUUID()}",
-            title = "Nothing phone testing device",
-            subtitle = "12%",
-            url = "url",
-            color = ColorType.Orange.color
-        ),
-        EntryContent(
-            id = UUID.randomUUID().toString(),
-            displayId = "area-${UUID.randomUUID()}",
-            title = "Knowledge hub",
-            url = "url",
-            link = "https://drive.google.com/file/d/1PYB-TYIXX_w1LkwxQtX0TzG_eLInU9Dv/view?usp=sharing",
-            color = ColorType.Yellow.color
-        ),
-        EntryContent(
-            id = UUID.randomUUID().toString(),
-            displayId = "resource-${UUID.randomUUID()}",
-            title = "Monitor research",
-            url = "url",
-            color = ColorType.Purple.color
-        )
     )
 )
