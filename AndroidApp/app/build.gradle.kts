@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.versions)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
-    kotlin("plugin.serialization") version "2.1.10"
+    kotlin("plugin.serialization") version "2.1.20"
 }
 
 android {
@@ -22,8 +22,8 @@ android {
         applicationId = "com.dbottillo.lifeos"
         minSdk = 28
         targetSdk = 35
-        versionCode = 22
-        versionName = "2025-03-22"
+        versionCode = 23
+        versionName = "2025-04-27"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
