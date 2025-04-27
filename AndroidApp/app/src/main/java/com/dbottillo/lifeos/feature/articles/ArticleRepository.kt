@@ -5,7 +5,7 @@ import com.dbottillo.lifeos.db.AppDatabase
 import com.dbottillo.lifeos.db.Article
 import com.dbottillo.lifeos.network.ApiInterface
 import com.dbottillo.lifeos.network.ApiResult
-import com.dbottillo.lifeos.network.FilterEqualsRequest
+import com.dbottillo.lifeos.network.FilterStatusRequest
 import com.dbottillo.lifeos.network.FilterRequest
 import com.dbottillo.lifeos.network.NotionBodyRequest
 import com.google.firebase.crashlytics.ktx.crashlytics
@@ -48,13 +48,13 @@ class ArticleRepository @Inject constructor(
                     or = listOf(
                         FilterRequest(
                             property = "Status",
-                            status = FilterEqualsRequest(
+                            status = FilterStatusRequest(
                                 equals = "Inbox"
                             )
                         ),
                         FilterRequest(
                             property = "Status",
-                            status = FilterEqualsRequest(
+                            status = FilterStatusRequest(
                                 equals = "Long read"
                             )
                         )

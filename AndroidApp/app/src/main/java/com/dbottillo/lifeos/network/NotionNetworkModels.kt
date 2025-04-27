@@ -60,24 +60,26 @@ data class NotionBodyRequest(
 @JsonClass(generateAdapter = true)
 class FilterRequest(
     val property: String? = null,
-    val status: FilterEqualsRequest? = null,
-    val date: FilterBeforeRequest? = null,
+    val status: FilterStatusRequest? = null,
+    val date: FilterDateRequest? = null,
     val or: List<FilterRequest>? = null,
     val and: List<FilterRequest>? = null,
-    val select: FilterEqualsRequest? = null,
+    val select: FilterStatusRequest? = null,
     val checkbox: FilterCheckboxRequest? = null
 )
 
 @JsonClass(generateAdapter = true)
-class FilterEqualsRequest(
+class FilterStatusRequest(
     val equals: String? = null,
     @Json(name = "does_not_equal") val doesNotEqual: String? = null
 )
 
 @JsonClass(generateAdapter = true)
-class FilterBeforeRequest(
+class FilterDateRequest(
     @Json(name = "on_or_before")
-    val onOrBefore: String
+    val onOrBefore: String? = null,
+    @Json(name = "is_not_empty")
+    val isNotEmpty: Boolean? = null
 )
 
 @JsonClass(generateAdapter = true)

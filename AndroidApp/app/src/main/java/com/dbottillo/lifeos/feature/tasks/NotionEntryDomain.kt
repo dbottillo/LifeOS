@@ -60,7 +60,7 @@ data class Focus(
     val parent: Parent?
 )
 
-data class NextWeek(
+data class Soon(
     val id: String,
     val text: String,
     val url: String,

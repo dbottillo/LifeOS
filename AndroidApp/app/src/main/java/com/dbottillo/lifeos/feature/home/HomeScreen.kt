@@ -80,6 +80,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             inbox = state.value.inbox,
             focus = state.value.focus,
             folders = state.value.folders,
+            // soon = state.value.soon,
             refresh = viewModel::reloadHome,
             openComposer = openComposer,
             longPressFolders = viewModel::refreshFolders
@@ -90,6 +91,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             inbox = state.value.inbox,
             focus = state.value.focus,
             folders = state.value.folders,
+            soon = state.value.soon,
             refresh = viewModel::reloadHome,
             numberOfColumns = if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) 3 else 2,
             openComposer = openComposer,
@@ -116,6 +118,7 @@ fun HomeScreenContent(
     inbox: List<EntryContent>,
     focus: List<EntryContent>,
     folders: List<EntryContent>,
+    soon: List<EntryContent>,
     numberOfColumns: Int,
     refresh: () -> Unit,
     refreshFolders: () -> Unit,
@@ -180,6 +183,23 @@ fun HomeScreenContent(
             folders.forEach {
                 item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
                     Entry(content = it, openComposer = openComposer)
+                }
+            }
+            if (soon.isNotEmpty()) {
+                header {
+                    Text(
+                        text = "Soon",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                    )
+                }
+                soon.forEach {
+                    item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
+                        Entry(content = it, openComposer = openComposer)
+                    }
                 }
             }
             header {
@@ -373,6 +393,7 @@ fun HomeScreenPreview() {
                     inbox = inbox,
                     focus = focus,
                     folders = folders,
+                    soon = soon,
                     refresh = {},
                     numberOfColumns = 2,
                     refreshFolders = {},
@@ -449,5 +470,22 @@ private val folders = listOf(
         subtitle = "36%",
         url = "",
         color = ColorType.Green.color
+    )
+)
+
+private val soon = listOf(
+    EntryContent(
+        id = UUID.randomUUID().toString(),
+        displayId = "soon-${UUID.randomUUID()}",
+        title = "Testing",
+        url = "url",
+        color = ColorType.Blue.color
+    ),
+    EntryContent(
+        id = UUID.randomUUID().toString(),
+        displayId = "soon-${UUID.randomUUID()}",
+        title = "Call GP",
+        url = "url",
+        color = ColorType.Blue.color
     )
 )

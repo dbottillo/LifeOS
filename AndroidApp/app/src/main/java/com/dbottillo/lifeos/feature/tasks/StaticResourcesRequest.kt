@@ -1,6 +1,6 @@
 package com.dbottillo.lifeos.feature.tasks
 
-import com.dbottillo.lifeos.network.FilterEqualsRequest
+import com.dbottillo.lifeos.network.FilterStatusRequest
 import com.dbottillo.lifeos.network.FilterRequest
 import com.dbottillo.lifeos.network.NotionBodyRequest
 import com.dbottillo.lifeos.network.SortRequest
@@ -15,7 +15,7 @@ class StaticResourcesRequest {
                         or = resources.map { res ->
                             FilterRequest(
                                 property = "Type",
-                                select = FilterEqualsRequest(
+                                select = FilterStatusRequest(
                                     equals = res
                                 )
                             )
@@ -23,7 +23,7 @@ class StaticResourcesRequest {
                     ),
                     FilterRequest(
                         property = "Status",
-                        status = FilterEqualsRequest(doesNotEqual = "Archive")
+                        status = FilterStatusRequest(doesNotEqual = "Archive")
                     )
                 )
             ),

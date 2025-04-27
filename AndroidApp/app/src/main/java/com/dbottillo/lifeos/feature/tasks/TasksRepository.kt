@@ -60,7 +60,19 @@ class TasksRepository @Inject constructor(
         }
     }
     val focusFlow: Flow<List<Focus>> = dao.getFocus().map(mapper::mapFocus)
-    val nextWeekFlow: Flow<List<NextWeek>> = dao.getNextWeek().map(mapper::mapNextWeek)
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val soonFlow: Flow<List<Soon>> = dao.getInbox().map(mapper::mapSoon).mapLatest {
+        it.filter { entry ->
+            if (entry.due != null) {
+                val today = LocalDateTime.now()
+                val date = entry.due.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()
+                date.isAfter(today)
+            } else {
+                false
+            }
+        }.sortedBy { it.due }
+    }
     val foldersFlow: Flow<List<Folder>> = dao.getFolders().map(mapper::mapFolders)
     val areasFlow: Flow<List<Area>> = dao.getAreas().map(mapper::mapAreas)
     val ideasFlow: Flow<List<Idea>> = dao.getIdeas().map(mapper::mapIdeas)
@@ -138,7 +150,7 @@ class TasksRepository @Inject constructor(
     private suspend fun fetchFocusInboxNextWeek(): ApiResult<List<NotionPage>> {
         val now = Instant.now()
         val dtm = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
-        val request = FocusInboxNextWeekRequest(dtm.format(now))
+        val request = FocusInboxSoonRequest(dtm.format(now))
         return fetchNotionPages(request.get())
     }
 

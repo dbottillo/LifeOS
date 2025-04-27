@@ -11,6 +11,7 @@ import com.dbottillo.lifeos.ui.EntryContent
 import com.dbottillo.lifeos.ui.mapFocus
 import com.dbottillo.lifeos.ui.mapFolder
 import com.dbottillo.lifeos.ui.mapInbox
+import com.dbottillo.lifeos.ui.mapSoon
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -33,6 +34,7 @@ class HomeViewModel @Inject constructor(
             inbox = emptyList(),
             focus = emptyList(),
             folders = emptyList(),
+            soon = emptyList()
         )
     )
 
@@ -57,17 +59,19 @@ class HomeViewModel @Inject constructor(
             tasksRepository.focusFlow,
             tasksRepository.inboxFlow,
             tasksRepository.foldersFlow,
-        ) { focus, inbox, folders ->
+            tasksRepository.soonFlow
+        ) { focus, inbox, folders, soon ->
             Triple(
                 inbox.mapInbox(),
                 focus.mapFocus(),
-                folders.filter { (it.progress ?: 0f) > 0f }.mapFolder(),
+                folders.filter { (it.progress ?: 0f) > 0f }.mapFolder() to soon.mapSoon(),
             )
-        }.collectLatest { (inbox, focus, folders) ->
+        }.collectLatest { (inbox, focus, foldersAndSoon) ->
             homeState.value = homeState.first().copy(
                 inbox = inbox,
                 focus = focus,
-                folders = folders
+                folders = foldersAndSoon.first,
+                soon = foldersAndSoon.second
             )
         }
     }
@@ -145,6 +149,7 @@ data class HomeState(
     val inbox: List<EntryContent>,
     val focus: List<EntryContent>,
     val folders: List<EntryContent>,
+    val soon: List<EntryContent>,
     val nonBlockingError: Throwable? = null
 )
 

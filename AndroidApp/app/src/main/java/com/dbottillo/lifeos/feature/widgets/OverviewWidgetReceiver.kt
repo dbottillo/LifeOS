@@ -36,7 +36,6 @@ import androidx.glance.text.TextStyle
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.dbottillo.lifeos.R
-import com.dbottillo.lifeos.feature.tasks.NextWeek
 import com.dbottillo.lifeos.feature.tasks.Focus
 import com.dbottillo.lifeos.feature.tasks.Inbox
 import com.dbottillo.lifeos.feature.tasks.TasksRepository
@@ -46,10 +45,11 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import androidx.core.net.toUri
+import com.dbottillo.lifeos.feature.tasks.Soon
 import com.dbottillo.lifeos.ui.EntryContent
 import com.dbottillo.lifeos.ui.mapFocus
 import com.dbottillo.lifeos.ui.mapInbox
-import com.dbottillo.lifeos.ui.mapNextWeek
+import com.dbottillo.lifeos.ui.mapSoon
 
 class OverviewWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget = OverviewWidget()
@@ -76,7 +76,7 @@ class OverviewWidget : GlanceAppWidget() {
         provideContent {
             val inbox = tasksRepository.inboxFlow.collectAsState(emptyList())
             val focus = tasksRepository.focusFlow.collectAsState(emptyList())
-            val nextWeek = tasksRepository.nextWeekFlow.collectAsState(emptyList())
+            val soon = tasksRepository.soonFlow.collectAsState(emptyList())
             GlanceTheme(colors = LifeOSAppWidgetGlanceColorScheme.colors) {
                 Box(
                     modifier = GlanceModifier
@@ -86,7 +86,7 @@ class OverviewWidget : GlanceAppWidget() {
                     OverviewAppWidgetContent(
                         inbox = inbox.value,
                         focus = focus.value,
-                        nextWeek = nextWeek.value
+                        soon = soon.value
                     )
                 }
             }
@@ -97,7 +97,7 @@ class OverviewWidget : GlanceAppWidget() {
     fun OverviewAppWidgetContent(
         inbox: List<Inbox>,
         focus: List<Focus>,
-        nextWeek: List<NextWeek>
+        soon: List<Soon>
     ) {
         LazyColumn(
             modifier = GlanceModifier
@@ -143,11 +143,11 @@ class OverviewWidget : GlanceAppWidget() {
                     )
                 }
             }
-            if (nextWeek.isNotEmpty()) {
+            if (soon.isNotEmpty()) {
                 item {
-                    Header("Next week")
+                    Header("Soon")
                 }
-                nextWeek.mapNextWeek().forEach { entry ->
+                soon.mapSoon().forEach { entry ->
                     item {
                         EntryWidget(content = entry)
                     }

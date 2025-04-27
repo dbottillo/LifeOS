@@ -57,10 +57,10 @@ class TasksMapper @Inject constructor(
         }
     }
 
-    fun mapNextWeek(input: List<NotionEntryWithParent>): List<NextWeek> {
+    fun mapSoon(input: List<NotionEntryWithParent>): List<Soon> {
         return input.map { entry ->
             val dates = dateMapper.map(entry.notionEntry)
-            NextWeek(
+            Soon(
                 id = entry.notionEntry.uid,
                 text = entry.notionEntry.toTitle(),
                 url = entry.notionEntry.url,

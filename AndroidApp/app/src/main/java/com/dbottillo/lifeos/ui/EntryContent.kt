@@ -7,8 +7,8 @@ import com.dbottillo.lifeos.feature.tasks.Folder
 import com.dbottillo.lifeos.feature.tasks.Goal
 import com.dbottillo.lifeos.feature.tasks.Idea
 import com.dbottillo.lifeos.feature.tasks.Inbox
-import com.dbottillo.lifeos.feature.tasks.NextWeek
 import com.dbottillo.lifeos.feature.tasks.Resource
+import com.dbottillo.lifeos.feature.tasks.Soon
 
 data class EntryContent(
     val id: String,
@@ -67,17 +67,17 @@ fun List<Folder>.mapFolder(): List<EntryContent> {
     }
 }
 
-fun List<NextWeek>.mapNextWeek(): List<EntryContent> {
+fun List<Soon>.mapSoon(): List<EntryContent> {
     return map {
         EntryContent(
             id = it.id,
-            displayId = "next-week-${it.id}",
+            displayId = "soon-${it.id}",
             title = it.text,
             subtitle = it.dueFormatted,
             url = it.url,
             link = it.link,
             parent = it.parent?.title,
-            color = ColorType.Orange.color
+            color = it.color.toColor()
         )
     }
 }
