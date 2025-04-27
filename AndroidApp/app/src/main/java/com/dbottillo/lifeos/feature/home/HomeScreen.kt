@@ -3,7 +3,6 @@ package com.dbottillo.lifeos.feature.home
 import android.content.Intent
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.widget.Toast
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,11 +44,13 @@ import androidx.window.core.layout.WindowWidthSizeClass
 import com.dbottillo.lifeos.feature.composer.EXTRA_ENTRY_ID
 import com.dbottillo.lifeos.feature.composer.TaskComposerActivity
 import com.dbottillo.lifeos.ui.AppTheme
+import com.dbottillo.lifeos.ui.ColorType
+import com.dbottillo.lifeos.ui.EntryContent
 import com.dbottillo.lifeos.util.openLink
 import java.util.UUID
 
-const val CONTENT_TYPE_ENTRY = "entry"
-const val CONTENT_TYPE_TITLE = "title"
+private const val CONTENT_TYPE_ENTRY = "entry"
+private const val CONTENT_TYPE_TITLE = "title"
 
 @Composable
 fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
@@ -118,7 +119,7 @@ fun LazyStaggeredGridScope.header(
 }
 
 @Suppress("LongMethod", "LongParameterList")
-@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreenContent(
     refreshing: Boolean,
@@ -274,7 +275,7 @@ fun HomeScreenContent(
 }
 
 @Suppress("LongMethod")
-@OptIn(ExperimentalMaterialApi::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreenContentExpanded(
     refreshing: Boolean,
@@ -441,7 +442,6 @@ fun HomeScreenContentExpanded(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Entry(
     content: EntryContent,

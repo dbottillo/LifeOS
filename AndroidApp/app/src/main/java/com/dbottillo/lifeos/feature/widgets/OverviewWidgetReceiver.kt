@@ -36,10 +36,6 @@ import androidx.glance.text.TextStyle
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.dbottillo.lifeos.R
-import com.dbottillo.lifeos.feature.home.EntryContent
-import com.dbottillo.lifeos.feature.home.mapNextWeek
-import com.dbottillo.lifeos.feature.home.mapFocus
-import com.dbottillo.lifeos.feature.home.mapInbox
 import com.dbottillo.lifeos.feature.tasks.NextWeek
 import com.dbottillo.lifeos.feature.tasks.Focus
 import com.dbottillo.lifeos.feature.tasks.Inbox
@@ -50,6 +46,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 import androidx.core.net.toUri
+import com.dbottillo.lifeos.ui.EntryContent
+import com.dbottillo.lifeos.ui.mapFocus
+import com.dbottillo.lifeos.ui.mapInbox
+import com.dbottillo.lifeos.ui.mapNextWeek
 
 class OverviewWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget = OverviewWidget()

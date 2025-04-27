@@ -57,6 +57,8 @@ import com.dbottillo.lifeos.feature.composer.ComposerInput
 import com.dbottillo.lifeos.feature.composer.TaskComposerActivity
 import com.dbottillo.lifeos.feature.composer.TaskComposerScreenDialog
 import com.dbottillo.lifeos.feature.composer.TaskComposerViewModel
+import com.dbottillo.lifeos.feature.review.ReviewScreen
+import com.dbottillo.lifeos.feature.review.ReviewViewModel
 import com.dbottillo.lifeos.feature.status.StatusScreen
 import com.dbottillo.lifeos.feature.status.StatusViewModel
 import com.dbottillo.lifeos.ui.AppTheme
@@ -74,6 +76,7 @@ class HomeActivity : AppCompatActivity() {
     private val homeViewModel: HomeViewModel by viewModels()
     private val statusViewModel: StatusViewModel by viewModels()
     private val taskComposerViewModel: TaskComposerViewModel by viewModels()
+    private val reviewViewModel: ReviewViewModel by viewModels()
 
     private val dateFormatter = SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS", Locale.getDefault())
 
@@ -83,6 +86,7 @@ class HomeActivity : AppCompatActivity() {
             val navController = rememberNavController()
             val items = listOf(
                 Screen.Home,
+                Screen.Review,
                 Screen.Articles,
                 Screen.Status,
             )
@@ -166,6 +170,13 @@ class HomeActivity : AppCompatActivity() {
                             HomeScreen(
                                 navController,
                                 homeViewModel
+                            )
+                        }
+                        composable(Screen.Review.route) {
+                            bottomBarVisible = true
+                            ReviewScreen(
+                                navController,
+                                reviewViewModel
                             )
                         }
                         composable(Screen.Articles.route) {
@@ -282,6 +293,7 @@ sealed class Screen(
     @DrawableRes val iconId: Int
 ) {
     data object Home : Screen("home", R.string.home, R.drawable.baseline_sun_24)
+    data object Review : Screen("review", R.string.review, R.drawable.review_24)
     data object Articles : Screen("articles", R.string.articles, R.drawable.baseline_list_24)
     data object Status : Screen("status", R.string.status, R.drawable.baseline_settings_24)
 }
