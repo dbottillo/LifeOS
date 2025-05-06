@@ -38,10 +38,6 @@ interface NotionEntryDao {
     fun getAreas(): Flow<List<NotionEntryWithParent>>
 
     @Transaction
-    @Query("SELECT * FROM notionEntry WHERE type = 'Idea'")
-    fun getIdeas(): Flow<List<NotionEntryWithParent>>
-
-    @Transaction
     @Query("SELECT * FROM notionEntry WHERE type = 'Resource'")
     fun getResources(): Flow<List<NotionEntryWithParent>>
 

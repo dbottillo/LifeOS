@@ -566,7 +566,6 @@ fun ShareScreenPreview() {
                     link = "https://www.google.com?abc=def",
                     title = "Google",
                     typeSelectorOptions = listOf(
-                        "Idea",
                         "Task",
                         "Resource",
                         "Folder",
@@ -628,7 +627,6 @@ fun ShareScreenPreviewDialog() {
                     link = "https://www.google.com?abc=def",
                     title = "Google",
                     typeSelectorOptions = listOf(
-                        "Idea",
                         "Task",
                         "Resource",
                         "Folder",

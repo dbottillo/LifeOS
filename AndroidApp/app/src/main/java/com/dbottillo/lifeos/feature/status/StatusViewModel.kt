@@ -77,7 +77,7 @@ class StatusViewModel @Inject constructor(
                 allLoading = true
             )
             val result = tasksRepository.loadStaticResources(
-                listOf("Folder", "Area", "Goal", "Idea", "Resource")
+                listOf("Folder", "Area", "Goal", "Resource")
             )
             when {
                 result.isFailure -> {

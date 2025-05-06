@@ -185,7 +185,6 @@ sealed class ComposerState {
         val typeSelection: String = "None",
         val typeSelectorOptions: List<String> = listOf(
             "None",
-            "Idea",
             "Task",
             "Resource",
             "Folder",

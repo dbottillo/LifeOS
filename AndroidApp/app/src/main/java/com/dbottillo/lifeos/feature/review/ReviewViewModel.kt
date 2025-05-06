@@ -8,8 +8,8 @@ import com.dbottillo.lifeos.feature.tasks.TasksRepository
 import com.dbottillo.lifeos.feature.widgets.WidgetsRefresher
 import com.dbottillo.lifeos.ui.EntryContent
 import com.dbottillo.lifeos.ui.mapAreas
+import com.dbottillo.lifeos.ui.mapFolder
 import com.dbottillo.lifeos.ui.mapGoals
-import com.dbottillo.lifeos.ui.mapIdeas
 import com.dbottillo.lifeos.ui.mapResources
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +27,7 @@ class ReviewViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val otherStateBottomSelection = MutableStateFlow(
-        ReviewBottomType.IDEAS
+        ReviewBottomType.FOLDERS
     )
 
     val reviewState = MutableStateFlow(
@@ -52,20 +52,20 @@ class ReviewViewModel @Inject constructor(
     private suspend fun initHome() {
         combine(
             tasksRepository.areasFlow,
-            tasksRepository.ideasFlow,
+            tasksRepository.foldersFlow,
             tasksRepository.resourcesFlow,
             otherStateBottomSelection,
             goalsRepository.goalsFlow
-        ) { areas, ideas, resources, bottomSelection, goals ->
+        ) { areas, folders, resources, bottomSelection, goals ->
             val uiAreas = areas.mapAreas()
             val uiResources = resources.mapResources()
-            val uiIdeas = ideas.mapIdeas()
+            val uiFolders = folders.mapFolder()
             val bottom = ReviewStateBottom(
                 selection = listOf(
                     ReviewBottomSelection(
-                        title = "Ideas (${uiIdeas.size})",
-                        selected = bottomSelection == ReviewBottomType.IDEAS,
-                        type = ReviewBottomType.IDEAS
+                        title = "Folders (${uiFolders.size})",
+                        selected = bottomSelection == ReviewBottomType.FOLDERS,
+                        type = ReviewBottomType.FOLDERS
                     ),
                     ReviewBottomSelection(
                         title = "Resources (${uiResources.size})",
@@ -75,7 +75,7 @@ class ReviewViewModel @Inject constructor(
                 ),
                 list = when (bottomSelection) {
                     ReviewBottomType.RESOURCES -> uiResources
-                    ReviewBottomType.IDEAS -> uiIdeas
+                    ReviewBottomType.FOLDERS -> uiFolders
                 }
             )
             Triple(
@@ -98,7 +98,7 @@ class ReviewViewModel @Inject constructor(
                 refreshing = true
             )
             val result = tasksRepository.loadStaticResources(
-                listOf("Folder", "Area", "Goal", "Idea", "Resource")
+                listOf("Folder", "Area", "Goal", "Resource")
             )
             when {
                 result.isFailure -> {
@@ -150,6 +150,6 @@ data class ReviewBottomSelection(
 )
 
 enum class ReviewBottomType {
-    IDEAS,
+    FOLDERS,
     RESOURCES
 }

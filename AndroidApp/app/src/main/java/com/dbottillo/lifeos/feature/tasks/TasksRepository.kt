@@ -75,7 +75,6 @@ class TasksRepository @Inject constructor(
     }
     val foldersFlow: Flow<List<Folder>> = dao.getFolders().map(mapper::mapFolders)
     val areasFlow: Flow<List<Area>> = dao.getAreas().map(mapper::mapAreas)
-    val ideasFlow: Flow<List<Idea>> = dao.getIdeas().map(mapper::mapIdeas)
     val resourcesFlow: Flow<List<Resource>> = dao.getResources().map(mapper::mapResources)
 
     suspend fun init() {
@@ -380,7 +379,7 @@ class TasksRepository @Inject constructor(
     }
 
     private suspend fun updateFocusNotification() {
-        val actions = inboxFlow.first()
+        val actions = inboxFlow.first().filter { it.due != null }
         if (actions.isEmpty()) {
             notificationProvider.clear()
         } else {
@@ -414,7 +413,6 @@ private fun NotionPage.toEntry() = NotionEntry(
 
 fun String.mapColor(): String {
     return when (this) {
-        "Idea" -> "orange"
         "Task" -> "blue"
         "Resource" -> "purple"
         "Folder" -> "green"

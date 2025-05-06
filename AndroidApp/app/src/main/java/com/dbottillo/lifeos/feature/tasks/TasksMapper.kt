@@ -13,18 +13,6 @@ class TasksMapper @Inject constructor(
     private val dateMapper: NotionEntryDateMapper
 ) {
 
-    fun mapIdeas(input: List<NotionEntryWithParent>): List<Idea> {
-        return input.map { entry ->
-            Idea(
-                id = entry.notionEntry.uid,
-                text = entry.notionEntry.toTitle(),
-                url = entry.notionEntry.url,
-                link = entry.notionEntry.link,
-                parent = entry.parent.toParent()
-            )
-        }
-    }
-
     fun mapInbox(input: List<NotionEntryWithParent>): List<Inbox> {
         return input.map { entry ->
             val dates = dateMapper.map(entry.notionEntry)

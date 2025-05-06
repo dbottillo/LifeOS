@@ -2,7 +2,6 @@ package com.dbottillo.lifeos.feature.tasks
 
 sealed class Status {
     data object Inbox : Status()
-    data object Idea : Status()
     data object Focus : Status()
     data object Backlog : Status()
     data object Recurring : Status()
@@ -16,7 +15,6 @@ sealed class Status {
 fun String.toStatus(): Status {
     return when (this) {
         "Inbox" -> Status.Inbox
-        "Idea" -> Status.Idea
         "Focus" -> Status.Focus
         "Backlog" -> Status.Backlog
         "Recurring" -> Status.Recurring

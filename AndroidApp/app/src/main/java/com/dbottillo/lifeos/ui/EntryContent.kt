@@ -5,7 +5,6 @@ import com.dbottillo.lifeos.feature.tasks.Area
 import com.dbottillo.lifeos.feature.tasks.Focus
 import com.dbottillo.lifeos.feature.tasks.Folder
 import com.dbottillo.lifeos.feature.tasks.Goal
-import com.dbottillo.lifeos.feature.tasks.Idea
 import com.dbottillo.lifeos.feature.tasks.Inbox
 import com.dbottillo.lifeos.feature.tasks.Resource
 import com.dbottillo.lifeos.feature.tasks.Soon
@@ -91,20 +90,6 @@ fun List<Area>.mapAreas(): List<EntryContent> {
             url = it.url,
             link = it.link,
             color = ColorType.Yellow.color
-        )
-    }
-}
-
-fun List<Idea>.mapIdeas(): List<EntryContent> {
-    return map {
-        EntryContent(
-            id = it.id,
-            displayId = "idea-${it.id}",
-            title = it.text,
-            url = it.url,
-            link = it.link,
-            parent = it.parent?.title,
-            color = ColorType.Orange.color
         )
     }
 }

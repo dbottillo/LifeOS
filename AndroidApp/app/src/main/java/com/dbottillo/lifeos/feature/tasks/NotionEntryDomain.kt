@@ -17,14 +17,6 @@ data class Resource(
     val parent: Parent?
 )
 
-data class Idea(
-    val id: String,
-    val text: String,
-    val url: String,
-    val link: String?,
-    val parent: Parent?
-)
-
 data class Folder(
     val id: String,
     val text: String,

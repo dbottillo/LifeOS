@@ -369,9 +369,9 @@ private val areas = listOf(
 private val bottom = ReviewStateBottom(
     selection = listOf(
         ReviewBottomSelection(
-            title = "Ideas (100)",
+            title = "Folders (20)",
             selected = true,
-            type = ReviewBottomType.IDEAS
+            type = ReviewBottomType.FOLDERS
         ),
         ReviewBottomSelection(
             title = "Resources (112)",
@@ -382,11 +382,11 @@ private val bottom = ReviewStateBottom(
     list = listOf(
         EntryContent(
             id = UUID.randomUUID().toString(),
-            displayId = "idea-${UUID.randomUUID()}",
+            displayId = "folder-${UUID.randomUUID()}",
             title = "Nothing phone testing device",
             subtitle = "12%",
             url = "url",
-            color = ColorType.Orange.color
+            color = ColorType.Green.color
         ),
         EntryContent(
             id = UUID.randomUUID().toString(),
