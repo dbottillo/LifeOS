@@ -18,7 +18,7 @@ interface NotionEntryDao {
     // See https://developer.android.com/reference/androidx/room/Transaction.html for details.
 
     @Transaction
-    @Query("SELECT * FROM notionEntry WHERE start_date NOT NULL or status ='Inbox'")
+    @Query("SELECT * FROM notionEntry WHERE start_date NOT NULL or (status ='Backlog' and parentId IS NULL)")
     fun getInbox(): Flow<List<NotionEntryWithParent>>
 
     @Transaction

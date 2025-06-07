@@ -267,7 +267,7 @@ class TasksRepository @Inject constructor(
                             title = title,
                             link = link,
                             type = type,
-                            status = status ?: "Inbox",
+                            status = status ?: "Backlog",
                             startDate = startDate
                         )
                         return ApiResult.Success(Unit)

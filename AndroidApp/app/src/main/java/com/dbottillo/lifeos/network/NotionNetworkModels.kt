@@ -65,13 +65,19 @@ class FilterRequest(
     val or: List<FilterRequest>? = null,
     val and: List<FilterRequest>? = null,
     val select: FilterStatusRequest? = null,
-    val checkbox: FilterCheckboxRequest? = null
+    val checkbox: FilterCheckboxRequest? = null,
+    val relation: FilterRelationRequest? = null
 )
 
 @JsonClass(generateAdapter = true)
 class FilterStatusRequest(
     val equals: String? = null,
     @Json(name = "does_not_equal") val doesNotEqual: String? = null
+)
+
+@JsonClass(generateAdapter = true)
+class FilterRelationRequest(
+    @Json(name = "is_empty") val isEmpty: Boolean? = null
 )
 
 @JsonClass(generateAdapter = true)

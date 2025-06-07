@@ -1,6 +1,7 @@
 package com.dbottillo.lifeos.feature.tasks
 
 import com.dbottillo.lifeos.network.FilterDateRequest
+import com.dbottillo.lifeos.network.FilterRelationRequest
 import com.dbottillo.lifeos.network.FilterStatusRequest
 import com.dbottillo.lifeos.network.FilterRequest
 import com.dbottillo.lifeos.network.NotionBodyRequest
@@ -49,17 +50,23 @@ class FocusInboxSoonRequest(private val date: String) {
                         ),
                     ),
                     FilterRequest(
-                        or = listOf(
+                        property = "Status",
+                        status = FilterStatusRequest(
+                            equals = "Focus"
+                        )
+                    ),
+                    FilterRequest(
+                        and = listOf(
                             FilterRequest(
                                 property = "Status",
                                 status = FilterStatusRequest(
-                                    equals = "Inbox"
+                                    equals = "Backlog"
                                 )
                             ),
                             FilterRequest(
-                                property = "Status",
-                                status = FilterStatusRequest(
-                                    equals = "Focus"
+                                property = "Parent item",
+                                relation = FilterRelationRequest(
+                                    isEmpty = true
                                 )
                             )
                         )
