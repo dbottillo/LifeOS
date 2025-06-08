@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.versions)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
-    kotlin("plugin.serialization") version "2.1.20"
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
