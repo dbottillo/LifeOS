@@ -35,7 +35,7 @@ class TaskComposerViewModel @Inject constructor(
                 state.value = ComposerState.Data(
                     entryId = null,
                     title = input.title ?: "",
-                    link = input.url ?: ""
+                    link = input.url ?: "",
                 )
             }
         } else {
@@ -175,25 +175,22 @@ data class ComposerInput(
     val title: String? = null,
     val url: String? = null
 )
-
 sealed class ComposerState {
     data object Loading : ComposerState()
     data class Data(
         val entryId: String?,
         val title: String,
         val link: String,
-        val typeSelection: String = "None",
+        val typeSelection: String = "Task",
         val typeSelectorOptions: List<String> = listOf(
-            "None",
             "Task",
             "Resource",
             "Folder",
             "Bookmark",
             "Area"
         ),
-        val statusSelection: String = "None",
+        val statusSelection: String = "Backlog",
         val statusSelectorOptions: List<String> = listOf(
-            "None",
             "Focus",
             "Next week",
             "Backlog",

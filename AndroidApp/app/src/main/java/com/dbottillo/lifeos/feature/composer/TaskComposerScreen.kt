@@ -315,20 +315,25 @@ private fun TaskComposerScreenDataContent(
                         )
                     }
                 }
-                Selector(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    prefix = "Type",
-                    selection = state.typeSelection,
-                    options = state.typeSelectorOptions,
-                    onOptionSelected = onTypeSelected
-                )
-                Selector(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    prefix = "Status",
-                    selection = state.statusSelection,
-                    options = state.statusSelectorOptions,
-                    onOptionSelected = onStatusSelected
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    Selector(
+                        modifier = Modifier.weight(0.3f),
+                        prefix = "Type",
+                        selection = state.typeSelection,
+                        options = state.typeSelectorOptions,
+                        onOptionSelected = onTypeSelected
+                    )
+                    Selector(
+                        modifier = Modifier.weight(0.3f),
+                        prefix = "Status",
+                        selection = state.statusSelection,
+                        options = state.statusSelectorOptions,
+                        onOptionSelected = onStatusSelected
+                    )
+                }
                 DueDatePicker(
                     modifier = Modifier.fillMaxWidth().padding(16.dp),
                     dueDate = state.formattedDate,
@@ -475,7 +480,7 @@ fun Selector(
     ) {
         Text(
             modifier = Modifier.padding(end = 16.dp),
-            text = "$prefix: $selection",
+            text = "$prefix:\n$selection",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.secondary,
         )
