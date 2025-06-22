@@ -44,7 +44,6 @@ class TaskComposerViewModel @Inject constructor(
                 // load from db
                 val entry = tasksRepository.loadTask(input.entryId)
                 val date = notionEntryDateMapper.map(entry)?.first
-                entry.startDate
                 state.value = ComposerState.Data(
                     entryId = input.entryId,
                     title = entry.title ?: "",
@@ -203,8 +202,7 @@ sealed class ComposerState {
         val editingInProgress: Boolean = false
     ) : ComposerState() {
         val sanitizedUrl = link.split("?").first()
-        val saveArticleEnabled =
-            sanitizedUrl.isNotEmpty() && typeSelection == "None" && statusSelection == "None" && selectedDueDate == null
+        val saveArticleEnabled = sanitizedUrl.isNotEmpty() && selectedDueDate == null
         val formattedDate = selectedDueDate?.let { formatter.format(Date(selectedDueDate)) }
         val showArticle: Boolean = entryId == null
         val editTaskMode = entryId != null
