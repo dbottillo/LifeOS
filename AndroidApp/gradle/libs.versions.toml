@@ -1,5 +1,5 @@
 [versions]
-androidGradlePlugin = "8.6.1"
+androidGradlePlugin = "8.11.0"
 moshi="1.15.2"
 kotlin = "2.1.21"
 kotlinxSerialization = "2.1.20"

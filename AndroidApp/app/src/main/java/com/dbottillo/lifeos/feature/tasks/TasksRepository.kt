@@ -33,6 +33,7 @@ import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
@@ -148,8 +149,10 @@ class TasksRepository @Inject constructor(
 
     private suspend fun fetchFocusInboxNextWeek(): ApiResult<List<NotionPage>> {
         val now = Instant.now()
+        val zonedDateTime = now.atZone(ZoneId.systemDefault())
+        val twoWeeksLaterZoned = zonedDateTime.plus(2, ChronoUnit.WEEKS)
         val dtm = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneId.systemDefault())
-        val request = FocusInboxSoonRequest(dtm.format(now))
+        val request = FocusInboxSoonRequest(dtm.format(twoWeeksLaterZoned.toInstant()))
         return fetchNotionPages(request.get())
     }
 
