@@ -90,7 +90,8 @@ fun TaskComposerScreen(
         onStatusSelected = viewModel::onStatusSelected,
         onSelectDate = viewModel::onSelectDate,
         onDateSelected = viewModel::onDateSelected,
-        onDateSelectionDismiss = viewModel::onDateSelectionDismiss
+        onDateSelectionDismiss = viewModel::onDateSelectionDismiss,
+        onParentSelected = viewModel::onParentSelected
     )
 }
 
@@ -106,7 +107,8 @@ private fun TaskComposerScreenContent(
     onStatusSelected: (String) -> Unit,
     onSelectDate: () -> Unit,
     onDateSelected: (Long?) -> Unit,
-    onDateSelectionDismiss: () -> Unit
+    onDateSelectionDismiss: () -> Unit,
+    onParentSelected: (String) -> Unit
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize().imePadding(),
@@ -160,7 +162,8 @@ private fun TaskComposerScreenContent(
                 onStatusSelected = onStatusSelected,
                 onSelectDate = onSelectDate,
                 onDateSelected = onDateSelected,
-                onDateSelectionDismiss = onDateSelectionDismiss
+                onDateSelectionDismiss = onDateSelectionDismiss,
+                onParentSelected = onParentSelected
             )
         }
     }
@@ -251,7 +254,8 @@ fun TaskComposerScreenDialog(
                 onStatusSelected = viewModel::onStatusSelected,
                 onSelectDate = viewModel::onSelectDate,
                 onDateSelected = viewModel::onDateSelected,
-                onDateSelectionDismiss = viewModel::onDateSelectionDismiss
+                onDateSelectionDismiss = viewModel::onDateSelectionDismiss,
+                onParentSelected = viewModel::onParentSelected
             )
         }
     }
@@ -266,7 +270,8 @@ private fun TaskComposerScreenDataContent(
     onStatusSelected: (String) -> Unit,
     onSelectDate: () -> Unit,
     onDateSelected: (Long?) -> Unit,
-    onDateSelectionDismiss: () -> Unit
+    onDateSelectionDismiss: () -> Unit,
+    onParentSelected: (String) -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
     when (state) {
@@ -334,11 +339,23 @@ private fun TaskComposerScreenDataContent(
                         onOptionSelected = onStatusSelected
                     )
                 }
-                DueDatePicker(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
-                    dueDate = state.formattedDate,
-                    onSelectDate = onSelectDate
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceAround
+                ) {
+                    DueDatePicker(
+                        modifier = Modifier.weight(0.3f),
+                        dueDate = state.formattedDate,
+                        onSelectDate = onSelectDate
+                    )
+                    Selector(
+                        modifier = Modifier.weight(0.3f),
+                        prefix = "Parent",
+                        selection = state.parentSelection,
+                        options = state.parentSelectorOptions,
+                        onOptionSelected = onParentSelected
+                    )
+                }
             }
         }
     }
@@ -358,7 +375,8 @@ private fun TaskComposerScreenContentDialog(
     onStatusSelected: (String) -> Unit,
     onSelectDate: () -> Unit,
     onDateSelected: (Long?) -> Unit,
-    onDateSelectionDismiss: () -> Unit
+    onDateSelectionDismiss: () -> Unit,
+    onParentSelected: (String) -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
     when (state) {
@@ -430,11 +448,22 @@ private fun TaskComposerScreenContentDialog(
                         onOptionSelected = onStatusSelected
                     )
                 }
-                DueDatePicker(
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    dueDate = state.formattedDate,
-                    onSelectDate = onSelectDate
-                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    DueDatePicker(
+                        dueDate = state.formattedDate,
+                        onSelectDate = onSelectDate
+                    )
+                    Selector(
+                        prefix = "Parent",
+                        selection = state.parentSelection,
+                        options = state.parentSelectorOptions,
+                        onOptionSelected = onParentSelected
+                    )
+                }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
@@ -585,6 +614,10 @@ fun ShareScreenPreview() {
                         "Archive",
                         "Done"
                     ),
+                    parentSelectorOptions = listOf(
+                        "Parent 1",
+                        "Parent 2"
+                    )
                 ),
                 saveArticle = { },
                 saveLifeOs = { },
@@ -592,7 +625,8 @@ fun ShareScreenPreview() {
                 onStatusSelected = {},
                 onDateSelected = { _ -> },
                 onDateSelectionDismiss = {},
-                onSelectDate = {}
+                onSelectDate = {},
+                onParentSelected = {}
             )
         }
     }
@@ -613,7 +647,8 @@ fun ShareScreenPreviewLoading() {
                 onStatusSelected = {},
                 onDateSelected = { _ -> },
                 onDateSelectionDismiss = {},
-                onSelectDate = {}
+                onSelectDate = {},
+                onParentSelected = {}
             )
         }
     }
@@ -646,6 +681,10 @@ fun ShareScreenPreviewDialog() {
                         "Archive",
                         "Done"
                     ),
+                    parentSelectorOptions = listOf(
+                        "Parent 1",
+                        "Parent 2"
+                    )
                 ),
                 saveArticle = { },
                 saveLifeOs = { },
@@ -653,7 +692,8 @@ fun ShareScreenPreviewDialog() {
                 onStatusSelected = {},
                 onDateSelected = { _ -> },
                 onDateSelectionDismiss = {},
-                onSelectDate = {}
+                onSelectDate = {},
+                onParentSelected = {}
             )
         }
     }

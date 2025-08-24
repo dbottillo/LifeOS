@@ -163,6 +163,14 @@ class TaskComposerViewModel @Inject constructor(
         }
     }
 
+    fun onParentSelected(parent: String) {
+        viewModelScope.launch {
+            state.value = dataState().copy(
+                parentSelection = parent
+            )
+        }
+    }
+
     private suspend fun dataState(): ComposerState.Data {
         return state.first() as ComposerState.Data
     }
@@ -197,6 +205,8 @@ sealed class ComposerState {
             "Archive",
             "Done"
         ),
+        val parentSelection: String? = null,
+        val parentSelectorOptions: List<String> = emptyList(),
         val showDueDatePicker: Boolean = false,
         val selectedDueDate: Long? = null,
         val editingInProgress: Boolean = false
