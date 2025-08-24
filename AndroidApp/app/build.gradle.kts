@@ -15,13 +15,13 @@ plugins {
 }
 
 android {
-    compileSdk = 35
-    buildToolsVersion = "35.0.0"
+    compileSdk = 36
+    buildToolsVersion = "36.0.0"
 
     defaultConfig {
         applicationId = "com.dbottillo.lifeos"
         minSdk = 28
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 28
         versionName = "2025-06-29"
         vectorDrawables.useSupportLibrary = true
