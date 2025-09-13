@@ -196,7 +196,7 @@ fun HomeScreenContent(
                 soon.entries.forEach { (weekStart, items) ->
                     header {
                         Text(
-                            text = if (weekStart == "No date") "No date" else "Week of $weekStart",
+                            text = if (weekStart == "No date") "No date" else weekStart,
                             style = MaterialTheme.typography.titleSmall,
                             color = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier
@@ -330,7 +330,7 @@ fun HomeScreenContentExpanded(
                     soon.entries.forEach { (weekStart, items) ->
                         header {
                             Text(
-                                text = if (weekStart == "No date") "No date" else "Week of $weekStart",
+                                text = if (weekStart == "No date") "No date" else weekStart,
                                 style = MaterialTheme.typography.titleSmall,
                                 color = MaterialTheme.colorScheme.tertiary,
                                 modifier = Modifier

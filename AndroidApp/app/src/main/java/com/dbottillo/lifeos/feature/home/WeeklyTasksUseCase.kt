@@ -13,18 +13,15 @@ import kotlin.collections.groupBy
 
 class WeeklyTasksUseCase @Inject constructor(
     tasksRepository: TasksRepository,
-){
+) {
 
-    private val calendar = Calendar.getInstance().apply {
-        firstDayOfWeek = Calendar.MONDAY
-    }
+    private val calendar = Calendar.getInstance()
 
-    val flow: Flow<Map<String,List<EntryContent>>> = tasksRepository.soonFlow.map { soon ->
+    val flow: Flow<Map<String, List<EntryContent>>> = tasksRepository.soonFlow.map { soon ->
         soon.groupBy { s ->
             s.due?.let {
                 calendar.time = it
-                calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
-                SimpleDateFormat("dd/MM", Locale.getDefault()).format(calendar.time)
+                SimpleDateFormat("EEEE dd/MM", Locale.getDefault()).format(calendar.time)
             } ?: "No date"
         }.mapValues {
             it.value.mapSoon()

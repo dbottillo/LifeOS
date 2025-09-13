@@ -23,8 +23,8 @@ android {
         applicationId = "com.dbottillo.lifeos"
         minSdk = 28
         targetSdk = 36
-        versionCode = 28
-        versionName = "2025-06-29"
+        versionCode = 29
+        versionName = "2025-09-13"
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
