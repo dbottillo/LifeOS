@@ -84,7 +84,7 @@ class OverviewWidget : GlanceAppWidget() {
                     .background(Color.Black)
                 ) {
                     OverviewAppWidgetContent(
-                        inbox = inbox.value.filter { it.due != null },
+                        inbox = inbox.value,
                         focus = focus.value,
                         soon = soon.value
                     )
