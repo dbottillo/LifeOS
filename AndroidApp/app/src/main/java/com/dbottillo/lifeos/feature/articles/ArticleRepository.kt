@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import java.time.Instant
 import javax.inject.Inject
 
 class ArticleRepository @Inject constructor(
@@ -72,7 +73,8 @@ class ArticleRepository @Inject constructor(
                             url = it.properties["URL"]?.url ?: "",
                             longRead = it.properties["Status"]?.status?.name == "Long read",
                             title = it.properties["Name"]?.title?.getOrNull(0)?.plainText ?: "",
-                            status = "synced"
+                            status = "synced",
+                            createdAt = Instant.parse(it.createdTime).toEpochMilli()
                         )
                     }
                     db.articleDao().deleteAndInsertAll(articles)

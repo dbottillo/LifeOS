@@ -5,12 +5,14 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class NotionPage(
-    @Json(name = "object")
+    @param:Json(name = "object")
     val obj: String,
     val id: String,
     val icon: NotionPageIcon?,
     val properties: Map<String, NotionProperty>,
-    val url: String
+    val url: String,
+    @param:Json(name = "created_time")
+    val createdTime: String,
 )
 
 @JsonClass(generateAdapter = true)
@@ -26,11 +28,11 @@ data class NotionProperty(
     val title: List<NotionTitle>?,
     val url: String?,
     val checkbox: Boolean?,
-    @Json(name = "multi_select")
+    @param:Json(name = "multi_select")
     val multiSelect: List<MultiSelectPropertyOption>?,
-    @Json(name = "select")
+    @param:Json(name = "select")
     val select: MultiSelectPropertyOption?,
-    @Json(name = "status")
+    @param:Json(name = "status")
     val status: NotionStatus? = null,
     val date: NotionDate? = null,
     val rollup: NotionRollup? = null,
@@ -40,7 +42,7 @@ data class NotionProperty(
 @JsonClass(generateAdapter = true)
 data class NotionTitle(
     val type: String,
-    @Json(name = "plain_text")
+    @param:Json(name = "plain_text")
     val plainText: String
 )
 
@@ -53,7 +55,7 @@ data class NotionStatus(
 data class NotionBodyRequest(
     val filter: FilterRequest,
     val sorts: List<SortRequest>,
-    @Json(name = "start_cursor")
+    @param:Json(name = "start_cursor")
     val startCursor: String? = null
 )
 
@@ -72,19 +74,19 @@ class FilterRequest(
 @JsonClass(generateAdapter = true)
 class FilterStatusRequest(
     val equals: String? = null,
-    @Json(name = "does_not_equal") val doesNotEqual: String? = null
+    @param:Json(name = "does_not_equal") val doesNotEqual: String? = null
 )
 
 @JsonClass(generateAdapter = true)
 class FilterRelationRequest(
-    @Json(name = "is_empty") val isEmpty: Boolean? = null
+    @param:Json(name = "is_empty") val isEmpty: Boolean? = null
 )
 
 @JsonClass(generateAdapter = true)
 class FilterDateRequest(
-    @Json(name = "on_or_before")
+    @param:Json(name = "on_or_before")
     val onOrBefore: String? = null,
-    @Json(name = "is_not_empty")
+    @param:Json(name = "is_not_empty")
     val isNotEmpty: Boolean? = null
 )
 
@@ -103,7 +105,7 @@ class SortRequest(
 @JsonClass(generateAdapter = true)
 class NotionDatabaseQueryResult(
     val results: List<NotionPage>,
-    @Json(name = "next_cursor")
+    @param:Json(name = "next_cursor")
     val nextCursor: String?
 )
 
@@ -117,7 +119,7 @@ class NotionDatabase(
 data class NotionDatabaseProperty(
     val id: String,
     val name: String,
-    @Json(name = "multi_select")
+    @param:Json(name = "multi_select")
     val multiSelect: List<MultiSelectProperty>?,
 )
 
@@ -142,12 +144,12 @@ class AddPageNotionBodyRequest(
 @JsonClass(generateAdapter = true)
 data class AddPageNotionBodyRequestParent(
     val type: String = "database_id",
-    @Json(name = "database_id") val databaseId: String
+    @param:Json(name = "database_id") val databaseId: String
 )
 
 @JsonClass(generateAdapter = true)
 data class AddPageNotionProperty(
-    @Json(name = "rich_text") val richText: List<AddPageNotionPropertyRichText>? = null,
+    @param:Json(name = "rich_text") val richText: List<AddPageNotionPropertyRichText>? = null,
     val title: List<AddPageNotionPropertyTitle>? = null,
     val url: String? = null,
     val select: AddPageNotionPropertySelect? = null,
@@ -158,7 +160,7 @@ data class AddPageNotionProperty(
 sealed class ApiNotionProperty {
     @JsonClass(generateAdapter = true)
     data class RichText(
-        @Json(
+        @param:Json(
         name = "rich_text"
     ) val richText: List<AddPageNotionPropertyRichText>
     ) : ApiNotionProperty()
@@ -228,7 +230,7 @@ class UpdatePropertiesBodyRequest(
 data class NotionDate(
     val start: String?,
     val end: String?,
-    @Json(name = "time_zone") val timeZone: String?
+    @param:Json(name = "time_zone") val timeZone: String?
 )
 
 @JsonClass(generateAdapter = true)

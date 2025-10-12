@@ -156,14 +156,16 @@ fun ArticlesScreenPreview() {
                             title = "Article title",
                             url = "article url",
                             longRead = false,
-                            status = "synced"
+                            status = "synced",
+                            createdAt = 1L
                         ),
                         Article(
                             uid = UUID.randomUUID().toString(),
                             title = "Article title 2",
                             url = "article url 2",
                             longRead = false,
-                            status = "synced"
+                            status = "synced",
+                            createdAt = 2L
                         )
                     ),
                     longRead = listOf(
@@ -172,21 +174,24 @@ fun ArticlesScreenPreview() {
                             title = "Article title 3",
                             url = "article url",
                             longRead = false,
-                            status = "synced"
+                            status = "synced",
+                            createdAt = 3L
                         ),
                         Article(
                             uid = UUID.randomUUID().toString(),
                             title = "Article title 4",
                             url = "article url 2",
                             longRead = false,
-                            status = "synced"
+                            status = "synced",
+                            createdAt = 4L
                         ),
                         Article(
                             uid = UUID.randomUUID().toString(),
                             title = "Article title 5",
                             url = "article url 2",
                             longRead = false,
-                            status = "synced"
+                            status = "synced",
+                            createdAt = 5L
                         )
                     ),
                     markAsRead = {},

@@ -10,5 +10,6 @@ data class Article(
     @ColumnInfo(name = "title") val title: String,
     @ColumnInfo(name = "url") val url: String,
     @ColumnInfo(name = "long_read") val longRead: Boolean,
-    @ColumnInfo(name = "status") val status: String
+    @ColumnInfo(name = "status") val status: String,
+    @ColumnInfo(name = "created_at", defaultValue = "0") val createdAt: Long
 )

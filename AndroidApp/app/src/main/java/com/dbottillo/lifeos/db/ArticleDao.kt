@@ -10,16 +10,16 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ArticleDao {
-    @Query("SELECT * FROM article")
+    @Query("SELECT * FROM article ORDER BY created_at DESC")
     fun getAll(): Flow<List<Article>>
 
-    @Query("SELECT * FROM article WHERE status='synced'")
+    @Query("SELECT * FROM article WHERE status='synced' ORDER BY created_at DESC")
     fun getAllSyncedArticles(): Flow<List<Article>>
 
-    @Query("SELECT * FROM article WHERE status='delete'")
+    @Query("SELECT * FROM article WHERE status='delete' ORDER BY created_at DESC")
     fun getAllDeletedArticles(): Flow<List<Article>>
 
-    @Query("SELECT * FROM article WHERE status='read'")
+    @Query("SELECT * FROM article WHERE status='read' ORDER BY created_at DESC")
     fun getAllReadArticles(): Flow<List<Article>>
 
     @Query("SELECT * FROM article WHERE uid=:uuid")
