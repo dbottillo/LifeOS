@@ -40,7 +40,7 @@ class HomeViewModel @Inject constructor(
 
     val articleState = MutableStateFlow(
         ArticleScreenState(
-            articles = Articles(emptyList(), emptyList()),
+            articlesData = ArticlesData(emptyList(), emptyList()),
         )
     )
 
@@ -79,7 +79,7 @@ class HomeViewModel @Inject constructor(
     private suspend fun initArticles() {
         articleRepository.articles().collectLatest { list ->
             articleState.value = articleState.first().copy(
-                articles = Articles(
+                articlesData = ArticlesData(
                     inbox = list.filter { !it.longRead },
                     longRead = list.filter { it.longRead }
                 )
@@ -154,7 +154,7 @@ data class HomeState(
 )
 
 data class ArticleScreenState(
-    val articles: Articles,
+    val articlesData: ArticlesData,
 )
 
-data class Articles(val inbox: List<Article>, val longRead: List<Article>)
+data class ArticlesData(val inbox: List<Article>, val longRead: List<Article>)

@@ -38,8 +38,8 @@ import java.util.UUID
 fun ArticlesScreen(navController: NavController, viewModel: HomeViewModel) {
     val state = viewModel.articleState.collectAsStateWithLifecycle()
     ArticlesScreenContent(
-        inbox = state.value.articles.inbox,
-        longRead = state.value.articles.longRead,
+        inbox = state.value.articlesData.inbox,
+        longRead = state.value.articlesData.longRead,
         markAsRead = viewModel::markAsRead,
         delete = viewModel::delete
     )
@@ -49,8 +49,8 @@ fun ArticlesScreen(navController: NavController, viewModel: HomeViewModel) {
 fun ArticlesScreenNav3(viewModel: HomeViewModel) {
     val state = viewModel.articleState.collectAsStateWithLifecycle()
     ArticlesScreenContent(
-        inbox = state.value.articles.inbox,
-        longRead = state.value.articles.longRead,
+        inbox = state.value.articlesData.inbox,
+        longRead = state.value.articlesData.longRead,
         markAsRead = viewModel::markAsRead,
         delete = viewModel::delete
     )

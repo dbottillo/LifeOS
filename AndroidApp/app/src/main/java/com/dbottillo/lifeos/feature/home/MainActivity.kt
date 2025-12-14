@@ -1,4 +1,4 @@
-package com.dbottillo.lifeos.feature.main
+package com.dbottillo.lifeos.feature.home
 
 import android.content.Intent
 import android.os.Bundle
@@ -42,8 +42,6 @@ import com.dbottillo.lifeos.BuildConfig
 import com.dbottillo.lifeos.R
 import com.dbottillo.lifeos.data.AppConstant
 import com.dbottillo.lifeos.feature.articles.ArticlesScreenNav3
-import com.dbottillo.lifeos.feature.home.HomeScreenNav3
-import com.dbottillo.lifeos.feature.home.HomeViewModel
 import com.dbottillo.lifeos.feature.review.ReviewScreenNav3
 import com.dbottillo.lifeos.feature.review.ReviewViewModel
 import com.dbottillo.lifeos.feature.status.StatusScreenNav3
@@ -60,6 +58,7 @@ import com.dbottillo.lifeos.feature.composer.TaskComposerActivity
 import com.dbottillo.lifeos.feature.composer.TaskComposerScreenDialogNav3
 import com.dbottillo.lifeos.feature.composer.TaskComposerViewModel
 import kotlinx.serialization.Serializable
+import kotlin.to
 
 data class TopLevelRoute(
     val icon: Int,
@@ -90,7 +89,7 @@ private val TOP_LEVEL_ROUTES = mapOf<NavKey, TopLevelRoute>(
 
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class HomeActivity : AppCompatActivity() {
 
     private val homeViewModel: HomeViewModel by viewModels()
 
@@ -114,8 +113,8 @@ class MainActivity : AppCompatActivity() {
                                     if (windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)) {
                                         topLevelBackStack.add(ComposerDialog(null))
                                     } else {
-                                        this@MainActivity.startActivity(
-                                            Intent(this@MainActivity, TaskComposerActivity::class.java)
+                                        this@HomeActivity.startActivity(
+                                            Intent(this@HomeActivity, TaskComposerActivity::class.java)
                                         )
                                     }
                                 },
@@ -199,16 +198,6 @@ class MainActivity : AppCompatActivity() {
     ) {
         val context = LocalContext.current
         when (topLevelBackStack.topLevelKey) {
-            /*"composer" -> {
-                TopAppBar(
-                    title = { Text("Composer") },
-                    navigationIcon = {
-                        IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(Icons.AutoMirrored.Default.ArrowBack, "Back")
-                        }
-                    }
-                )
-            }*/
             is Articles -> {
                 TopAppBar(
                     title = {
