@@ -49,31 +49,33 @@ import com.dbottillo.lifeos.util.openLink
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Locale
+import androidx.navigation3.runtime.NavKey
+import kotlinx.serialization.Serializable
 
-private sealed interface TopLevelRoute {
-    val icon: Int
+data class TopLevelRoute(
+    val icon: Int,
     val label: String
-}
-private data object Home : TopLevelRoute {
-    override val icon = R.drawable.baseline_sun_24
-    override val label = "Home"
-}
-private data object Review : TopLevelRoute {
-    override val icon = R.drawable.review_24
-    override val label = "Review"
-}
+)
 
-private data object Articles : TopLevelRoute {
-    override val icon = R.drawable.baseline_list_24
-    override val label = "Articles"
-}
+@Serializable
+data object Home : NavKey
 
-private data object Status : TopLevelRoute {
-    override val icon = R.drawable.baseline_settings_24
-    override val label = "Status"
-}
+@Serializable
+data object Review : NavKey
 
-private val TOP_LEVEL_ROUTES: List<TopLevelRoute> = listOf(Home, Review, Articles, Status)
+@Serializable
+data object Articles : NavKey
+
+@Serializable
+data object Status : NavKey
+
+private val TOP_LEVEL_ROUTES = mapOf<NavKey, TopLevelRoute>(
+    Home to TopLevelRoute(icon = R.drawable.baseline_sun_24, label = "Home"),
+    Review to TopLevelRoute(icon = R.drawable.review_24, label = "Review"),
+    Articles to TopLevelRoute(icon = R.drawable.baseline_list_24, label = "Articles"),
+    Status to TopLevelRoute(icon = R.drawable.baseline_settings_24, label = "Status"),
+)
+
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -86,23 +88,23 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val topLevelBackStack = remember { TopLevelBackStack<Any>(Home) }
+            val topLevelBackStack = remember { TopLevelBackStack<NavKey>(Home) }
             AppTheme {
                 Scaffold(
                     topBar = { TopBarForDestination(topLevelBackStack) },
                     bottomBar = {
                         NavigationBar {
-                            TOP_LEVEL_ROUTES.forEach { topLevelRoute ->
-                                val isSelected = topLevelRoute == topLevelBackStack.topLevelKey
+                            TOP_LEVEL_ROUTES.forEach { (key,route) ->
+                                val isSelected = key == topLevelBackStack.topLevelKey
                                 NavigationBarItem(
                                     selected = isSelected,
                                     onClick = {
-                                        topLevelBackStack.addTopLevel(topLevelRoute)
+                                        topLevelBackStack.addTopLevel(key)
                                     },
-                                    label = { Text(topLevelRoute.label) },
+                                    label = { Text(route.label) },
                                     icon = {
                                         Icon(
-                                            painterResource(id = topLevelRoute.icon),
+                                            painterResource(id = route.icon),
                                             contentDescription = null
                                         )
                                     },
@@ -148,7 +150,7 @@ class MainActivity : AppCompatActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun TopBarForDestination(
-        topLevelBackStack: TopLevelBackStack<Any>,
+        topLevelBackStack: TopLevelBackStack<NavKey>,
     ) {
         val context = LocalContext.current
         when (topLevelBackStack.topLevelKey) {
@@ -220,7 +222,7 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
-class TopLevelBackStack<T : Any>(startKey: T) {
+class TopLevelBackStack<T : NavKey>(startKey: T) {
 
     // Maintain a stack for each top level route
     private var topLevelStacks: LinkedHashMap<T, SnapshotStateList<T>> = linkedMapOf(
