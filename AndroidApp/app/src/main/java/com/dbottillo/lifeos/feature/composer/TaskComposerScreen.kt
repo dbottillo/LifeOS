@@ -213,56 +213,6 @@ private fun ArticleActionButton(
 
 @Composable
 fun TaskComposerScreenDialog(
-    navController: NavHostController? = null,
-    viewModel: TaskComposerViewModel,
-    close: (() -> Unit)? = null,
-) {
-    val context = LocalContext.current
-    LaunchedEffect(Unit) {
-        viewModel.events.consumeEach {
-            when (it) {
-                ComposerEvents.Finish -> {
-                    if (navController == null) {
-                        close?.invoke()
-                    } else {
-                        navController.navigateUp()
-                    }
-                }
-
-                is ComposerEvents.Error -> {
-                    Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-    val state = viewModel.state.collectAsStateWithLifecycle()
-    Dialog(onDismissRequest = { navController?.navigateUp() }) {
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(500.dp)
-                .padding(16.dp),
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            TaskComposerScreenContentDialog(
-                state = state.value,
-                onTitleChange = viewModel::onTitleChange,
-                onUrlChange = viewModel::onUrlChange,
-                saveArticle = viewModel::saveArticle,
-                saveLifeOs = viewModel::saveLifeOs,
-                onTypeSelected = viewModel::onTypeSelected,
-                onStatusSelected = viewModel::onStatusSelected,
-                onSelectDate = viewModel::onSelectDate,
-                onDateSelected = viewModel::onDateSelected,
-                onDateSelectionDismiss = viewModel::onDateSelectionDismiss,
-                onParentSelected = viewModel::onParentSelected
-            )
-        }
-    }
-}
-
-@Composable
-fun TaskComposerScreenDialogNav3(
     viewModel: TaskComposerViewModel,
     close: () -> Unit,
 ) {

@@ -34,14 +34,6 @@ fun StatusScreen(
     StatusScreenContent(viewModel = viewModel, dateFormatter = dateFormatter)
 }
 
-@Composable
-fun StatusScreenNav3(
-    viewModel: StatusViewModel,
-    dateFormatter: SimpleDateFormat
-) {
-    StatusScreenContent(viewModel = viewModel, dateFormatter = dateFormatter)
-}
-
 @Suppress("UNUSED_PARAMETER", "LongMethod")
 @Composable
 fun StatusScreenContent(

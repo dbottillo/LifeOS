@@ -41,10 +41,10 @@ import androidx.navigation3.ui.NavDisplay
 import com.dbottillo.lifeos.BuildConfig
 import com.dbottillo.lifeos.R
 import com.dbottillo.lifeos.data.AppConstant
-import com.dbottillo.lifeos.feature.articles.ArticlesScreenNav3
-import com.dbottillo.lifeos.feature.review.ReviewScreenNav3
+import com.dbottillo.lifeos.feature.articles.ArticlesScreen
+import com.dbottillo.lifeos.feature.review.ReviewScreen
 import com.dbottillo.lifeos.feature.review.ReviewViewModel
-import com.dbottillo.lifeos.feature.status.StatusScreenNav3
+import com.dbottillo.lifeos.feature.status.StatusScreen
 import com.dbottillo.lifeos.feature.status.StatusViewModel
 import com.dbottillo.lifeos.ui.AppTheme
 import com.dbottillo.lifeos.util.openLink
@@ -55,7 +55,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
 import com.dbottillo.lifeos.feature.composer.ComposerInput
 import com.dbottillo.lifeos.feature.composer.TaskComposerActivity
-import com.dbottillo.lifeos.feature.composer.TaskComposerScreenDialogNav3
+import com.dbottillo.lifeos.feature.composer.TaskComposerScreenDialog
 import com.dbottillo.lifeos.feature.composer.TaskComposerViewModel
 import kotlinx.serialization.Serializable
 import kotlin.to
@@ -86,7 +86,6 @@ private val TOP_LEVEL_ROUTES = mapOf<NavKey, TopLevelRoute>(
     Articles to TopLevelRoute(icon = R.drawable.baseline_list_24, label = "Articles"),
     Status to TopLevelRoute(icon = R.drawable.baseline_settings_24, label = "Status"),
 )
-
 
 @AndroidEntryPoint
 class HomeActivity : AppCompatActivity() {
@@ -128,7 +127,7 @@ class HomeActivity : AppCompatActivity() {
                     },
                     bottomBar = {
                         NavigationBar {
-                            TOP_LEVEL_ROUTES.forEach { (key,route) ->
+                            TOP_LEVEL_ROUTES.forEach { (key, route) ->
                                 val isSelected = key == topLevelBackStack.topLevelKey
                                 NavigationBarItem(
                                     selected = isSelected,
@@ -161,23 +160,23 @@ class HomeActivity : AppCompatActivity() {
                         modifier = Modifier.padding(innerPadding),
                         entryProvider = entryProvider {
                             entry<Home> {
-                                HomeScreenNav3(homeViewModel)
+                                HomeScreen(homeViewModel)
                             }
                             entry<Review> {
                                 val viewModel: ReviewViewModel by viewModels()
-                                ReviewScreenNav3(viewModel)
+                                ReviewScreen(viewModel)
                             }
                             entry<Articles> {
-                                ArticlesScreenNav3(homeViewModel)
+                                ArticlesScreen(homeViewModel)
                             }
                             entry<Status> {
                                 val viewModel: StatusViewModel by viewModels()
-                                StatusScreenNav3(viewModel, dateFormatter)
+                                StatusScreen(viewModel, dateFormatter)
                             }
                             entry<ComposerDialog> { key ->
                                 val viewModel: TaskComposerViewModel by viewModels()
                                 viewModel.init(ComposerInput(entryId = key.entryId))
-                                TaskComposerScreenDialogNav3(
+                                TaskComposerScreenDialog(
                                     viewModel = viewModel,
                                     close = {
                                         topLevelBackStack.removeLast()

@@ -39,7 +39,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import androidx.window.core.layout.WindowWidthSizeClass
 import com.dbottillo.lifeos.feature.composer.EXTRA_ENTRY_ID
 import com.dbottillo.lifeos.feature.composer.TaskComposerActivity
@@ -53,56 +52,7 @@ private const val CONTENT_TYPE_ENTRY = "entry"
 private const val CONTENT_TYPE_TITLE = "title"
 
 @Composable
-fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
-    val state = viewModel.homeState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-
-    state.value.nonBlockingError?.let { error ->
-        Toast.makeText(context, error.message, Toast.LENGTH_SHORT).show()
-        viewModel.nonBlockingErrorShown()
-    }
-
-    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
-
-    val openComposer: (String) -> Unit = { entryId ->
-        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
-            navController.navigate(ComposerDialog(entryId = entryId))
-        } else {
-            val intent = Intent(context, TaskComposerActivity::class.java)
-            intent.putExtra(EXTRA_ENTRY_ID, entryId)
-            context.startActivity(intent)
-        }
-    }
-
-    if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
-        HomeScreenContentExpanded(
-            refreshing = state.value.refreshing,
-            inbox = state.value.inbox,
-            focus = state.value.focus,
-            folders = state.value.folders,
-            soon = state.value.soon,
-            refresh = viewModel::reloadHome,
-            openComposer = openComposer,
-            longPressFolders = viewModel::refreshFolders
-        )
-    } else {
-        HomeScreenContent(
-            refreshing = state.value.refreshing,
-            inbox = state.value.inbox,
-            focus = state.value.focus,
-            folders = state.value.folders,
-            soon = state.value.soon,
-            refresh = viewModel::reloadHome,
-            numberOfColumns = if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) 3 else 2,
-            openComposer = openComposer,
-            refreshFolders = viewModel::refreshFolders,
-            paddingValues = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-        )
-    }
-}
-
-@Composable
-fun HomeScreenNav3(
+fun HomeScreen(
     viewModel: HomeViewModel
 ) {
     val state = viewModel.homeState.collectAsStateWithLifecycle()

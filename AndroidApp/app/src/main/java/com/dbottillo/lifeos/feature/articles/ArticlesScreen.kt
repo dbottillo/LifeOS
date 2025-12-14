@@ -25,7 +25,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import com.dbottillo.lifeos.R
 import com.dbottillo.lifeos.db.Article
 import com.dbottillo.lifeos.feature.home.HomeViewModel
@@ -33,20 +32,8 @@ import com.dbottillo.lifeos.ui.AppTheme
 import com.dbottillo.lifeos.util.openLink
 import java.util.UUID
 
-@Suppress("UNUSED_PARAMETER")
 @Composable
-fun ArticlesScreen(navController: NavController, viewModel: HomeViewModel) {
-    val state = viewModel.articleState.collectAsStateWithLifecycle()
-    ArticlesScreenContent(
-        inbox = state.value.articlesData.inbox,
-        longRead = state.value.articlesData.longRead,
-        markAsRead = viewModel::markAsRead,
-        delete = viewModel::delete
-    )
-}
-
-@Composable
-fun ArticlesScreenNav3(viewModel: HomeViewModel) {
+fun ArticlesScreen(viewModel: HomeViewModel) {
     val state = viewModel.articleState.collectAsStateWithLifecycle()
     ArticlesScreenContent(
         inbox = state.value.articlesData.inbox,
