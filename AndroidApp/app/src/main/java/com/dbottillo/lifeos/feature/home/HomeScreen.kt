@@ -39,7 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.window.core.layout.WindowWidthSizeClass
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
 import com.dbottillo.lifeos.feature.composer.EXTRA_ENTRY_ID
 import com.dbottillo.lifeos.feature.composer.TaskComposerActivity
 import com.dbottillo.lifeos.ui.AppTheme
@@ -66,7 +66,7 @@ fun HomeScreen(
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
 
     val openComposer: (String) -> Unit = { entryId ->
-        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
+        if (windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)) {
             // navController.navigate(ComposerDialog(entryId = entryId))
         } else {
             val intent = Intent(context, TaskComposerActivity::class.java)
@@ -75,7 +75,7 @@ fun HomeScreen(
         }
     }
 
-    if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
+    if (windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)) {
         HomeScreenContentExpanded(
             refreshing = state.value.refreshing,
             inbox = state.value.inbox,
@@ -94,7 +94,7 @@ fun HomeScreen(
             folders = state.value.folders,
             soon = state.value.soon,
             refresh = viewModel::reloadHome,
-            numberOfColumns = if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) 3 else 2,
+            numberOfColumns = if (windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)) 3 else 2,
             openComposer = openComposer,
             refreshFolders = viewModel::refreshFolders,
             paddingValues = PaddingValues(horizontal = 8.dp, vertical = 8.dp)

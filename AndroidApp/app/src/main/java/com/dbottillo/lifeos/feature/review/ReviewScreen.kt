@@ -29,7 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.window.core.layout.WindowWidthSizeClass
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
 import com.dbottillo.lifeos.feature.composer.EXTRA_ENTRY_ID
 import com.dbottillo.lifeos.feature.composer.TaskComposerActivity
 import com.dbottillo.lifeos.feature.home.Entry
@@ -52,7 +52,7 @@ fun ReviewScreen(viewModel: ReviewViewModel) {
     val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
 
     val openComposer: (String) -> Unit = { entryId ->
-        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
+        if (windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)) {
             // navController.navigate(ComposerDialog(entryId = entryId))
         } else {
             val intent = Intent(context, TaskComposerActivity::class.java)
@@ -61,7 +61,7 @@ fun ReviewScreen(viewModel: ReviewViewModel) {
         }
     }
 
-    if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
+    if (windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)) {
         ReviewScreenContentExpanded(
             refreshing = state.value.refreshing,
             goals = state.value.goals,
@@ -78,7 +78,7 @@ fun ReviewScreen(viewModel: ReviewViewModel) {
             areas = state.value.areas,
             bottom = state.value.bottom,
             refresh = viewModel::reloadReview,
-            numberOfColumns = if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) 3 else 2,
+            numberOfColumns = if (windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)) 3 else 2,
             openComposer = openComposer,
             bottomSelection = viewModel::bottomSelection,
         )
