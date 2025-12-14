@@ -21,16 +21,30 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import androidx.work.WorkInfo
 import com.dbottillo.lifeos.db.Log
 import java.text.SimpleDateFormat
 import java.util.Date
 
-@Suppress("UNUSED_PARAMETER", "LongMethod")
 @Composable
 fun StatusScreen(
-    navController: NavController,
+    viewModel: StatusViewModel,
+    dateFormatter: SimpleDateFormat
+) {
+    StatusScreenContent(viewModel = viewModel, dateFormatter = dateFormatter)
+}
+
+@Composable
+fun StatusScreenNav3(
+    viewModel: StatusViewModel,
+    dateFormatter: SimpleDateFormat
+) {
+    StatusScreenContent(viewModel = viewModel, dateFormatter = dateFormatter)
+}
+
+@Suppress("UNUSED_PARAMETER", "LongMethod")
+@Composable
+fun StatusScreenContent(
     viewModel: StatusViewModel,
     dateFormatter: SimpleDateFormat
 ) {

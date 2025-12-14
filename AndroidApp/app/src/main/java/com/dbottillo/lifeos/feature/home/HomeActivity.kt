@@ -189,7 +189,6 @@ class HomeActivity : AppCompatActivity() {
                         composable(Screen.Status.route) {
                             bottomBarVisible = true
                             StatusScreen(
-                                navController,
                                 statusViewModel,
                                 dateFormatter
                             )

@@ -95,7 +95,59 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
             refresh = viewModel::reloadHome,
             numberOfColumns = if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) 3 else 2,
             openComposer = openComposer,
-            refreshFolders = viewModel::refreshFolders
+            refreshFolders = viewModel::refreshFolders,
+            paddingValues = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+        )
+    }
+}
+
+@Composable
+fun HomeScreenNav3(
+    viewModel: HomeViewModel
+) {
+    val state = viewModel.homeState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    state.value.nonBlockingError?.let { error ->
+        Toast.makeText(context, error.message, Toast.LENGTH_SHORT).show()
+        viewModel.nonBlockingErrorShown()
+    }
+
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+
+    val openComposer: (String) -> Unit = { entryId ->
+        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
+            // navController.navigate(ComposerDialog(entryId = entryId))
+        } else {
+            val intent = Intent(context, TaskComposerActivity::class.java)
+            intent.putExtra(EXTRA_ENTRY_ID, entryId)
+            context.startActivity(intent)
+        }
+    }
+
+    if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
+        HomeScreenContentExpanded(
+            refreshing = state.value.refreshing,
+            inbox = state.value.inbox,
+            focus = state.value.focus,
+            folders = state.value.folders,
+            soon = state.value.soon,
+            refresh = viewModel::reloadHome,
+            openComposer = openComposer,
+            longPressFolders = viewModel::refreshFolders
+        )
+    } else {
+        HomeScreenContent(
+            refreshing = state.value.refreshing,
+            inbox = state.value.inbox,
+            focus = state.value.focus,
+            folders = state.value.folders,
+            soon = state.value.soon,
+            refresh = viewModel::reloadHome,
+            numberOfColumns = if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) 3 else 2,
+            openComposer = openComposer,
+            refreshFolders = viewModel::refreshFolders,
+            paddingValues = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
         )
     }
 }
@@ -114,6 +166,7 @@ fun LazyStaggeredGridScope.header(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun HomeScreenContent(
+    paddingValues: PaddingValues,
     refreshing: Boolean,
     inbox: List<EntryContent>,
     focus: List<EntryContent>,
@@ -129,7 +182,7 @@ fun HomeScreenContent(
     Box(Modifier.pullRefresh(pullRefreshState)) {
         LazyVerticalStaggeredGrid(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            contentPadding = paddingValues,
             columns = StaggeredGridCells.Fixed(numberOfColumns),
             verticalItemSpacing = 8.dp,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -443,7 +496,8 @@ fun HomeScreenPreview() {
                     refresh = {},
                     numberOfColumns = 2,
                     refreshFolders = {},
-                    openComposer = {}
+                    openComposer = {},
+                    paddingValues = PaddingValues(horizontal = 8.dp, vertical = 8.dp)
                 )
             }
         }
