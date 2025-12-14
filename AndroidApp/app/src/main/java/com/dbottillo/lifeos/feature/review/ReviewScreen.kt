@@ -87,6 +87,52 @@ fun ReviewScreen(navController: NavController, viewModel: ReviewViewModel) {
     }
 }
 
+@Composable
+fun ReviewScreenNav3(viewModel: ReviewViewModel) {
+    val state = viewModel.reviewState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    state.value.nonBlockingError?.let { error ->
+        Toast.makeText(context, error.message, Toast.LENGTH_SHORT).show()
+        viewModel.nonBlockingErrorShown()
+    }
+
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+
+    val openComposer: (String) -> Unit = { entryId ->
+        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
+            // navController.navigate(ComposerDialog(entryId = entryId))
+        } else {
+            val intent = Intent(context, TaskComposerActivity::class.java)
+            intent.putExtra(EXTRA_ENTRY_ID, entryId)
+            context.startActivity(intent)
+        }
+    }
+
+    if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
+        ReviewScreenContentExpanded(
+            refreshing = state.value.refreshing,
+            goals = state.value.goals,
+            areas = state.value.areas,
+            bottom = state.value.bottom,
+            refresh = viewModel::reloadReview,
+            openComposer = openComposer,
+            bottomSelection = viewModel::bottomSelection,
+        )
+    } else {
+        ReviewScreenContent(
+            refreshing = state.value.refreshing,
+            goals = state.value.goals,
+            areas = state.value.areas,
+            bottom = state.value.bottom,
+            refresh = viewModel::reloadReview,
+            numberOfColumns = if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) 3 else 2,
+            openComposer = openComposer,
+            bottomSelection = viewModel::bottomSelection,
+        )
+    }
+}
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ReviewScreenContent(

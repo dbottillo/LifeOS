@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -22,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -34,11 +36,16 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.dbottillo.lifeos.BuildConfig
 import com.dbottillo.lifeos.R
+import com.dbottillo.lifeos.data.AppConstant
+import com.dbottillo.lifeos.feature.articles.ArticlesScreenNav3
 import com.dbottillo.lifeos.feature.home.HomeScreenNav3
 import com.dbottillo.lifeos.feature.home.HomeViewModel
+import com.dbottillo.lifeos.feature.review.ReviewScreenNav3
+import com.dbottillo.lifeos.feature.review.ReviewViewModel
 import com.dbottillo.lifeos.feature.status.StatusScreenNav3
 import com.dbottillo.lifeos.feature.status.StatusViewModel
 import com.dbottillo.lifeos.ui.AppTheme
+import com.dbottillo.lifeos.util.openLink
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -51,23 +58,34 @@ private data object Home : TopLevelRoute {
     override val icon = R.drawable.baseline_sun_24
     override val label = "Home"
 }
+private data object Review : TopLevelRoute {
+    override val icon = R.drawable.review_24
+    override val label = "Review"
+}
+
+private data object Articles : TopLevelRoute {
+    override val icon = R.drawable.baseline_list_24
+    override val label = "Articles"
+}
+
 private data object Status : TopLevelRoute {
     override val icon = R.drawable.baseline_settings_24
     override val label = "Status"
 }
 
-private val TOP_LEVEL_ROUTES: List<TopLevelRoute> = listOf(Home, Status)
+private val TOP_LEVEL_ROUTES: List<TopLevelRoute> = listOf(Home, Review, Articles, Status)
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
+    private val homeViewModel: HomeViewModel by viewModels()
+
     private val dateFormatter = SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS", Locale.getDefault())
 
+    @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            // LifeOSMainApp()
-
             val topLevelBackStack = remember { TopLevelBackStack<Any>(Home) }
             AppTheme {
                 Scaffold(
@@ -107,8 +125,14 @@ class MainActivity : AppCompatActivity() {
                         modifier = Modifier.padding(innerPadding),
                         entryProvider = entryProvider {
                             entry<Home> {
-                                val viewModel: HomeViewModel by viewModels()
-                                HomeScreenNav3(viewModel)
+                                HomeScreenNav3(homeViewModel)
+                            }
+                            entry<Review> {
+                                val viewModel: ReviewViewModel by viewModels()
+                                ReviewScreenNav3(viewModel)
+                            }
+                            entry<Articles> {
+                                ArticlesScreenNav3(homeViewModel)
                             }
                             entry<Status> {
                                 val viewModel: StatusViewModel by viewModels()
@@ -117,6 +141,80 @@ class MainActivity : AppCompatActivity() {
                         },
                     )
                 }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun TopBarForDestination(
+        topLevelBackStack: TopLevelBackStack<Any>,
+    ) {
+        val context = LocalContext.current
+        when (topLevelBackStack.topLevelKey) {
+            /*"composer" -> {
+                TopAppBar(
+                    title = { Text("Composer") },
+                    navigationIcon = {
+                        IconButton(onClick = { navController.navigateUp() }) {
+                            Icon(Icons.AutoMirrored.Default.ArrowBack, "Back")
+                        }
+                    }
+                )
+            }*/
+            is Articles -> {
+                TopAppBar(
+                    title = {
+                        Text(
+                            buildAnnotatedString {
+                                append("Life OS ")
+                                withStyle(
+                                    style = SpanStyle(
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Light
+                                    )
+                                ) {
+                                    append(BuildConfig.VERSION_NAME)
+                                }
+                            }
+                        )
+                    },
+                    actions = {
+                        IconButton(onClick = {
+                            context.openLink(AppConstant.NOTION_ARTICLE_PAGE_URL)
+                        }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.baseline_external),
+                                contentDescription = null
+                            )
+                        }
+                        IconButton(onClick = { homeViewModel.load() }) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.baseline_reload),
+                                contentDescription = null
+                            )
+                        }
+                    }
+                )
+            }
+            else -> {
+                TopAppBar(
+                    title = {
+                        Text(
+                            buildAnnotatedString {
+                                append("Life OS ")
+                                withStyle(
+                                    style = SpanStyle(
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.Light
+                                    )
+                                ) {
+                                    append(BuildConfig.VERSION_NAME)
+                                }
+                            }
+                        )
+                    },
+                )
             }
         }
     }
@@ -169,79 +267,5 @@ class TopLevelBackStack<T : Any>(startKey: T) {
         topLevelStacks.remove(removedKey)
         topLevelKey = topLevelStacks.keys.last()
         updateBackStack()
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TopBarForDestination(
-    topLevelBackStack: TopLevelBackStack<Any>,
-) {
-    when (topLevelBackStack.topLevelKey) {
-        /*"composer" -> {
-            TopAppBar(
-                title = { Text("Composer") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.AutoMirrored.Default.ArrowBack, "Back")
-                    }
-                }
-            )
-        }*/
-
-        /*is Status -> {
-            TopAppBar(
-                title = {
-                    Text(
-                        buildAnnotatedString {
-                            append("Life OS ")
-                            withStyle(
-                                style = SpanStyle(
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Light
-                                )
-                            ) {
-                                append(BuildConfig.VERSION_NAME)
-                            }
-                        }
-                    )
-                },
-                actions = {
-                    IconButton(onClick = {
-                        context.openLink(AppConstant.NOTION_ARTICLE_PAGE_URL)
-                    }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_external),
-                            contentDescription = null
-                        )
-                    }
-                    IconButton(onClick = { homeViewModel.load() }) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_reload),
-                            contentDescription = null
-                        )
-                    }
-                }
-            )
-        }*/
-        else -> {
-            TopAppBar(
-                title = {
-                    Text(
-                        buildAnnotatedString {
-                            append("Life OS ")
-                            withStyle(
-                                style = SpanStyle(
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Light
-                                )
-                            ) {
-                                append(BuildConfig.VERSION_NAME)
-                            }
-                        }
-                    )
-                },
-            )
-        }
     }
 }

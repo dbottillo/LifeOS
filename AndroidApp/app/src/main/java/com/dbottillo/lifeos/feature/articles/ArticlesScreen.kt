@@ -46,6 +46,17 @@ fun ArticlesScreen(navController: NavController, viewModel: HomeViewModel) {
 }
 
 @Composable
+fun ArticlesScreenNav3(viewModel: HomeViewModel) {
+    val state = viewModel.articleState.collectAsStateWithLifecycle()
+    ArticlesScreenContent(
+        inbox = state.value.articles.inbox,
+        longRead = state.value.articles.longRead,
+        markAsRead = viewModel::markAsRead,
+        delete = viewModel::delete
+    )
+}
+
+@Composable
 fun ArticlesScreenContent(
     inbox: List<Article>,
     longRead: List<Article>,
