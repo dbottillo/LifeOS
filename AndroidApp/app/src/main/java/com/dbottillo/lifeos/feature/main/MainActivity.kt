@@ -1,11 +1,13 @@
 package com.dbottillo.lifeos.feature.main
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +17,7 @@ import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -23,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
@@ -50,6 +54,11 @@ import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.Locale
 import androidx.navigation3.runtime.NavKey
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
+import com.dbottillo.lifeos.feature.composer.ComposerInput
+import com.dbottillo.lifeos.feature.composer.TaskComposerActivity
+import com.dbottillo.lifeos.feature.composer.TaskComposerScreenDialogNav3
+import com.dbottillo.lifeos.feature.composer.TaskComposerViewModel
 import kotlinx.serialization.Serializable
 
 data class TopLevelRoute(
@@ -68,6 +77,9 @@ data object Articles : NavKey
 
 @Serializable
 data object Status : NavKey
+
+@Serializable
+data class ComposerDialog(val entryId: String?) : NavKey
 
 private val TOP_LEVEL_ROUTES = mapOf<NavKey, TopLevelRoute>(
     Home to TopLevelRoute(icon = R.drawable.baseline_sun_24, label = "Home"),
@@ -89,9 +101,32 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             val topLevelBackStack = remember { TopLevelBackStack<NavKey>(Home) }
+            val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
             AppTheme {
                 Scaffold(
                     topBar = { TopBarForDestination(topLevelBackStack) },
+                    floatingActionButton = {
+                        if (topLevelBackStack.topLevelKey == Home) {
+                            FloatingActionButton(
+                                containerColor = Color.Yellow,
+                                contentColor = Color.Black,
+                                onClick = {
+                                    if (windowSizeClass.isWidthAtLeastBreakpoint(WIDTH_DP_EXPANDED_LOWER_BOUND)) {
+                                        topLevelBackStack.add(ComposerDialog(null))
+                                    } else {
+                                        this@MainActivity.startActivity(
+                                            Intent(this@MainActivity, TaskComposerActivity::class.java)
+                                        )
+                                    }
+                                },
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.baseline_add_24),
+                                    "Floating action button."
+                                )
+                            }
+                        }
+                    },
                     bottomBar = {
                         NavigationBar {
                             TOP_LEVEL_ROUTES.forEach { (key,route) ->
@@ -139,6 +174,16 @@ class MainActivity : AppCompatActivity() {
                             entry<Status> {
                                 val viewModel: StatusViewModel by viewModels()
                                 StatusScreenNav3(viewModel, dateFormatter)
+                            }
+                            entry<ComposerDialog> { key ->
+                                val viewModel: TaskComposerViewModel by viewModels()
+                                viewModel.init(ComposerInput(entryId = key.entryId))
+                                TaskComposerScreenDialogNav3(
+                                    viewModel = viewModel,
+                                    close = {
+                                        topLevelBackStack.removeLast()
+                                    }
+                                )
                             }
                         },
                     )
