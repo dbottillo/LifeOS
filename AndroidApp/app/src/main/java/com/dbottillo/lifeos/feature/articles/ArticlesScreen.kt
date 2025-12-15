@@ -44,7 +44,6 @@ import com.dbottillo.lifeos.db.Article
 import com.dbottillo.lifeos.feature.home.HomeViewModel
 import com.dbottillo.lifeos.ui.AppTheme
 import com.dbottillo.lifeos.util.openLink
-import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.UUID
 
 @Composable
@@ -95,7 +94,7 @@ fun ArticlesScreenExpanded(
                 url = it.url
             }
         )
-        Box (
+        Box(
             modifier = Modifier.weight(0.7f),
         ) {
             if (url.isNotEmpty()) {
@@ -213,17 +212,21 @@ fun ArticleContentWebView(
     url: String
 ) {
     val context = LocalContext.current
-    val webView = remember { WebView(context).apply {
-        this.settings.javaScriptEnabled = true
-    } }
+    val webView = remember {
+            WebView(context).apply {
+            this.settings.javaScriptEnabled = true
+        }
+    }
     var isLoading by remember { mutableStateOf(true) }
 
     LaunchedEffect(url) {
+        isLoading = true
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 isLoading = false
             }
         }
+        webView.clipToOutline = true
         webView.loadUrl(url)
     }
     Box(modifier.fillMaxSize()) {
