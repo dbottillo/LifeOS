@@ -249,10 +249,49 @@ fun HomeScreenContentExpanded(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             LazyVerticalStaggeredGrid(
-                modifier = Modifier.weight(0.25f),
+                modifier = Modifier.weight(0.75f),
                 contentPadding = PaddingValues(
                     start = 16.dp,
                     end = 8.dp,
+                    top = 8.dp,
+                    bottom = 8.dp
+                ),
+                columns = StaggeredGridCells.Fixed(3),
+                verticalItemSpacing = 8.dp,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                if (soon.isNotEmpty()) {
+                    soon.entries.forEach { (weekStart, items) ->
+                        header {
+                            Text(
+                                text = if (weekStart == "No date") "No date" else weekStart,
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.tertiary,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp, start = 8.dp)
+                            )
+                        }
+                        items.forEach {
+                            item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
+                                Entry(content = it, openComposer = openComposer)
+                            }
+                        }
+                    }
+                }
+                header {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(24.dp)
+                    )
+                }
+            }
+            LazyVerticalStaggeredGrid(
+                modifier = Modifier.weight(0.25f),
+                contentPadding = PaddingValues(
+                    start = 8.dp,
+                    end = 16.dp,
                     top = 8.dp,
                     bottom = 8.dp
                 ),
@@ -311,45 +350,6 @@ fun HomeScreenContentExpanded(
                 folders.forEach {
                     item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
                         Entry(content = it, openComposer = openComposer)
-                    }
-                }
-                header {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(24.dp)
-                    )
-                }
-            }
-            LazyVerticalStaggeredGrid(
-                modifier = Modifier.weight(0.75f),
-                contentPadding = PaddingValues(
-                    start = 8.dp,
-                    end = 16.dp,
-                    top = 8.dp,
-                    bottom = 8.dp
-                ),
-                columns = StaggeredGridCells.Fixed(3),
-                verticalItemSpacing = 8.dp,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                if (soon.isNotEmpty()) {
-                    soon.entries.forEach { (weekStart, items) ->
-                        header {
-                            Text(
-                                text = if (weekStart == "No date") "No date" else weekStart,
-                                style = MaterialTheme.typography.titleSmall,
-                                color = MaterialTheme.colorScheme.tertiary,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 8.dp, start = 8.dp)
-                            )
-                        }
-                        items.forEach {
-                            item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
-                                Entry(content = it, openComposer = openComposer)
-                            }
-                        }
                     }
                 }
                 header {
