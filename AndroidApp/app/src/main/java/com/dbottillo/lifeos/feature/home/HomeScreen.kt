@@ -152,19 +152,21 @@ fun HomeScreenContent(
                     }
                 }
             }
-            header {
-                Text(
-                    text = "Focus",
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.tertiary,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = if (inbox.isEmpty()) 0.dp else 16.dp)
-                )
-            }
-            focus.forEach {
-                item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
-                    Entry(content = it, openComposer = openComposer)
+            if (focus.isNotEmpty()) {
+                header {
+                    Text(
+                        text = "Focus",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = if (inbox.isEmpty()) 0.dp else 16.dp)
+                    )
+                }
+                focus.forEach {
+                    item(key = it.displayId, contentType = CONTENT_TYPE_ENTRY) {
+                        Entry(content = it, openComposer = openComposer)
+                    }
                 }
             }
             header {
@@ -247,14 +249,14 @@ fun HomeScreenContentExpanded(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             LazyVerticalStaggeredGrid(
-                modifier = Modifier.weight(0.5f),
+                modifier = Modifier.weight(0.25f),
                 contentPadding = PaddingValues(
                     start = 16.dp,
                     end = 8.dp,
                     top = 8.dp,
                     bottom = 8.dp
                 ),
-                columns = StaggeredGridCells.Fixed(2),
+                columns = StaggeredGridCells.Fixed(1),
                 verticalItemSpacing = 8.dp,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -273,19 +275,21 @@ fun HomeScreenContentExpanded(
                         }
                     }
                 }
-                header {
-                    Text(
-                        text = "Focus",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = MaterialTheme.colorScheme.tertiary,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = if (inbox.isEmpty()) 0.dp else 16.dp)
-                    )
-                }
-                focus.forEach {
-                    item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
-                        Entry(content = it, openComposer = openComposer)
+                if (focus.isNotEmpty()) {
+                    header {
+                        Text(
+                            text = "Focus",
+                            style = MaterialTheme.typography.titleSmall,
+                            color = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = if (inbox.isEmpty()) 0.dp else 16.dp)
+                        )
+                    }
+                    focus.forEach {
+                        item(key = it.id, contentType = CONTENT_TYPE_ENTRY) {
+                            Entry(content = it, openComposer = openComposer)
+                        }
                     }
                 }
                 header {
@@ -318,14 +322,14 @@ fun HomeScreenContentExpanded(
                 }
             }
             LazyVerticalStaggeredGrid(
-                modifier = Modifier.weight(0.5f),
+                modifier = Modifier.weight(0.75f),
                 contentPadding = PaddingValues(
                     start = 8.dp,
                     end = 16.dp,
                     top = 8.dp,
                     bottom = 8.dp
                 ),
-                columns = StaggeredGridCells.Fixed(2),
+                columns = StaggeredGridCells.Fixed(3),
                 verticalItemSpacing = 8.dp,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
