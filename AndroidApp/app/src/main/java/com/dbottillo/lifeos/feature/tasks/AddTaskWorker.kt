@@ -34,6 +34,7 @@ class AddTaskWorker @AssistedInject constructor(
             val type = inputData.getString(ADD_PAGE_TYPE)
             val status = inputData.getString(ADD_PAGE_STATUS)
             val due = inputData.getLong(ADD_PAGE_DUE, -1)
+            val parentId = inputData.getString(ADD_PAGE_PARENT_ID)
             notificationManager.sendOrUpdateInfoNotification(
                 id = id,
                 title = "[Uploading] Task with title: $title",
@@ -50,7 +51,8 @@ class AddTaskWorker @AssistedInject constructor(
                 url = url,
                 type = type,
                 status = status,
-                due = due
+                due = due,
+                parentId = parentId
             )
             if (result is ApiResult.Success) {
                 logsRepository.addEntry(

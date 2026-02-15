@@ -1,7 +1,6 @@
 package com.dbottillo.lifeos.feature.composer
 
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +33,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -44,16 +49,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.tooling.preview.Devices
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.dbottillo.lifeos.ui.AppTheme
+import com.dbottillo.lifeos.db.NotionEntryWithParent
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.job
 
@@ -91,7 +93,9 @@ fun TaskComposerScreen(
         onSelectDate = viewModel::onSelectDate,
         onDateSelected = viewModel::onDateSelected,
         onDateSelectionDismiss = viewModel::onDateSelectionDismiss,
-        onParentSelected = viewModel::onParentSelected
+        onParentSelected = viewModel::onParentSelected,
+        onParentSearchQueryChanged = viewModel::onParentSearchQueryChanged,
+        onClearParentSelected = viewModel::onClearParentSelected
     )
 }
 
@@ -108,7 +112,9 @@ private fun TaskComposerScreenContent(
     onSelectDate: () -> Unit,
     onDateSelected: (Long?) -> Unit,
     onDateSelectionDismiss: () -> Unit,
-    onParentSelected: (String) -> Unit
+    onParentSelected: (NotionEntryWithParent) -> Unit,
+    onParentSearchQueryChanged: (String) -> Unit,
+    onClearParentSelected: () -> Unit
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize().imePadding(),
@@ -163,7 +169,9 @@ private fun TaskComposerScreenContent(
                 onSelectDate = onSelectDate,
                 onDateSelected = onDateSelected,
                 onDateSelectionDismiss = onDateSelectionDismiss,
-                onParentSelected = onParentSelected
+                onParentSelected = onParentSelected,
+                onParentSearchQueryChanged = onParentSearchQueryChanged,
+                onClearParentSelected = onClearParentSelected
             )
         }
     }
@@ -250,7 +258,9 @@ fun TaskComposerScreenDialog(
                 onSelectDate = viewModel::onSelectDate,
                 onDateSelected = viewModel::onDateSelected,
                 onDateSelectionDismiss = viewModel::onDateSelectionDismiss,
-                onParentSelected = viewModel::onParentSelected
+                onParentSelected = viewModel::onParentSelected,
+                onParentSearchQueryChanged = viewModel::onParentSearchQueryChanged,
+                onClearParentSelected = viewModel::onClearParentSelected
             )
         }
     }
@@ -266,7 +276,9 @@ private fun TaskComposerScreenDataContent(
     onSelectDate: () -> Unit,
     onDateSelected: (Long?) -> Unit,
     onDateSelectionDismiss: () -> Unit,
-    onParentSelected: (String) -> Unit
+    onParentSelected: (NotionEntryWithParent) -> Unit,
+    onParentSearchQueryChanged: (String) -> Unit,
+    onClearParentSelected: () -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
     when (state) {
@@ -317,17 +329,16 @@ private fun TaskComposerScreenDataContent(
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     Selector(
-                        modifier = Modifier.weight(0.3f),
+                        modifier = Modifier.weight(0.5f),
                         prefix = "Type",
                         selection = state.typeSelection,
                         options = state.typeSelectorOptions,
                         onOptionSelected = onTypeSelected
                     )
                     Selector(
-                        modifier = Modifier.weight(0.3f),
+                        modifier = Modifier.weight(0.5f),
                         prefix = "Status",
                         selection = state.statusSelection,
                         options = state.statusSelectorOptions,
@@ -335,22 +346,21 @@ private fun TaskComposerScreenDataContent(
                     )
                 }
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceAround
+                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp)
                 ) {
                     DueDatePicker(
-                        modifier = Modifier.weight(0.3f),
                         dueDate = state.formattedDate,
                         onSelectDate = onSelectDate
                     )
-                    Selector(
-                        modifier = Modifier.weight(0.3f),
-                        prefix = "Parent",
-                        selection = state.parentSelection,
-                        options = state.parentSelectorOptions,
-                        onOptionSelected = onParentSelected
-                    )
                 }
+                ParentSuggestionSection(
+                    selectedParentTitle = state.selectedParentTitle,
+                    parentSearchQuery = state.parentSearchQuery,
+                    parentSearchResults = state.parentSearchResults,
+                    onParentSearchQueryChanged = onParentSearchQueryChanged,
+                    onParentSelected = onParentSelected,
+                    onClearParentSelected = onClearParentSelected
+                )
             }
         }
     }
@@ -371,7 +381,9 @@ private fun TaskComposerScreenContentDialog(
     onSelectDate: () -> Unit,
     onDateSelected: (Long?) -> Unit,
     onDateSelectionDismiss: () -> Unit,
-    onParentSelected: (String) -> Unit
+    onParentSelected: (NotionEntryWithParent) -> Unit,
+    onParentSearchQueryChanged: (String) -> Unit,
+    onClearParentSelected: () -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
     when (state) {
@@ -428,15 +440,16 @@ private fun TaskComposerScreenContentDialog(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Selector(
+                        modifier = Modifier.weight(0.5f),
                         prefix = "Type",
                         selection = state.typeSelection,
                         options = state.typeSelectorOptions,
                         onOptionSelected = onTypeSelected
                     )
                     Selector(
+                        modifier = Modifier.weight(0.5f),
                         prefix = "Status",
                         selection = state.statusSelection,
                         options = state.statusSelectorOptions,
@@ -445,20 +458,21 @@ private fun TaskComposerScreenContentDialog(
                 }
                 Row(
                     modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
+                        .fillMaxWidth()
                 ) {
                     DueDatePicker(
                         dueDate = state.formattedDate,
                         onSelectDate = onSelectDate
                     )
-                    Selector(
-                        prefix = "Parent",
-                        selection = state.parentSelection,
-                        options = state.parentSelectorOptions,
-                        onOptionSelected = onParentSelected
-                    )
                 }
+                ParentSuggestionSection(
+                    selectedParentTitle = state.selectedParentTitle,
+                    parentSearchQuery = state.parentSearchQuery,
+                    parentSearchResults = state.parentSearchResults,
+                    onParentSearchQueryChanged = onParentSearchQueryChanged,
+                    onParentSelected = onParentSelected,
+                    onClearParentSelected = onClearParentSelected
+                )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
@@ -582,114 +596,49 @@ fun DatePickerModal(
     }
 }
 
-@Preview
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun ShareScreenPreview() {
-    AppTheme {
-        Box(
-            modifier = Modifier.background(Color.White)
-        ) {
-            TaskComposerScreenContent(
-                state = ComposerState.Data(
-                    entryId = null,
-                    link = "https://www.google.com?abc=def",
-                    title = "Google",
-                    typeSelectorOptions = listOf(
-                        "Task",
-                        "Resource",
-                        "Folder",
-                        "Bookmark",
-                        "Area"
-                    ),
-                    statusSelectorOptions = listOf(
-                        "Focus",
-                        "Next week",
-                        "Backlog",
-                        "Recurring",
-                        "Archive",
-                        "Done"
-                    ),
-                    parentSelectorOptions = listOf(
-                        "Parent 1",
-                        "Parent 2"
+fun ParentSuggestionSection(
+    selectedParentTitle: String?,
+    parentSearchQuery: String,
+    parentSearchResults: List<NotionEntryWithParent>,
+    onParentSearchQueryChanged: (String) -> Unit,
+    onParentSelected: (NotionEntryWithParent) -> Unit,
+    onClearParentSelected: () -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = parentSearchQuery,
+            onValueChange = onParentSearchQueryChanged,
+            label = { Text("Search Parent") },
+        )
+        if (selectedParentTitle != null) {
+            AssistChip(
+                onClick = onClearParentSelected, // Clicking the chip itself clears it
+                label = { Text(selectedParentTitle) },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Close,
+                        contentDescription = "Clear parent",
+                        modifier = Modifier.size(18.dp)
                     )
-                ),
-                saveArticle = { },
-                saveLifeOs = { },
-                onTypeSelected = { },
-                onStatusSelected = {},
-                onDateSelected = { _ -> },
-                onDateSelectionDismiss = {},
-                onSelectDate = {},
-                onParentSelected = {}
+                },
+                modifier = Modifier.padding(top = 8.dp)
             )
-        }
-    }
-}
-
-@Preview
-@Composable
-fun ShareScreenPreviewLoading() {
-    AppTheme {
-        Box(
-            modifier = Modifier.background(Color.White)
-        ) {
-            TaskComposerScreenContent(
-                state = ComposerState.Loading,
-                saveArticle = { },
-                saveLifeOs = { },
-                onTypeSelected = { },
-                onStatusSelected = {},
-                onDateSelected = { _ -> },
-                onDateSelectionDismiss = {},
-                onSelectDate = {},
-                onParentSelected = {}
-            )
-        }
-    }
-}
-
-@Preview(device = Devices.PIXEL_TABLET, widthDp = 500, heightDp = 500)
-@Composable
-fun ShareScreenPreviewDialog() {
-    AppTheme {
-        Box(
-            modifier = Modifier.background(Color.White)
-        ) {
-            TaskComposerScreenContentDialog(
-                state = ComposerState.Data(
-                    entryId = null,
-                    link = "https://www.google.com?abc=def",
-                    title = "Google",
-                    typeSelectorOptions = listOf(
-                        "Task",
-                        "Resource",
-                        "Folder",
-                        "Bookmark",
-                        "Area"
-                    ),
-                    statusSelectorOptions = listOf(
-                        "Focus",
-                        "Next week",
-                        "Backlog",
-                        "Recurring",
-                        "Archive",
-                        "Done"
-                    ),
-                    parentSelectorOptions = listOf(
-                        "Parent 1",
-                        "Parent 2"
+        } else if (parentSearchResults.isNotEmpty()) {
+            FlowRow(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                parentSearchResults.forEach { parent ->
+                    AssistChip(
+                        onClick = { onParentSelected(parent) },
+                        label = { Text(parent.notionEntry.title ?: "Untitled") }
                     )
-                ),
-                saveArticle = { },
-                saveLifeOs = { },
-                onTypeSelected = { },
-                onStatusSelected = {},
-                onDateSelected = { _ -> },
-                onDateSelectionDismiss = {},
-                onSelectDate = {},
-                onParentSelected = {}
-            )
+                }
+            }
         }
     }
 }

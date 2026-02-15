@@ -11,6 +11,11 @@ import com.dbottillo.lifeos.network.ApiResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
+import com.dbottillo.lifeos.db.NotionEntryWithParent
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -24,7 +29,8 @@ class TaskComposerViewModel @Inject constructor(
     private val articleManager: ArticleManager,
     private val taskManager: TaskManager,
     private val tasksRepository: TasksRepository,
-    private val notionEntryDateMapper: NotionEntryDateMapper
+    private val notionEntryDateMapper: NotionEntryDateMapper,
+    private val getLocalNotionParentsUseCase: GetLocalNotionParentsUseCase
 ) : ViewModel() {
 
     val state: MutableStateFlow<ComposerState> = MutableStateFlow(ComposerState.Loading)
@@ -44,19 +50,46 @@ class TaskComposerViewModel @Inject constructor(
                 // load from db
                 val entry = tasksRepository.loadTask(input.entryId)
                 val date = notionEntryDateMapper.map(entry)?.first
+                val parentEntry = entry.parentId?.let { tasksRepository.loadTask(it) }
+
                 state.value = ComposerState.Data(
                     entryId = input.entryId,
                     title = entry.title ?: "",
                     link = entry.link ?: "",
                     selectedDueDate = date?.time,
                     statusSelection = entry.status,
-                    typeSelection = entry.type
+                    typeSelection = entry.type,
+                    selectedParentId = parentEntry?.uid,
+                    selectedParentTitle = parentEntry?.title
                 )
             }
         }
     }
 
     val events: Channel<ComposerEvents> = Channel()
+
+    private val _parentSearchQuery = MutableStateFlow("")
+    val parentSearchQuery: StateFlow<String> = _parentSearchQuery
+
+    private val _parentSearchResults = MutableStateFlow<List<NotionEntryWithParent>>(emptyList())
+    val parentSearchResults: StateFlow<List<NotionEntryWithParent>> = _parentSearchResults
+
+    init {
+        viewModelScope.launch {
+            _parentSearchQuery
+                .debounce(300L)
+                .distinctUntilChanged()
+                .flatMapLatest { query ->
+                    getLocalNotionParentsUseCase(query)
+                }
+                .collect { results ->
+                    _parentSearchResults.value = results
+                    state.value = dataState().copy(
+                        parentSearchResults = results
+                    )
+                }
+        }
+    }
 
     fun saveArticle() {
         val value = (state.value as ComposerState.Data)
@@ -75,7 +108,8 @@ class TaskComposerViewModel @Inject constructor(
                 url = value.sanitizedUrl,
                 type = value.typeSelection,
                 status = value.statusSelection,
-                due = value.selectedDueDate
+                due = value.selectedDueDate,
+                parentId = value.selectedParentId
             )
             events.trySend(ComposerEvents.Finish)
         }
@@ -93,7 +127,8 @@ class TaskComposerViewModel @Inject constructor(
                 link = value.sanitizedUrl,
                 type = value.typeSelection,
                 status = value.statusSelection,
-                due = value.selectedDueDate
+                due = value.selectedDueDate,
+                parentId = value.selectedParentId
             )
             if (result is ApiResult.Success) {
                 events.send(ComposerEvents.Finish)
@@ -163,16 +198,39 @@ class TaskComposerViewModel @Inject constructor(
         }
     }
 
-    fun onParentSelected(parent: String) {
+    fun onParentSelected(notionEntryWithParent: NotionEntryWithParent) {
         viewModelScope.launch {
             state.value = dataState().copy(
-                parentSelection = parent
+                selectedParentId = notionEntryWithParent.notionEntry.uid,
+                selectedParentTitle = notionEntryWithParent.notionEntry.title,
+                parentSearchQuery = "",
+                parentSearchResults = emptyList()
             )
         }
     }
 
-    private suspend fun dataState(): ComposerState.Data {
-        return state.first() as ComposerState.Data
+    fun onParentSearchQueryChanged(query: String) {
+        _parentSearchQuery.value = query
+        viewModelScope.launch {
+            state.value = dataState().copy(
+                parentSearchQuery = query,
+                parentSearchResults = _parentSearchResults.value // update the state directly
+            )
+        }
+    }
+
+    fun onClearParentSelected() {
+        viewModelScope.launch {
+            state.value = dataState().copy(
+                selectedParentId = null,
+                selectedParentTitle = null
+            )
+        }
+    }
+
+    private fun dataState(): ComposerState.Data {
+        return state.value as? ComposerState.Data
+            ?: throw IllegalStateException("State is not Data: ${state.value}")
     }
 }
 
@@ -205,8 +263,11 @@ sealed class ComposerState {
             "Archive",
             "Done"
         ),
-        val parentSelection: String? = null,
         val parentSelectorOptions: List<String> = emptyList(),
+        val selectedParentId: String? = null,
+        val selectedParentTitle: String? = null,
+        val parentSearchQuery: String = "",
+        val parentSearchResults: List<NotionEntryWithParent> = emptyList(),
         val showDueDatePicker: Boolean = false,
         val selectedDueDate: Long? = null,
         val editingInProgress: Boolean = false

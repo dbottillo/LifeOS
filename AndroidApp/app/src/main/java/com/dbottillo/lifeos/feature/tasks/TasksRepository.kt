@@ -22,6 +22,8 @@ import com.dbottillo.lifeos.network.NotionDatabaseQueryResult
 import com.dbottillo.lifeos.network.NotionPage
 import com.dbottillo.lifeos.network.UpdatePropertiesBodyRequest
 import com.dbottillo.lifeos.notification.NotificationProvider
+import com.dbottillo.lifeos.db.NotionEntryWithParent
+import com.dbottillo.lifeos.network.NotionRelationTarget
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -207,7 +209,8 @@ class TasksRepository @Inject constructor(
         url: String,
         type: String?,
         status: String?,
-        due: Long? = null
+        due: Long? = null,
+        parentId: String? = null
     ): ApiResult<Unit> {
         return try {
             val properties = prepareApiPropertiesToCreate(
@@ -215,7 +218,8 @@ class TasksRepository @Inject constructor(
                 link = url,
                 type = type,
                 status = status,
-                due = due
+                due = due,
+                parentId = parentId
             )
             val request = AddPageNotionBodyRequest(
                 parent = AddPageNotionBodyRequestParent(
@@ -243,7 +247,8 @@ class TasksRepository @Inject constructor(
         link: String,
         type: String?,
         status: String?,
-        due: Long? = null
+        due: Long? = null,
+        parentId: String? = null
     ): ApiResult<Unit> {
         try {
             val properties = prepareApiPropertiesForEdit(
@@ -251,7 +256,8 @@ class TasksRepository @Inject constructor(
                 link = link,
                 type = type,
                 status = status,
-                due = due
+                due = due,
+                parentId = parentId
             )
             val request = UpdatePropertiesBodyRequest(
                 properties = properties
@@ -291,6 +297,7 @@ class TasksRepository @Inject constructor(
         type: String?,
         status: String?,
         due: Long? = null,
+        parentId: String? = null
     ): MutableMap<String, AddPageNotionProperty> {
         val properties = mutableMapOf(
             "Name" to AddPageNotionProperty(
@@ -328,6 +335,15 @@ class TasksRepository @Inject constructor(
                 )
             )
         }
+        if (parentId != null) {
+            properties["Parent item"] = AddPageNotionProperty(
+                relation = listOf(
+                    NotionRelationTarget(
+                        id = parentId
+                    )
+                )
+            )
+        }
         return properties
     }
 
@@ -337,6 +353,7 @@ class TasksRepository @Inject constructor(
         type: String?,
         status: String?,
         due: Long? = null,
+        parentId: String? = null
     ): MutableMap<String, ApiNotionProperty> {
         val properties: MutableMap<String, ApiNotionProperty> = mutableMapOf(
             "Name" to ApiNotionProperty.Title(
@@ -378,6 +395,19 @@ class TasksRepository @Inject constructor(
                 )
             )
         }
+        if (parentId != null) {
+            properties["Parent item"] = ApiNotionProperty.Relation(
+                relation = listOf(
+                    NotionRelationTarget(
+                        id = parentId
+                    )
+                )
+            )
+        } else {
+            properties["Parent item"] = ApiNotionProperty.Relation(
+                relation = emptyList()
+            )
+        }
         return properties
     }
 
@@ -395,6 +425,10 @@ class TasksRepository @Inject constructor(
 
     suspend fun loadTask(entryId: String): NotionEntry {
         return dao.getEntry(entryId).notionEntry
+    }
+
+    fun searchParents(query: String): Flow<List<NotionEntryWithParent>> {
+        return dao.searchParents(query)
     }
 }
 

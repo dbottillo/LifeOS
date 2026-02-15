@@ -155,6 +155,7 @@ data class AddPageNotionProperty(
     val select: AddPageNotionPropertySelect? = null,
     val status: AddPageNotionPropertySelect? = null,
     val date: AddPageNotionPropertyDate? = null,
+    val relation: List<NotionRelationTarget>? = null
 )
 
 sealed class ApiNotionProperty {
@@ -179,6 +180,9 @@ sealed class ApiNotionProperty {
 
     @JsonClass(generateAdapter = true)
     data class Date(val date: AddPageNotionPropertyDate) : ApiNotionProperty()
+
+    @JsonClass(generateAdapter = true)
+    data class Relation(val relation: List<NotionRelationTarget>) : ApiNotionProperty()
 }
 
 @JsonClass(generateAdapter = true)
@@ -199,6 +203,11 @@ data class AddPageNotionPropertySelect(
 @JsonClass(generateAdapter = true)
 data class AddPageNotionPropertyDate(
     val start: String
+)
+
+@JsonClass(generateAdapter = true)
+data class NotionRelationTarget(
+    val id: String
 )
 
 @JsonClass(generateAdapter = true)

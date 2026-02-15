@@ -46,6 +46,12 @@ interface NotionEntryDao {
     fun getGoals(): Flow<List<NotionEntryWithParent>>
 
     @Transaction
+    @Query(
+        "SELECT * FROM notionEntry WHERE type IN ('Folder', 'Area') AND title LIKE '%' || :query || '%' ORDER BY title ASC"
+    )
+    fun searchParents(query: String): Flow<List<NotionEntryWithParent>>
+
+    @Transaction
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertAll(vararg entries: NotionEntry)
 
