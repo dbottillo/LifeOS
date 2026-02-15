@@ -12,7 +12,7 @@
       "filters": [],
       "attributes": [],
       "versionCode": 33,
-      "versionName": "2026-01-20",
+      "versionName": "2026-02-15",
       "outputFile": "app-release.apk"
     }
   ],
@@ -33,5 +33,5 @@
       ]
     }
   ],
-  "minSdkVersionForDexing": 28
+  "minSdkVersionForDexing": 29
 }

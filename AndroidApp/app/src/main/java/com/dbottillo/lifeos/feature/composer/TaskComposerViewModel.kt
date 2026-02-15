@@ -15,8 +15,6 @@ import com.dbottillo.lifeos.db.NotionEntryWithParent
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.text.SimpleDateFormat
@@ -253,7 +251,6 @@ sealed class ComposerState {
         val statusSelection: String = "Backlog",
         val statusSelectorOptions: List<String> = listOf(
             "Focus",
-            "Next week",
             "Backlog",
             "Recurring",
             "Archive",

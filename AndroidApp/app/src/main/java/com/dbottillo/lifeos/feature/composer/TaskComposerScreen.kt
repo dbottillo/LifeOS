@@ -619,8 +619,11 @@ fun ParentSuggestionSection(
                     val isSelected = parent.notionEntry.uid == selectedParentId
                     AssistChip(
                         onClick = {
-                            if (isSelected) onClearParentSelected()
-                            else onParentSelected(parent)
+                            if (isSelected) {
+                                onClearParentSelected()
+                            } else {
+                                onParentSelected(parent)
+                            }
                         },
                         label = { Text(parent.notionEntry.title ?: "Untitled") },
                         trailingIcon = if (isSelected) {
@@ -631,7 +634,9 @@ fun ParentSuggestionSection(
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
-                        } else null
+                        } else {
+                            null
+                        }
                     )
                 }
             }

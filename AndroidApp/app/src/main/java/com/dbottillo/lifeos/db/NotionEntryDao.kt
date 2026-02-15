@@ -47,7 +47,17 @@ interface NotionEntryDao {
 
     @Transaction
     @Query(
-        "SELECT * FROM notionEntry WHERE type IN ('Folder', 'Area') AND title LIKE '%' || :query || '%' ORDER BY title ASC"
+        """
+        SELECT N.* FROM notionEntry N
+        LEFT JOIN (
+            SELECT parentId, COUNT(*) AS child_count
+            FROM notionEntry
+            WHERE parentId IS NOT NULL
+            GROUP BY parentId
+        ) AS C ON N.uid = C.parentId
+        WHERE N.type IN ('Folder', 'Area') AND N.title LIKE '%' || :query || '%'
+        ORDER BY C.child_count DESC, N.title ASC
+        """
     )
     fun searchParents(query: String): Flow<List<NotionEntryWithParent>>
 

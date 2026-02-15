@@ -21,3 +21,4 @@ The notion database has the following properties:
 - The app is distributed via an APK on Google Drive folder, no Play Store. That means that if there is an issue with the database I can just re-install it from scratch easily.
 - Try to use clean architecture when possible: UI -> Use case/Repository -> Network/database.
 - When asked to create a plan, do create a markdown file inside the gemini/ folder as the result.
+- When creating or updating a plan, do not ask to implement it straight away. Just leave that to me in a follow up prompt.
