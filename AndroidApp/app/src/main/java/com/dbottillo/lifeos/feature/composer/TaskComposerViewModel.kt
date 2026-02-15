@@ -203,8 +203,7 @@ class TaskComposerViewModel @Inject constructor(
             state.value = dataState().copy(
                 selectedParentId = notionEntryWithParent.notionEntry.uid,
                 selectedParentTitle = notionEntryWithParent.notionEntry.title,
-                parentSearchQuery = "",
-                parentSearchResults = emptyList()
+                parentSearchQuery = ""
             )
         }
     }

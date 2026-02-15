@@ -13,3 +13,4 @@ AndroidApp/build
 AndroidApp/projectFilesBackup
 lifeoskeystore.jks
 AndroidApp/app/release/*
+AndroidApp/.kotlin/*

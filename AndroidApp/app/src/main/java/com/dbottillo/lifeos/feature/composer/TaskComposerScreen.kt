@@ -354,7 +354,7 @@ private fun TaskComposerScreenDataContent(
                     )
                 }
                 ParentSuggestionSection(
-                    selectedParentTitle = state.selectedParentTitle,
+                    selectedParentId = state.selectedParentId,
                     parentSearchQuery = state.parentSearchQuery,
                     parentSearchResults = state.parentSearchResults,
                     onParentSearchQueryChanged = onParentSearchQueryChanged,
@@ -466,7 +466,7 @@ private fun TaskComposerScreenContentDialog(
                     )
                 }
                 ParentSuggestionSection(
-                    selectedParentTitle = state.selectedParentTitle,
+                    selectedParentId = state.selectedParentId,
                     parentSearchQuery = state.parentSearchQuery,
                     parentSearchResults = state.parentSearchResults,
                     onParentSearchQueryChanged = onParentSearchQueryChanged,
@@ -599,7 +599,7 @@ fun DatePickerModal(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ParentSuggestionSection(
-    selectedParentTitle: String?,
+    selectedParentId: String?,
     parentSearchQuery: String,
     parentSearchResults: List<NotionEntryWithParent>,
     onParentSearchQueryChanged: (String) -> Unit,
@@ -613,29 +613,29 @@ fun ParentSuggestionSection(
             onValueChange = onParentSearchQueryChanged,
             label = { Text("Search Parent") },
         )
-        if (selectedParentTitle != null) {
-            AssistChip(
-                onClick = onClearParentSelected, // Clicking the chip itself clears it
-                label = { Text(selectedParentTitle) },
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.Close,
-                        contentDescription = "Clear parent",
-                        modifier = Modifier.size(18.dp)
-                    )
-                },
-                modifier = Modifier.padding(top = 8.dp)
-            )
-        } else if (parentSearchResults.isNotEmpty()) {
+        if (parentSearchResults.isNotEmpty()) {
             FlowRow(
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 parentSearchResults.forEach { parent ->
+                    val isSelected = parent.notionEntry.uid == selectedParentId
                     AssistChip(
-                        onClick = { onParentSelected(parent) },
-                        label = { Text(parent.notionEntry.title ?: "Untitled") }
+                        onClick = {
+                            if (isSelected) onClearParentSelected()
+                            else onParentSelected(parent)
+                        },
+                        label = { Text(parent.notionEntry.title ?: "Untitled") },
+                        trailingIcon = if (isSelected) {
+                            {
+                                Icon(
+                                    imageVector = Icons.Filled.Close,
+                                    contentDescription = "Clear parent",
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        } else null
                     )
                 }
             }
