@@ -442,25 +442,21 @@ private fun TaskComposerScreenContentDialog(
                         .fillMaxWidth(),
                 ) {
                     Selector(
-                        modifier = Modifier.weight(0.5f),
+                        modifier = Modifier.weight(0.33f),
                         prefix = "Type",
                         selection = state.typeSelection,
                         options = state.typeSelectorOptions,
                         onOptionSelected = onTypeSelected
                     )
                     Selector(
-                        modifier = Modifier.weight(0.5f),
+                        modifier = Modifier.weight(0.33f),
                         prefix = "Status",
                         selection = state.statusSelection,
                         options = state.statusSelectorOptions,
                         onOptionSelected = onStatusSelected
                     )
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
                     DueDatePicker(
+                        modifier = Modifier.weight(0.33f),
                         dueDate = state.formattedDate,
                         onSelectDate = onSelectDate
                     )

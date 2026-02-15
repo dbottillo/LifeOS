@@ -69,10 +69,7 @@ class TaskComposerViewModel @Inject constructor(
     val events: Channel<ComposerEvents> = Channel()
 
     private val _parentSearchQuery = MutableStateFlow("")
-    val parentSearchQuery: StateFlow<String> = _parentSearchQuery
-
     private val _parentSearchResults = MutableStateFlow<List<NotionEntryWithParent>>(emptyList())
-    val parentSearchResults: StateFlow<List<NotionEntryWithParent>> = _parentSearchResults
 
     init {
         viewModelScope.launch {
@@ -262,7 +259,7 @@ sealed class ComposerState {
             "Archive",
             "Done"
         ),
-        val parentSelectorOptions: List<String> = emptyList(),
+
         val selectedParentId: String? = null,
         val selectedParentTitle: String? = null,
         val parentSearchQuery: String = "",
