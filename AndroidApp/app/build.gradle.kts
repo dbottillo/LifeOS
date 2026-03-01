@@ -13,11 +13,14 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.screenshot)
 }
 
 android {
     compileSdk = 36
     buildToolsVersion = "36.0.0"
+
+    experimentalProperties["android.experimental.enableScreenshotTest"] = true
 
     defaultConfig {
         applicationId = "com.dbottillo.lifeos"
@@ -79,6 +82,13 @@ android {
         lintConfig = file("$rootDir/config/lint/lint.xml")
     }
 
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+        unitTests.all {
+            it.useJUnitPlatform()
+        }
+    }
+
     namespace = "com.dbottillo.lifeos"
 }
 
@@ -129,4 +139,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
     implementation(libs.androidx.material3.adaptive.navigation3)
     implementation(libs.kotlinx.serialization.core)
+
+    testImplementation(libs.bundles.test)
+    testRuntimeOnly(libs.junit.engine)
+    testRuntimeOnly(libs.junit.launcher)
 }
