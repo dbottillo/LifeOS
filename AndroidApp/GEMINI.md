@@ -22,3 +22,6 @@ The notion database has the following properties:
 - Try to use clean architecture when possible: UI -> Use case/Repository -> Network/database.
 - When asked to create a plan, do create a markdown file inside the gemini/ folder as the result.
 - When creating or updating a plan, do not ask to implement it straight away. Just leave that to me in a follow up prompt.
+
+## Testing instructions
+- Never use `when` notation, always prefer whenever instead.

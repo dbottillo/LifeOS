@@ -9,7 +9,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
+import org.mockito.kotlin.whenever
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
@@ -24,7 +24,7 @@ class WeeklyTasksUseCaseTest {
     fun setUp() {
         Locale.setDefault(Locale.UK)
         tasksRepository = mock(TasksRepository::class.java)
-        `when`(tasksRepository.soonFlow).thenReturn(soonFlow)
+        whenever(tasksRepository.soonFlow).thenReturn(soonFlow)
         underTest = WeeklyTasksUseCase(tasksRepository)
     }
 
