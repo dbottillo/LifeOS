@@ -210,6 +210,7 @@ class TasksRepository @Inject constructor(
         type: String?,
         status: String?,
         due: Long? = null,
+        hasTime: Boolean = false,
         parentId: String? = null
     ): ApiResult<Unit> {
         return try {
@@ -219,6 +220,7 @@ class TasksRepository @Inject constructor(
                 type = type,
                 status = status,
                 due = due,
+                hasTime = hasTime,
                 parentId = parentId
             )
             val request = AddPageNotionBodyRequest(
@@ -248,6 +250,7 @@ class TasksRepository @Inject constructor(
         type: String?,
         status: String?,
         due: Long? = null,
+        hasTime: Boolean = false,
         parentId: String? = null
     ): ApiResult<Unit> {
         try {
@@ -257,6 +260,7 @@ class TasksRepository @Inject constructor(
                 type = type,
                 status = status,
                 due = due,
+                hasTime = hasTime,
                 parentId = parentId
             )
             val request = UpdatePropertiesBodyRequest(
@@ -297,6 +301,7 @@ class TasksRepository @Inject constructor(
         type: String?,
         status: String?,
         due: Long? = null,
+        hasTime: Boolean = false,
         parentId: String? = null
     ): MutableMap<String, AddPageNotionProperty> {
         val properties = mutableMapOf(
@@ -328,7 +333,7 @@ class TasksRepository @Inject constructor(
             )
         }
         if (due != null && due > -1) {
-            val date = dateFormat.format(Date(due))
+            val date = if (hasTime) iso8601DateFormat.format(Date(due)) else dateFormat.format(Date(due))
             properties["Due"] = AddPageNotionProperty(
                 date = AddPageNotionPropertyDate(
                     start = date
@@ -353,6 +358,7 @@ class TasksRepository @Inject constructor(
         type: String?,
         status: String?,
         due: Long? = null,
+        hasTime: Boolean = false,
         parentId: String? = null
     ): MutableMap<String, ApiNotionProperty> {
         val properties: MutableMap<String, ApiNotionProperty> = mutableMapOf(
@@ -388,7 +394,7 @@ class TasksRepository @Inject constructor(
             )
         }
         if (due != null && due > -1) {
-            val date = dateFormat.format(Date(due))
+            val date = if (hasTime) iso8601DateFormat.format(Date(due)) else dateFormat.format(Date(due))
             properties["Due"] = ApiNotionProperty.Date(
                 date = AddPageNotionPropertyDate(
                     start = date
@@ -461,3 +467,6 @@ fun String.mapColor(): String {
 
 @SuppressLint("ConstantLocale")
 val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+@SuppressLint("ConstantLocale")
+val iso8601DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.getDefault())

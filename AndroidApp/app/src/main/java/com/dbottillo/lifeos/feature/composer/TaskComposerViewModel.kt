@@ -50,11 +50,32 @@ class TaskComposerViewModel @Inject constructor(
                 val date = notionEntryDateMapper.map(entry)?.first
                 val parentEntry = entry.parentId?.let { tasksRepository.loadTask(it) }
 
+                var selectedDueTime: Pair<Int, Int>? = null
+                var selectedDueDate: Long? = date?.time
+                if (date != null && entry.startDate?.contains("T") == true) {
+                    val localCalendar = java.util.Calendar.getInstance()
+                    localCalendar.time = date
+                    selectedDueTime = localCalendar.get(java.util.Calendar.HOUR_OF_DAY) to localCalendar.get(java.util.Calendar.MINUTE)
+
+                    val utcCalendar = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))
+                    utcCalendar.set(
+                        localCalendar.get(java.util.Calendar.YEAR),
+                        localCalendar.get(java.util.Calendar.MONTH),
+                        localCalendar.get(java.util.Calendar.DAY_OF_MONTH),
+                        0,
+                        0,
+                        0
+                    )
+                    utcCalendar.set(java.util.Calendar.MILLISECOND, 0)
+                    selectedDueDate = utcCalendar.timeInMillis
+                }
+
                 state.value = ComposerState.Data(
                     entryId = input.entryId,
                     title = entry.title ?: "",
                     link = entry.link ?: "",
-                    selectedDueDate = date?.time,
+                    selectedDueDate = selectedDueDate,
+                    selectedDueTime = selectedDueTime,
                     statusSelection = entry.status,
                     typeSelection = entry.type,
                     selectedParentId = parentEntry?.uid,
@@ -103,7 +124,8 @@ class TaskComposerViewModel @Inject constructor(
                 url = value.sanitizedUrl,
                 type = value.typeSelection,
                 status = value.statusSelection,
-                due = value.selectedDueDate,
+                due = getCombinedDueTimestamp(value.selectedDueDate, value.selectedDueTime),
+                hasTime = value.selectedDueTime != null,
                 parentId = value.selectedParentId
             )
             events.trySend(ComposerEvents.Finish)
@@ -122,7 +144,8 @@ class TaskComposerViewModel @Inject constructor(
                 link = value.sanitizedUrl,
                 type = value.typeSelection,
                 status = value.statusSelection,
-                due = value.selectedDueDate,
+                due = getCombinedDueTimestamp(value.selectedDueDate, value.selectedDueTime),
+                hasTime = value.selectedDueTime != null,
                 parentId = value.selectedParentId
             )
             if (result is ApiResult.Success) {
@@ -134,6 +157,24 @@ class TaskComposerViewModel @Inject constructor(
                 editingInProgress = false
             )
         }
+    }
+
+    private fun getCombinedDueTimestamp(date: Long?, time: Pair<Int, Int>?): Long? {
+        if (date == null) return null
+        if (time == null) return date
+        val utcCalendar = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))
+        utcCalendar.timeInMillis = date
+        val localCalendar = java.util.Calendar.getInstance()
+        localCalendar.set(
+            utcCalendar.get(java.util.Calendar.YEAR),
+            utcCalendar.get(java.util.Calendar.MONTH),
+            utcCalendar.get(java.util.Calendar.DAY_OF_MONTH),
+            time.first,
+            time.second
+        )
+        localCalendar.set(java.util.Calendar.SECOND, 0)
+        localCalendar.set(java.util.Calendar.MILLISECOND, 0)
+        return localCalendar.timeInMillis
     }
 
     fun onTitleChange(newTitle: String) {
@@ -180,7 +221,26 @@ class TaskComposerViewModel @Inject constructor(
         viewModelScope.launch {
             state.value = dataState().copy(
                 selectedDueDate = newDate,
+                selectedDueTime = null,
                 showDueDatePicker = false
+            )
+        }
+    }
+
+    fun onDateAndTimeSelected(newDate: Long?, hour: Int, minute: Int) {
+        viewModelScope.launch {
+            state.value = dataState().copy(
+                selectedDueDate = newDate,
+                selectedDueTime = hour to minute,
+                showDueDatePicker = false
+            )
+        }
+    }
+
+    fun onClearTime() {
+        viewModelScope.launch {
+            state.value = dataState().copy(
+                selectedDueTime = null
             )
         }
     }
@@ -263,11 +323,28 @@ sealed class ComposerState {
         val parentSearchResults: List<NotionEntryWithParent> = emptyList(),
         val showDueDatePicker: Boolean = false,
         val selectedDueDate: Long? = null,
+        val selectedDueTime: Pair<Int, Int>? = null,
         val editingInProgress: Boolean = false
     ) : ComposerState() {
         val sanitizedUrl = link.split("?").first()
         val saveArticleEnabled = sanitizedUrl.isNotEmpty() && selectedDueDate == null
-        val formattedDate = selectedDueDate?.let { formatter.format(Date(selectedDueDate)) }
+        val formattedDate = selectedDueDate?.let {
+            if (selectedDueTime != null) {
+                val utcCalendar = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"))
+                utcCalendar.timeInMillis = selectedDueDate
+                val localCalendar = java.util.Calendar.getInstance()
+                localCalendar.set(
+                    utcCalendar.get(java.util.Calendar.YEAR),
+                    utcCalendar.get(java.util.Calendar.MONTH),
+                    utcCalendar.get(java.util.Calendar.DAY_OF_MONTH),
+                    selectedDueTime.first,
+                    selectedDueTime.second
+                )
+                formatterWithTime.format(localCalendar.time)
+            } else {
+                formatter.format(Date(selectedDueDate))
+            }
+        }
         val showArticle: Boolean = entryId == null
         val editTaskMode = entryId != null
     }
@@ -275,6 +352,9 @@ sealed class ComposerState {
 
 @SuppressLint("ConstantLocale")
 val formatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+
+@SuppressLint("ConstantLocale")
+val formatterWithTime = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
 
 sealed class ComposerEvents {
     data object Finish : ComposerEvents()

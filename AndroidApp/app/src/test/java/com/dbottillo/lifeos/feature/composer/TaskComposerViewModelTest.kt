@@ -98,6 +98,56 @@ class TaskComposerViewModelTest {
             cancelAndIgnoreRemainingEvents()
         }
     }
+
+    @Test
+    fun `onDateSelected clears time and updates state`() = runTest(testDispatcher) {
+        underTest.init(ComposerInput(entryId = null))
+        advanceUntilIdle()
+
+        val date = 123456789L
+        underTest.onDateSelected(date)
+        advanceUntilIdle()
+
+        underTest.state.test {
+            val state = awaitItem() as ComposerState.Data
+            assertThat(state.selectedDueDate).isEqualTo(date)
+            assertThat(state.selectedDueTime).isNull()
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `onDateAndTimeSelected updates state with both`() = runTest(testDispatcher) {
+        underTest.init(ComposerInput(entryId = null))
+        advanceUntilIdle()
+
+        val date = 123456789L
+        underTest.onDateAndTimeSelected(date, 14, 30)
+        advanceUntilIdle()
+
+        underTest.state.test {
+            val state = awaitItem() as ComposerState.Data
+            assertThat(state.selectedDueDate).isEqualTo(date)
+            assertThat(state.selectedDueTime).isEqualTo(14 to 30)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `onClearTime removes time from state`() = runTest(testDispatcher) {
+        underTest.init(ComposerInput(entryId = null))
+        advanceUntilIdle()
+
+        underTest.onDateAndTimeSelected(123456789L, 14, 30)
+        underTest.onClearTime()
+        advanceUntilIdle()
+
+        underTest.state.test {
+            val state = awaitItem() as ComposerState.Data
+            assertThat(state.selectedDueTime).isNull()
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
 }
 
 private fun <T> any(): T = org.mockito.kotlin.any()

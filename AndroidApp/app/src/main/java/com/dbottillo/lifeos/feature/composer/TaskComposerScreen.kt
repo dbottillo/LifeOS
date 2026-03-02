@@ -4,6 +4,8 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +20,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -26,19 +31,17 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Icon
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -92,6 +95,7 @@ fun TaskComposerScreen(
         onStatusSelected = viewModel::onStatusSelected,
         onSelectDate = viewModel::onSelectDate,
         onDateSelected = viewModel::onDateSelected,
+        onDateAndTimeSelected = viewModel::onDateAndTimeSelected,
         onDateSelectionDismiss = viewModel::onDateSelectionDismiss,
         onParentSelected = viewModel::onParentSelected,
         onParentSearchQueryChanged = viewModel::onParentSearchQueryChanged,
@@ -111,6 +115,7 @@ private fun TaskComposerScreenContent(
     onStatusSelected: (String) -> Unit,
     onSelectDate: () -> Unit,
     onDateSelected: (Long?) -> Unit,
+    onDateAndTimeSelected: (Long?, Int, Int) -> Unit,
     onDateSelectionDismiss: () -> Unit,
     onParentSelected: (NotionEntryWithParent) -> Unit,
     onParentSearchQueryChanged: (String) -> Unit,
@@ -168,6 +173,7 @@ private fun TaskComposerScreenContent(
                 onStatusSelected = onStatusSelected,
                 onSelectDate = onSelectDate,
                 onDateSelected = onDateSelected,
+                onDateAndTimeSelected = onDateAndTimeSelected,
                 onDateSelectionDismiss = onDateSelectionDismiss,
                 onParentSelected = onParentSelected,
                 onParentSearchQueryChanged = onParentSearchQueryChanged,
@@ -257,6 +263,7 @@ fun TaskComposerScreenDialog(
                 onStatusSelected = viewModel::onStatusSelected,
                 onSelectDate = viewModel::onSelectDate,
                 onDateSelected = viewModel::onDateSelected,
+                onDateAndTimeSelected = viewModel::onDateAndTimeSelected,
                 onDateSelectionDismiss = viewModel::onDateSelectionDismiss,
                 onParentSelected = viewModel::onParentSelected,
                 onParentSearchQueryChanged = viewModel::onParentSearchQueryChanged,
@@ -267,6 +274,7 @@ fun TaskComposerScreenDialog(
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun TaskComposerScreenDataContent(
     state: ComposerState,
     onTitleChange: (String) -> Unit = {},
@@ -275,6 +283,7 @@ private fun TaskComposerScreenDataContent(
     onStatusSelected: (String) -> Unit,
     onSelectDate: () -> Unit,
     onDateSelected: (Long?) -> Unit,
+    onDateAndTimeSelected: (Long?, Int, Int) -> Unit,
     onDateSelectionDismiss: () -> Unit,
     onParentSelected: (NotionEntryWithParent) -> Unit,
     onParentSearchQueryChanged: (String) -> Unit,
@@ -294,8 +303,9 @@ private fun TaskComposerScreenDataContent(
         }
         is ComposerState.Data -> {
             if (state.showDueDatePicker) {
-                DatePickerModal(
+                DueDateTimePickerModal(
                     onDateSelected = onDateSelected,
+                    onDateAndTimeSelected = onDateAndTimeSelected,
                     onDismiss = onDateSelectionDismiss
                 )
             }
@@ -370,6 +380,7 @@ private fun TaskComposerScreenDataContent(
 }
 
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 private fun TaskComposerScreenContentDialog(
     state: ComposerState,
     onTitleChange: (String) -> Unit = {},
@@ -380,6 +391,7 @@ private fun TaskComposerScreenContentDialog(
     onStatusSelected: (String) -> Unit,
     onSelectDate: () -> Unit,
     onDateSelected: (Long?) -> Unit,
+    onDateAndTimeSelected: (Long?, Int, Int) -> Unit,
     onDateSelectionDismiss: () -> Unit,
     onParentSelected: (NotionEntryWithParent) -> Unit,
     onParentSearchQueryChanged: (String) -> Unit,
@@ -399,8 +411,9 @@ private fun TaskComposerScreenContentDialog(
         }
         is ComposerState.Data -> {
             if (state.showDueDatePicker) {
-                DatePickerModal(
+                DueDateTimePickerModal(
                     onDateSelected = onDateSelected,
+                    onDateAndTimeSelected = onDateAndTimeSelected,
                     onDismiss = onDateSelectionDismiss
                 )
             }
@@ -566,33 +579,100 @@ fun DueDatePicker(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DatePickerModal(
+fun DueDateTimePickerModal(
     onDateSelected: (Long?) -> Unit,
+    onDateAndTimeSelected: (Long?, Int, Int) -> Unit,
     onDismiss: () -> Unit
 ) {
     val datePickerState = rememberDatePickerState()
+    val timePickerState = rememberTimePickerState()
+    var showTimePicker by remember { mutableStateOf(false) }
+    var setTimeEnabled by remember { mutableStateOf(false) }
 
-    DatePickerDialog(
-        onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = {
-                onDateSelected(datePickerState.selectedDateMillis)
-                onDismiss()
-            }) {
-                Text("OK")
+    if (!showTimePicker) {
+        DatePickerDialog(
+            onDismissRequest = onDismiss,
+            confirmButton = {
+                TextButton(onClick = {
+                    if (setTimeEnabled) {
+                        showTimePicker = true
+                    } else {
+                        onDateSelected(datePickerState.selectedDateMillis)
+                        onDismiss()
+                    }
+                }) {
+                    Text(if (setTimeEnabled) "Next" else "OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
             }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
+        ) {
+            Column {
+                DatePicker(state = datePickerState)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .padding(bottom = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text("Set time")
+                    Switch(
+                        checked = setTimeEnabled,
+                        onCheckedChange = { setTimeEnabled = it }
+                    )
+                }
             }
         }
-    ) {
-        DatePicker(state = datePickerState)
+    } else {
+        Dialog(onDismissRequest = onDismiss) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                shape = RoundedCornerShape(16.dp),
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Select time",
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.padding(bottom = 20.dp)
+                    )
+                    TimePicker(state = timePickerState)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 24.dp),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(onClick = { showTimePicker = false }) {
+                            Text("Back")
+                        }
+                        TextButton(onClick = {
+                            onDateAndTimeSelected(
+                                datePickerState.selectedDateMillis,
+                                timePickerState.hour,
+                                timePickerState.minute
+                            )
+                            onDismiss()
+                        }) {
+                            Text("Confirm")
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun ParentSuggestionSection(
     selectedParentId: String?,

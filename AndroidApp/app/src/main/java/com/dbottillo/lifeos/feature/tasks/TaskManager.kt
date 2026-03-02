@@ -31,6 +31,7 @@ class TaskManager @Inject constructor(
         type: String,
         status: String,
         due: Long?,
+        hasTime: Boolean,
         parentId: String?
     ): Operation {
         val request = OneTimeWorkRequestBuilder<AddTaskWorker>()
@@ -44,6 +45,7 @@ class TaskManager @Inject constructor(
                     ADD_PAGE_TYPE to type,
                     ADD_PAGE_STATUS to status,
                     ADD_PAGE_DUE to due,
+                    ADD_PAGE_HAS_TIME to hasTime,
                     ADD_PAGE_PARENT_ID to parentId
                 )
             )
@@ -64,5 +66,6 @@ internal const val ADD_PAGE_URL = "url"
 internal const val ADD_PAGE_TYPE = "type"
 internal const val ADD_PAGE_STATUS = "status"
 internal const val ADD_PAGE_DUE = "due"
+internal const val ADD_PAGE_HAS_TIME = "hasTime"
 internal const val ADD_PAGE_ID = "uuid"
 internal const val ADD_PAGE_PARENT_ID = "parentId"

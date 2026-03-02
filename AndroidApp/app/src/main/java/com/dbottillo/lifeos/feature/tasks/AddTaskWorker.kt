@@ -34,6 +34,7 @@ class AddTaskWorker @AssistedInject constructor(
             val type = inputData.getString(ADD_PAGE_TYPE)
             val status = inputData.getString(ADD_PAGE_STATUS)
             val due = inputData.getLong(ADD_PAGE_DUE, -1)
+            val hasTime = inputData.getBoolean(ADD_PAGE_HAS_TIME, false)
             val parentId = inputData.getString(ADD_PAGE_PARENT_ID)
             notificationManager.sendOrUpdateInfoNotification(
                 id = id,
@@ -52,6 +53,7 @@ class AddTaskWorker @AssistedInject constructor(
                 type = type,
                 status = status,
                 due = due,
+                hasTime = hasTime,
                 parentId = parentId
             )
             if (result is ApiResult.Success) {
