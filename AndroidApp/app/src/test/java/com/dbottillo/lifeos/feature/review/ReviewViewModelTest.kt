@@ -56,9 +56,9 @@ class ReviewViewModelTest {
 
             assertThat(awaitItem().refreshing).isTrue()
             assertThat(awaitItem().refreshing).isFalse()
-            
+
             verify(widgetsRefresher).refreshAll()
-            
+
             cancelAndIgnoreRemainingEvents()
         }
     }
@@ -69,11 +69,11 @@ class ReviewViewModelTest {
             awaitItem() // initial
 
             underTest.bottomSelection(ReviewBottomType.RESOURCES)
-            
+
             val updatedState = awaitItem()
             assertThat(updatedState.bottom.selection.find { it.type == ReviewBottomType.RESOURCES }?.selected).isTrue()
             assertThat(updatedState.bottom.selection.find { it.type == ReviewBottomType.FOLDERS }?.selected).isFalse()
-            
+
             cancelAndIgnoreRemainingEvents()
         }
     }

@@ -1,12 +1,8 @@
 package com.dbottillo.lifeos.ui
 
-import androidx.compose.ui.graphics.Color
 import com.dbottillo.lifeos.feature.tasks.Inbox
 import com.dbottillo.lifeos.feature.tasks.Parent
 import com.dbottillo.lifeos.feature.tasks.Folder
-import com.dbottillo.lifeos.feature.tasks.Soon
-import com.dbottillo.lifeos.feature.tasks.Area
-import com.dbottillo.lifeos.feature.tasks.Resource
 import com.dbottillo.lifeos.feature.tasks.Goal
 import com.dbottillo.lifeos.feature.tasks.Status
 import com.google.common.truth.Truth.assertThat

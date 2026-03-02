@@ -48,7 +48,7 @@ class TasksMapperTest {
     @Test
     fun `NotionEntryDateMapper maps date and time correctly`() {
         val entry = createNotionEntry(startDate = "2024-03-01T15:30:00")
-        
+
         val result = dateMapper.map(entry)
 
         assertThat(result?.second).isEqualTo("01/03 15:30")
@@ -57,7 +57,7 @@ class TasksMapperTest {
     @Test
     fun `NotionEntryDateMapper maps date only correctly`() {
         val entry = createNotionEntry(startDate = "2024-03-01")
-        
+
         val result = dateMapper.map(entry)
 
         assertThat(result?.second).isEqualTo("01/03")
@@ -66,7 +66,7 @@ class TasksMapperTest {
     @Test
     fun `NotionEntryDateMapper returns null for null startDate`() {
         val entry = createNotionEntry(startDate = null)
-        
+
         val result = dateMapper.map(entry)
 
         assertThat(result).isNull()

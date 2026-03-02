@@ -33,7 +33,7 @@ class WeeklyTasksUseCaseTest {
         val calendar = Calendar.getInstance()
         calendar.set(2024, Calendar.MARCH, 1, 10, 0)
         val date1 = calendar.time // Friday 01/03
-        
+
         calendar.set(2024, Calendar.MARCH, 2, 11, 0)
         val date2 = calendar.time // Saturday 02/03
 
@@ -58,7 +58,7 @@ class WeeklyTasksUseCaseTest {
                 assertThat(result["Friday 01/03"]).hasSize(2)
                 assertThat(result["Saturday 02/03"]).hasSize(1)
             }
-            
+
             cancelAndIgnoreRemainingEvents()
         }
     }
@@ -80,7 +80,7 @@ class WeeklyTasksUseCaseTest {
                 assertThat(result).hasSize(1)
                 assertThat(result.keys).containsExactly("No date")
             }
-            
+
             cancelAndIgnoreRemainingEvents()
         }
     }

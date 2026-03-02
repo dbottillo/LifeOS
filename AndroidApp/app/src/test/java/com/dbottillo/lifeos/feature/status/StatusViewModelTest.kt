@@ -72,9 +72,9 @@ class StatusViewModelTest {
 
             assertThat(awaitItem().allLoading).isTrue()
             assertThat(awaitItem().allLoading).isFalse()
-            
+
             verify(widgetsRefresher).refreshAll()
-            
+
             cancelAndIgnoreRemainingEvents()
         }
     }

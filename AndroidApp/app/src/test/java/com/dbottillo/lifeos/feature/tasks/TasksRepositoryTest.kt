@@ -34,7 +34,7 @@ class TasksRepositoryTest {
         db = mock(AppDatabase::class.java)
         dao = mock(NotionEntryDao::class.java)
         whenever(db.notionEntryDao()).thenReturn(dao)
-        
+
         // Mocking all flows to avoid NPE during repository initialization
         whenever(dao.getInbox()).thenReturn(flowOf(emptyList()))
         whenever(dao.getFocus()).thenReturn(flowOf(emptyList()))
@@ -44,6 +44,13 @@ class TasksRepositoryTest {
         whenever(dao.getNextWeek()).thenReturn(flowOf(emptyList()))
 
         mapper = mock(TasksMapper::class.java)
+        whenever(mapper.mapInbox(any())).thenReturn(emptyList())
+        whenever(mapper.mapFocus(any())).thenReturn(emptyList())
+        whenever(mapper.mapSoon(any())).thenReturn(emptyList())
+        whenever(mapper.mapFolders(any())).thenReturn(emptyList())
+        whenever(mapper.mapAreas(any())).thenReturn(emptyList())
+        whenever(mapper.mapResources(any())).thenReturn(emptyList())
+
         logsRepository = mock(LogsRepository::class.java)
         underTest = TasksRepository(api, notificationProvider, db, mapper, logsRepository)
     }
@@ -55,17 +62,33 @@ class TasksRepositoryTest {
 
         val result = underTest.loadNextActions()
 
+        if (result.isFailure) {
+            println("Test failed with: ${result.exceptionOrNull()}")
+        }
         assertThat(result.isSuccess).isTrue()
         verify(dao).deleteAndSaveFocusInboxNextWeek(emptyList())
+        verify(notificationProvider).clear()
     }
 
     @Test
     fun `loadNextActions failure returns failure`() = runTest {
         val responseBody = mock(okhttp3.ResponseBody::class.java)
-        whenever(api.queryDatabase(any(), any())).thenReturn(Response.error<NotionDatabaseQueryResult>(500, responseBody))
+        val errorResponse = Response.error<NotionDatabaseQueryResult>(500, responseBody)
+        whenever(api.queryDatabase(any(), any())).thenReturn(errorResponse)
 
         val result = underTest.loadNextActions()
 
         assertThat(result.isFailure).isTrue()
+    }
+
+    @Test
+    fun `loadStaticResources success fetches and stores data`() = runTest {
+        val queryResult = NotionDatabaseQueryResult(results = emptyList(), nextCursor = null)
+        whenever(api.queryDatabase(any(), any())).thenReturn(Response.success(queryResult))
+
+        val result = underTest.loadStaticResources(listOf("Folder"))
+
+        assertThat(result.isSuccess).isTrue()
+        verify(dao).deleteAndSaveStaticResources(any(), any())
     }
 }

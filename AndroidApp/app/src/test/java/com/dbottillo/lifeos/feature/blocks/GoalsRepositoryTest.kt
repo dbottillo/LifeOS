@@ -4,7 +4,6 @@ import com.dbottillo.lifeos.db.AppDatabase
 import com.dbottillo.lifeos.db.NotionEntry
 import com.dbottillo.lifeos.db.NotionEntryDao
 import com.dbottillo.lifeos.db.NotionEntryWithParent
-import com.dbottillo.lifeos.feature.tasks.Goal
 import com.dbottillo.lifeos.feature.tasks.Status
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.flowOf

@@ -10,7 +10,6 @@ import app.cash.turbine.test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -66,12 +65,12 @@ class HomeViewModelTest {
             assertThat(awaitItem().refreshing).isFalse()
 
             underTest.reloadHome()
-            
+
             assertThat(awaitItem().refreshing).isTrue()
             assertThat(awaitItem().refreshing).isFalse()
-            
+
             verify(widgetsRefresher).refreshAll()
-            
+
             cancelAndIgnoreRemainingEvents()
         }
     }
@@ -87,11 +86,11 @@ class HomeViewModelTest {
             underTest.reloadHome()
 
             assertThat(awaitItem().refreshing).isTrue()
-            
+
             val errorState = awaitItem()
             assertThat(errorState.refreshing).isFalse()
             assertThat(errorState.nonBlockingError).isEqualTo(error)
-            
+
             cancelAndIgnoreRemainingEvents()
         }
     }

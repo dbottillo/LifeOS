@@ -9,7 +9,9 @@ import com.google.common.truth.Truth.assertThat
 import app.cash.turbine.test
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -56,36 +58,44 @@ class TaskComposerViewModelTest {
     @Test
     fun `init with null entryId sets state to Data`() = runTest(testDispatcher) {
         val input = ComposerInput(entryId = null, title = "title", url = "url")
-        
+
         underTest.init(input)
+        advanceUntilIdle()
 
         underTest.state.test {
             val state = awaitItem() as ComposerState.Data
             assertThat(state.title).isEqualTo("title")
             assertThat(state.link).isEqualTo("url")
             assertThat(state.entryId).isNull()
+            cancelAndIgnoreRemainingEvents()
         }
     }
 
     @Test
     fun `saveArticle calls articleManager and finishes`() = runTest(testDispatcher) {
         underTest.init(ComposerInput(entryId = null, title = "title", url = "url"))
-        
-        underTest.saveArticle()
+        advanceUntilIdle()
+
+        underTest.events.receiveAsFlow().test {
+            underTest.saveArticle()
+            assertThat(awaitItem()).isEqualTo(ComposerEvents.Finish)
+        }
 
         verify(articleManager).addArticle("title", "url")
-        assertThat(underTest.events.receive()).isEqualTo(ComposerEvents.Finish)
     }
 
     @Test
     fun `onTitleChange updates state`() = runTest(testDispatcher) {
         underTest.init(ComposerInput(entryId = null))
-        
+        advanceUntilIdle()
+
         underTest.onTitleChange("new title")
+        advanceUntilIdle()
 
         underTest.state.test {
             val state = awaitItem() as ComposerState.Data
             assertThat(state.title).isEqualTo("new title")
+            cancelAndIgnoreRemainingEvents()
         }
     }
 }
